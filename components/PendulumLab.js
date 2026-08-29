@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import PendulumCanvas from './PendulumCanvas';
-import MagnifierPanel from './MagnifierPanel';
 import InstrumentMenu from './instruments/InstrumentMenu';
 import Stopwatch from './instruments/Stopwatch';
 import Protractor from './instruments/Protractor';
@@ -39,7 +38,6 @@ export default function PendulumLab() {
     usePendulumPhysics({ length: effectiveLength, dragCapDeg: DRAG_CAP_DEG });
 
   const rulerRef = useRef({ xM: 0.1, yM: 0.55, angleRad: 0 });
-  const markerRef = useRef({ xM: 0.1, yM: 0.55 });
   const printMarginRef = useRef((PRINT_MARGIN_MIN_M + PRINT_MARGIN_MAX_M) / 2);
 
   useEffect(() => {
@@ -62,7 +60,6 @@ export default function PendulumLab() {
           bobRadius={BOB_RADIUS_M}
           dragCapRad={DRAG_CAP_RAD}
           rulerRef={rulerRef}
-          markerRef={markerRef}
           printMarginRef={printMarginRef}
           onBeginDrag={beginDrag}
           onUpdateDrag={updateDrag}
@@ -88,19 +85,10 @@ export default function PendulumLab() {
         <p className="hint">
           Drag the bob to set a release angle (capped at {DRAG_CAP_DEG}°), then press Release.
           Grab the bob again at any time to stop it and reposition it. Drag the ruler by its
-          body to move it, drag its end handle to turn it, and drag the crosshair marker to
-          choose where to read it.
+          body to move it, drag its end handle to turn it, and press and hold anywhere on it
+          to magnify that spot.
         </p>
       </div>
-
-      <MagnifierPanel
-        physicsRef={physicsRef}
-        length={effectiveLength}
-        bobRadius={BOB_RADIUS_M}
-        rulerRef={rulerRef}
-        markerRef={markerRef}
-        printMarginRef={printMarginRef}
-      />
 
       <InstrumentMenu items={INSTRUMENTS} open={open} onToggle={toggleInstrument} />
 
