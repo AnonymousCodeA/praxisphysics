@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { categories, simulations } from '@/data/simulations';
 
@@ -31,13 +32,25 @@ export default async function CategoryPage({ params }) {
           <p className="hint">Nothing here yet. This is where the simulations land.</p>
         ) : (
           <div className="sims">
-            {list.map((s) => (
-              <div className="sim" key={s.slug}>
-                <span className="tag">{s.status.toUpperCase()}</span>
-                <h3>{s.title}</h3>
-                <p>{s.blurb}</p>
-              </div>
-            ))}
+            {list.map((s) => {
+              const inner = (
+                <>
+                  <span className="tag">{s.status.toUpperCase()}</span>
+                  <h3>{s.title}</h3>
+                  <p>{s.blurb}</p>
+                  {s.href && <span className="go">OPEN →</span>}
+                </>
+              );
+              return s.href ? (
+                <Link className="sim" key={s.slug} href={s.href}>
+                  {inner}
+                </Link>
+              ) : (
+                <div className="sim" key={s.slug}>
+                  {inner}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

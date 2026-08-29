@@ -35,11 +35,27 @@ components/
   FieldBackground.js     fixed-canvas cursor "charge field" that warps the page's grid lines
   DiffractionGrating.js  the hero simulation — canonical example for how a sim is built
   Figures.js             small inline-SVG line drawings used on the category cards
+  PendulumLab.js / PendulumCanvas.js
+                          canonical example of a measurement-driven experiment: physics
+                          engine + drag/release, decoupled from the instrument panels
+  instruments/           generic instruments (Stopwatch, Ruler, Protractor, Photogate) —
+                          each takes a true value and applies its own resolution/error,
+                          reusable across experiments
 data/
   simulations.js         categories[] (fixed 6: mechanics, thermodynamics, electromagnetism,
                           waves-optics, modern-physics, mixed-bag) + simulations{} keyed by
                           category slug — add a sim by pushing into the right array
   papers.js               collections[] for past-paper archives
+lib/
+  pendulum/model.mjs      ground-truth physics (accel/verletStep), verified against the exact
+                          AGM period — see docs/pendulum-plan.md. Plain ESM so the same file
+                          runs under Next and under plain Node (scripts/pendulum-verify.mjs)
+  pendulum/usePendulumPhysics.js
+                          wraps model.mjs in a wall-clock fixed-step accumulator; see the
+                          background-continuity exception below
+  instruments/rng.js      session-seeded PRNG for instrument zero-offsets (sessionStorage-
+                          backed seed, deterministic per key — stable across reloads)
+  instruments/reading.js  quantize(value, resolution) — shared by every instrument
 ```
 
 Routes are static/data-driven: `generateStaticParams` reads `data/*.js`, and `notFound()` fires for unknown slugs. There's no CMS or DB — content changes are code changes to the `data/` files.
@@ -68,6 +84,15 @@ Follow `components/DiffractionGrating.js` as the template:
 7. Clean up every listener and `cancelAnimationFrame` in the `useEffect` return.
 8. Use pointer events (`pointerdown`/`pointermove`/`pointerup` + `setPointerCapture`) rather than mouse events so drag works on touch.
 9. Colors for anything glowing should key off `--trace` (`#4EC5FF`, rgba variants at low alpha), composited with `globalCompositeOperation = 'lighter'` for additive light effects — see the beam/fringe rendering.
+
+### Measurement-driven experiments (instruments, timing)
+
+Follow `components/PendulumLab.js` / `lib/pendulum/usePendulumPhysics.js` for anything where a student takes a *reading* of a running simulation, rather than just watching one. Two deliberate departures from the rules above:
+
+- **The physics accumulator must not pause off-screen or backgrounded, even though rendering still does.** Split the two: drive physics on a `setInterval`-based wall-clock accumulator that catches up on real elapsed time (fixed `dt`, no dependence on frame rate — see `usePendulumPhysics.js`), and keep it running for the whole duration of a run regardless of visibility; keep the `requestAnimationFrame` render loop and its `IntersectionObserver` pause exactly as in rule 5. If the physics loop paused with the render loop, a student could background the tab and return to a frictionless, already-finished reading instead of actually timing the thing — that defeats the experiment.
+- **Don't gate the simulation's own motion behind `prefers-reduced-motion`.** That rule is for decorative animation (idle "breathing", the cursor field); a pendulum's swing is the experiment's content, not decoration, so it always runs. Idle/decorative flourishes layered on top of an experiment should still be gated as normal.
+
+Instruments (`components/instruments/*`) are generic and experiment-agnostic: each takes a `trueValue*` prop and applies its own resolution (`lib/instruments/reading.js`'s `quantize`) and, where the experiment calls for it, a fixed session zero-offset (`lib/instruments/rng.js`'s `sessionUniform`, seeded once via `sessionStorage` so it's stable across reloads but not hard-coded). Keep instruments blind to anything but the value they're handed — e.g. the stopwatch must never be given pendulum state, or its "reaction time" error stops being real.
 
 ## Notes
 

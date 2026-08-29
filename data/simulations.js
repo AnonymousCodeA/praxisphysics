@@ -1,5 +1,5 @@
 export const categories = [
-  { slug: 'mechanics',        title: 'Mechanics',        blurb: 'Kinematics, forces, energy, rotation, oscillations.', tag: 'SOON' },
+  { slug: 'mechanics',        title: 'Mechanics',        blurb: 'Kinematics, forces, energy, rotation, oscillations.', tag: '1 LIVE' },
   { slug: 'thermodynamics',   title: 'Thermodynamics',   blurb: 'Heat, gases, kinetic theory, entropy.',               tag: 'SOON' },
   { slug: 'electromagnetism', title: 'Electromagnetism', blurb: 'Circuits, fields, magnetism, induction.',             tag: 'SOON' },
   { slug: 'waves-optics',     title: 'Waves & optics',   blurb: 'Interference, diffraction, lenses, sound.',           tag: '1 LIVE' },
@@ -9,6 +9,15 @@ export const categories = [
 
 // Individual simulations, keyed by category slug. Add to these as you build them.
 export const simulations = {
+  mechanics: [
+    {
+      slug: 'pendulum',
+      title: 'Pendulum',
+      blurb: 'Measure g from small oscillations, then chase the amplitude series.',
+      status: 'live',
+      href: '/simulations/pendulum',
+    },
+  ],
   'waves-optics': [
     {
       slug: 'diffraction-grating',
