@@ -38,9 +38,12 @@ components/
   PendulumLab.js / PendulumCanvas.js
                           canonical example of a measurement-driven experiment: physics
                           engine + drag/release, decoupled from the instrument panels
-  instruments/           generic instruments (Stopwatch, Ruler, Protractor, Photogate) —
+  MagnifierPanel.js       renders the same bench scene as PendulumCanvas, zoomed — see the
+                          shared-draw-function pattern below
+  instruments/            generic digital instruments (Stopwatch, Protractor, Photogate) —
                           each takes a true value and applies its own resolution/error,
-                          reusable across experiments
+                          reusable across experiments. Not every instrument is digital: the
+                          ruler is a draggable object drawn on the bench itself (lib/pendulum/scene.js)
 data/
   simulations.js         categories[] (fixed 6: mechanics, thermodynamics, electromagnetism,
                           waves-optics, modern-physics, mixed-bag) + simulations{} keyed by
@@ -53,6 +56,8 @@ lib/
   pendulum/usePendulumPhysics.js
                           wraps model.mjs in a wall-clock fixed-step accumulator; see the
                           background-continuity exception below
+  pendulum/scene.js       pure canvas draw functions (pivot, string, bob, ruler, read-point
+                          marker) shared verbatim by the bench and the magnifier — see below
   instruments/rng.js      session-seeded PRNG for instrument zero-offsets (sessionStorage-
                           backed seed, deterministic per key — stable across reloads)
   instruments/reading.js  quantize(value, resolution) — shared by every instrument
@@ -93,6 +98,14 @@ Follow `components/PendulumLab.js` / `lib/pendulum/usePendulumPhysics.js` for an
 - **Don't gate the simulation's own motion behind `prefers-reduced-motion`.** That rule is for decorative animation (idle "breathing", the cursor field); a pendulum's swing is the experiment's content, not decoration, so it always runs. Idle/decorative flourishes layered on top of an experiment should still be gated as normal.
 
 Instruments (`components/instruments/*`) are generic and experiment-agnostic: each takes a `trueValue*` prop and applies its own resolution (`lib/instruments/reading.js`'s `quantize`) and, where the experiment calls for it, a fixed session zero-offset (`lib/instruments/rng.js`'s `sessionUniform`, seeded once via `sessionStorage` so it's stable across reloads but not hard-coded). Keep instruments blind to anything but the value they're handed — e.g. the stopwatch must never be given pendulum state, or its "reaction time" error stops being real.
+
+Not every instrument is a digital readout. A physical one (the ruler) is drawn as an object on the bench at true scale — same pixels-per-metre conversion as the pendulum itself — which means its mm ticks are legitimately sub-pixel there; that's the point, not a bug. Reading it needs a magnifier.
+
+### Shared draw functions at different scales (bench + magnifier)
+
+`lib/pendulum/scene.js` exports one `drawScene(ctx, view, state)`, called by both `PendulumCanvas.js` (the full bench, `view.showGuides: true`) and `MagnifierPanel.js` (a small window centred on the read-point marker, higher `view.pxPerM`, no guides). World space is meters with the origin at a fixed point (the pendulum pivot); every object's position is stored in those world coordinates, and each caller supplies its own `{ originX, originY, pxPerM }` to project world → canvas pixels. When a simulation needs a "zoomed" or "magnified" view of the same scene, extend `drawScene` and pass a different `view` — never duplicate the drawing logic into a second component. A view's `pxPerM` is free to be chosen independently per panel (the bench's is constrained by fitting the whole apparatus in a compact canvas; a magnifier should instead be sized off its own panel dimensions and a target real-world field of view, not derived as a fixed multiple of the bench's).
+
+Draggable bench objects (the ruler's body/rotate-handle, the read-point marker) live in refs owned by the parent (`PendulumLab.js`), not React state — nothing outside the canvases needs to react to them, so mutating `ref.current` from `PendulumCanvas`'s pointer handlers and reading it every rAF frame in both canvases avoids needless re-renders. Hit-test small/overlapping targets in priority order (marker before ruler-handle before ruler-body before bob) since a marker parked on top of the ruler must still win.
 
 ## Notes
 

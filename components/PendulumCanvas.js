@@ -1,9 +1,20 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import {
+  drawScene,
+  rulerLocalToPx,
+  rulerHandleLocal,
+  worldToRulerLocal,
+  RULER_LENGTH_M,
+  RULER_WIDTH_M,
+} from '@/lib/pendulum/scene';
 
 const MAX_LENGTH_M = 1.3; // headroom for bob radius, sets the draw scale
 const GRAB_PAD_PX = 30; // touch-friendly hit margin around the bob
+const MARKER_GRAB_PAD_PX = 26;
+const HANDLE_GRAB_PAD_PX = 20;
+const RULER_BODY_GRAB_PAD_PX = 14;
 
 export default function PendulumCanvas({
   physicsRef,
@@ -11,6 +22,9 @@ export default function PendulumCanvas({
   length,
   bobRadius,
   dragCapRad,
+  rulerRef,
+  markerRef,
+  printMarginRef,
   onBeginDrag,
   onUpdateDrag,
 }) {
@@ -31,10 +45,11 @@ export default function PendulumCanvas({
       dpr = 1,
       pxPerM = 1,
       visible = true,
-      raf = 0,
-      dragging = false;
+      raf = 0;
     let pivotX = 0,
       pivotY = 0;
+    let dragTarget = null; // null | 'bob' | 'marker' | 'rulerHandle' | 'rulerBody'
+    let rulerGrabOffset = { dx: 0, dy: 0 };
 
     function resize() {
       const r = cvs.getBoundingClientRect();
@@ -49,69 +64,34 @@ export default function PendulumCanvas({
       pxPerM = (H * 0.82) / MAX_LENGTH_M;
     }
 
-    function bobPos() {
-      const { theta } = physicsRef.current;
-      const L = lengthRef.current;
-      return {
-        x: pivotX + Math.sin(theta) * L * pxPerM,
-        y: pivotY + Math.cos(theta) * L * pxPerM,
-      };
-    }
+    const toPx = (mx, my) => ({ x: pivotX + mx * pxPerM, y: pivotY + my * pxPerM });
+    const toWorld = (px, py) => ({ x: (px - pivotX) / pxPerM, y: (py - pivotY) / pxPerM });
 
     function draw() {
-      ctx.clearRect(0, 0, W, H);
-      const { x, y } = bobPos();
-      const rPx = Math.max(6, bobRadius * pxPerM);
-      const capLen = MAX_LENGTH_M * pxPerM;
-
-      // drag-cap guides
-      ctx.save();
-      ctx.strokeStyle = 'rgba(78,197,255,.14)';
-      ctx.setLineDash([2, 6]);
-      ctx.lineWidth = 1;
-      for (const sign of [-1, 1]) {
-        ctx.beginPath();
-        ctx.moveTo(pivotX, pivotY);
-        ctx.lineTo(
-          pivotX + Math.sin(sign * dragCapRad) * capLen,
-          pivotY + Math.cos(sign * dragCapRad) * capLen
-        );
-        ctx.stroke();
-      }
-      ctx.restore();
-
-      // string
-      ctx.beginPath();
-      ctx.strokeStyle = 'rgba(230,237,243,.7)';
-      ctx.lineWidth = 1.4;
-      ctx.moveTo(pivotX, pivotY);
-      ctx.lineTo(x, y);
-      ctx.stroke();
-
-      // pivot
-      ctx.beginPath();
-      ctx.fillStyle = '#7A8B9C';
-      ctx.arc(pivotX, pivotY, 3.5, 0, 6.2832);
-      ctx.fill();
-
-      // bob
-      const grad = ctx.createRadialGradient(x - rPx * 0.3, y - rPx * 0.3, rPx * 0.1, x, y, rPx);
-      grad.addColorStop(0, '#9EE5FF');
-      grad.addColorStop(1, '#1B7FA8');
-      ctx.beginPath();
-      ctx.fillStyle = grad;
-      ctx.arc(x, y, rPx, 0, 6.2832);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.strokeStyle = 'rgba(78,197,255,.6)';
-      ctx.lineWidth = 1;
-      ctx.arc(x, y, rPx, 0, 6.2832);
-      ctx.stroke();
+      drawScene(
+        ctx,
+        { originX: pivotX, originY: pivotY, pxPerM, width: W, height: H, showGuides: true },
+        {
+          theta: physicsRef.current.theta,
+          length: lengthRef.current,
+          bobRadius,
+          dragCapRad,
+          maxLengthM: MAX_LENGTH_M,
+          ruler: rulerRef.current,
+          rulerPrintMarginM: printMarginRef.current,
+          marker: markerRef.current,
+        }
+      );
     }
 
     function loop() {
       if (visible) draw();
       raf = requestAnimationFrame(loop);
+    }
+
+    function bobPos() {
+      const { theta } = physicsRef.current;
+      return toPx(Math.sin(theta) * lengthRef.current, Math.cos(theta) * lengthRef.current);
     }
 
     function angleFromEvent(e) {
@@ -121,23 +101,82 @@ export default function PendulumCanvas({
       return Math.atan2(px - pivotX, py - pivotY);
     }
 
-    function onDown(e) {
-      const { x, y } = bobPos();
+    function pointerXY(e) {
       const r = cvs.getBoundingClientRect();
-      const px = e.clientX - r.left,
-        py = e.clientY - r.top;
+      return { px: e.clientX - r.left, py: e.clientY - r.top };
+    }
+
+    function onDown(e) {
+      const { px, py } = pointerXY(e);
+
+      // 1. read-point marker — small, and often sits on the ruler, so it
+      // must win the hit-test over the (much larger) ruler body.
+      const markerPx = toPx(markerRef.current.xM, markerRef.current.yM);
+      if (Math.hypot(px - markerPx.x, py - markerPx.y) <= MARKER_GRAB_PAD_PX) {
+        dragTarget = 'marker';
+        cvs.setPointerCapture(e.pointerId);
+        cvs.classList.add('dragging');
+        return;
+      }
+
+      // 2. ruler rotate handle
+      const handleLocal = rulerHandleLocal();
+      const handlePx = rulerLocalToPx(toPx, rulerRef.current, handleLocal.lx, handleLocal.ly);
+      if (Math.hypot(px - handlePx.x, py - handlePx.y) <= HANDLE_GRAB_PAD_PX) {
+        dragTarget = 'rulerHandle';
+        cvs.setPointerCapture(e.pointerId);
+        cvs.classList.add('dragging');
+        return;
+      }
+
+      // 3. ruler body
+      const world = toWorld(px, py);
+      const local = worldToRulerLocal(rulerRef.current, world.x, world.y);
+      const padM = RULER_BODY_GRAB_PAD_PX / pxPerM;
+      if (Math.abs(local.lx) <= RULER_LENGTH_M / 2 + padM && Math.abs(local.ly) <= RULER_WIDTH_M / 2 + padM) {
+        dragTarget = 'rulerBody';
+        rulerGrabOffset = { dx: rulerRef.current.xM - world.x, dy: rulerRef.current.yM - world.y };
+        cvs.setPointerCapture(e.pointerId);
+        cvs.classList.add('dragging');
+        return;
+      }
+
+      // 4. bob
+      const bob = bobPos();
       const rPx = Math.max(6, bobRadius * pxPerM);
-      if (Math.hypot(px - x, py - y) > rPx + GRAB_PAD_PX) return;
-      dragging = true;
-      cvs.setPointerCapture(e.pointerId);
-      cvs.classList.add('dragging');
-      onBeginDrag(angleFromEvent(e));
+      if (Math.hypot(px - bob.x, py - bob.y) <= rPx + GRAB_PAD_PX) {
+        dragTarget = 'bob';
+        cvs.setPointerCapture(e.pointerId);
+        cvs.classList.add('dragging');
+        onBeginDrag(angleFromEvent(e));
+      }
     }
+
     function onMove(e) {
-      if (dragging) onUpdateDrag(angleFromEvent(e));
+      if (!dragTarget) return;
+      const { px, py } = pointerXY(e);
+
+      if (dragTarget === 'marker') {
+        const world = toWorld(px, py);
+        markerRef.current = { xM: world.x, yM: world.y };
+      } else if (dragTarget === 'rulerHandle') {
+        const world = toWorld(px, py);
+        const angleRad = Math.atan2(world.y - rulerRef.current.yM, world.x - rulerRef.current.xM);
+        rulerRef.current = { ...rulerRef.current, angleRad };
+      } else if (dragTarget === 'rulerBody') {
+        const world = toWorld(px, py);
+        rulerRef.current = {
+          ...rulerRef.current,
+          xM: world.x + rulerGrabOffset.dx,
+          yM: world.y + rulerGrabOffset.dy,
+        };
+      } else if (dragTarget === 'bob') {
+        onUpdateDrag(angleFromEvent(e));
+      }
     }
+
     function onUp() {
-      dragging = false;
+      dragTarget = null;
       cvs.classList.remove('dragging');
     }
 
@@ -167,14 +206,14 @@ export default function PendulumCanvas({
       window.removeEventListener('resize', resize);
       if (io) io.disconnect();
     };
-  }, [physicsRef, bobRadius, dragCapRad, onBeginDrag, onUpdateDrag]);
+  }, [physicsRef, bobRadius, dragCapRad, rulerRef, markerRef, printMarginRef, onBeginDrag, onUpdateDrag]);
 
   return (
     <canvas
       id="pendulum-canvas"
       ref={ref}
       className={mode === 'swinging' ? 'swinging' : ''}
-      aria-label="Interactive pendulum. Drag the bob to set a release angle."
+      aria-label="Interactive pendulum bench. Drag the bob to set a release angle, drag the ruler to position it, drag its handle to rotate it, and drag the marker to choose a read point."
     />
   );
 }
