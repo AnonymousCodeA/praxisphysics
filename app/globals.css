@@ -224,9 +224,22 @@ footer{border-top:1px solid var(--edge);padding:34px 0 46px}
   border-radius:3px;padding:7px 12px;cursor:pointer;transition:.16s;
 }
 .instrument-controls button:hover{color:var(--trace);border-color:var(--trace)}
-.photogate-log{max-height:140px;overflow-y:auto;margin-top:8px;font-family:var(--font-mono),monospace;font-size:12px}
-.photogate-log ol{margin:0;padding-left:20px}
-.photogate-log li{color:var(--muted)}
+.photogate-log{
+  max-height:260px;overflow-y:auto;margin-top:8px;
+  font-family:var(--font-mono),monospace;font-size:12px;
+  border:1px solid var(--edge);border-radius:3px;
+}
+.photogate-log-table{width:100%;border-collapse:collapse}
+.photogate-log-table thead th{
+  position:sticky;top:0;background:var(--panel);z-index:1;
+  text-align:right;color:var(--muted);font-weight:400;letter-spacing:.08em;
+  padding:5px 10px;border-bottom:1px solid var(--edge);
+}
+.photogate-log-table thead th:first-child{text-align:left}
+.photogate-log-table td{padding:4px 10px;text-align:right;color:var(--muted)}
+.photogate-log-table td:first-child{text-align:left}
+.photogate-log-table tr:nth-child(even){background:rgba(78,197,255,.03)}
+.photogate-log-table tr.milestone td{color:var(--trace);font-weight:600}
 
 /* ---------- pendulum workspace (tabs / split shell) ---------- */
 .pendulum-workspace{
