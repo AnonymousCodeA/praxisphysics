@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import PendulumCanvas from './PendulumCanvas';
+import PendulumLens from './PendulumLens';
 import InstrumentMenu from './instruments/InstrumentMenu';
 import Stopwatch from './instruments/Stopwatch';
 import Photogate from './instruments/Photogate';
@@ -50,6 +51,8 @@ export default function PendulumLab() {
   const photogateRef = useRef({ ...PHOTOGATE_DEFAULT });
   const printMarginRef = useRef((PRINT_MARGIN_MIN_M + PRINT_MARGIN_MAX_M) / 2);
   const protractorOffsetRef = useRef(0);
+  const lensRef = useRef({ active: false, clientX: 0, clientY: 0, worldX: 0, worldY: 0, pxPerM: 1 });
+  const sceneStateRef = useRef({});
 
   useEffect(() => {
     printMarginRef.current = sessionUniform('ruler-print-margin-m', PRINT_MARGIN_MIN_M, PRINT_MARGIN_MAX_M);
@@ -102,9 +105,12 @@ export default function PendulumLab() {
           printMarginRef={printMarginRef}
           protractorOffsetRef={protractorOffsetRef}
           visible={visible}
+          lensRef={lensRef}
+          sceneStateRef={sceneStateRef}
           onBeginDrag={beginDrag}
           onUpdateDrag={updateDrag}
         />
+        <PendulumLens lensRef={lensRef} sceneStateRef={sceneStateRef} />
         <div className="pendulum-controls">
           <label className="length-control">
             <span>LENGTH</span>

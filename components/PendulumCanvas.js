@@ -26,8 +26,6 @@ const HOLD_MOVE_CANCEL_PX = 6; // moving more than this before the delay elapses
 
 const LENS_ZOOM_MULT = 1.5; // multiple of the bench's own pxPerM, when that's already large enough
 const LENS_MIN_PX_PER_M = 3500; // floor: ~3.5 px/mm, the minimum for adjacent mm ticks to be distinguishable
-const LENS_RADIUS_PX = 70;
-const LENS_OFFSET_PX = LENS_RADIUS_PX + 26; // raised above the pointer so a finger doesn't cover it
 
 export default function PendulumCanvas({
   physicsRef,
@@ -41,6 +39,8 @@ export default function PendulumCanvas({
   printMarginRef,
   protractorOffsetRef,
   visible, // { ruler, protractor, photogate } — current toggle state
+  lensRef, // written here on hold/move/release, read+drawn by PendulumLens
+  sceneStateRef, // written here every frame, read by PendulumLens
   onBeginDrag,
   onUpdateDrag,
 }) {
@@ -76,7 +76,6 @@ export default function PendulumCanvas({
     let grabOffset = { dx: 0, dy: 0 };
     let holdStartPx = { px: 0, py: 0 };
     let holdTimer = null;
-    let lens = { active: false, px: 0, py: 0 };
 
     function resize() {
       const r = cvs.getBoundingClientRect();
@@ -119,41 +118,13 @@ export default function PendulumCanvas({
     }
 
     function draw() {
+      const state = sceneState();
+      sceneStateRef.current = state;
       drawScene(
         ctx,
         { originX: pivotX, originY: pivotY, pxPerM, width: W, height: H, showGuides: true },
-        sceneState()
+        state
       );
-
-      if (lens.active) drawLens();
-    }
-
-    function drawLens() {
-      const lensScreenX = lens.px;
-      const lensScreenY = lens.py - LENS_OFFSET_PX;
-      const world = toWorld(lens.px, lens.py);
-      const lensPxPerM = Math.max(pxPerM * LENS_ZOOM_MULT, LENS_MIN_PX_PER_M);
-      const originX = lensScreenX - world.x * lensPxPerM;
-      const originY = lensScreenY - world.y * lensPxPerM;
-
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(lensScreenX, lensScreenY, LENS_RADIUS_PX, 0, 6.2832);
-      ctx.clip();
-      ctx.fillStyle = '#0B1219';
-      ctx.fillRect(lensScreenX - LENS_RADIUS_PX, lensScreenY - LENS_RADIUS_PX, LENS_RADIUS_PX * 2, LENS_RADIUS_PX * 2);
-      drawScene(
-        ctx,
-        { originX, originY, pxPerM: lensPxPerM, width: W, height: H, showGuides: false },
-        sceneState()
-      );
-      ctx.restore();
-
-      ctx.beginPath();
-      ctx.arc(lensScreenX, lensScreenY, LENS_RADIUS_PX, 0, 6.2832);
-      ctx.strokeStyle = 'rgba(78,197,255,.85)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
     }
 
     function loop() {
@@ -185,9 +156,21 @@ export default function PendulumCanvas({
       }
     }
 
-    function raiseLens(px, py) {
+    function updateLens(px, py, clientX, clientY) {
+      const world = toWorld(px, py);
+      lensRef.current = {
+        active: true,
+        clientX,
+        clientY,
+        worldX: world.x,
+        worldY: world.y,
+        pxPerM: Math.max(pxPerM * LENS_ZOOM_MULT, LENS_MIN_PX_PER_M),
+      };
+    }
+
+    function raiseLens(px, py, clientX, clientY) {
       dragTarget = 'lens';
-      lens = { active: true, px, py };
+      updateLens(px, py, clientX, clientY);
     }
 
     function refFor(kind) {
@@ -241,7 +224,7 @@ export default function PendulumCanvas({
         const local = worldToRulerLocal(rulerRef.current, world.x, world.y);
         const padM = BODY_GRAB_PAD_PX / pxPerM;
         if (Math.abs(local.lx) <= RULER_LENGTH_M / 2 + padM && Math.abs(local.ly) <= RULER_WIDTH_M / 2 + padM) {
-          beginPendingBody('ruler', px, py, world, e.pointerId);
+          beginPendingBody('ruler', px, py, world, e.pointerId, e.clientX, e.clientY);
           return;
         }
       }
@@ -252,7 +235,7 @@ export default function PendulumCanvas({
         const local = worldToProtractorLocal(protractorRef.current, world.x, world.y);
         const padM = BODY_GRAB_PAD_PX / pxPerM;
         if (local.lx * local.lx + local.ly * local.ly <= (PROTRACTOR_RADIUS_M + padM) ** 2 && local.ly >= -padM) {
-          beginPendingBody('protractor', px, py, world, e.pointerId);
+          beginPendingBody('protractor', px, py, world, e.pointerId, e.clientX, e.clientY);
           return;
         }
       }
@@ -268,7 +251,7 @@ export default function PendulumCanvas({
       }
     }
 
-    function beginPendingBody(kind, px, py, world, pointerId) {
+    function beginPendingBody(kind, px, py, world, pointerId, clientX, clientY) {
       const state = refFor(kind).current;
       dragTarget = 'pendingBody';
       pendingKind = kind;
@@ -277,7 +260,7 @@ export default function PendulumCanvas({
       cvs.setPointerCapture(pointerId);
       clearHoldTimer();
       holdTimer = setTimeout(() => {
-        if (dragTarget === 'pendingBody') raiseLens(px, py);
+        if (dragTarget === 'pendingBody') raiseLens(px, py, clientX, clientY);
       }, HOLD_DELAY_MS);
     }
 
@@ -301,7 +284,7 @@ export default function PendulumCanvas({
         const world = toWorld(px, py);
         photogateRef.current = { xM: world.x + grabOffset.dx, yM: world.y + grabOffset.dy };
       } else if (dragTarget === 'lens') {
-        lens = { active: true, px, py };
+        updateLens(px, py, e.clientX, e.clientY);
       } else if (dragTarget === 'rulerHandle') {
         const world = toWorld(px, py);
         const angleRad = Math.atan2(world.y - rulerRef.current.yM, world.x - rulerRef.current.xM);
@@ -317,7 +300,7 @@ export default function PendulumCanvas({
 
     function onUp() {
       clearHoldTimer();
-      if (dragTarget === 'lens') lens = { active: false, px: 0, py: 0 };
+      if (dragTarget === 'lens') lensRef.current = { ...lensRef.current, active: false };
       dragTarget = null;
       pendingKind = null;
       cvs.classList.remove('dragging');
@@ -359,6 +342,8 @@ export default function PendulumCanvas({
     photogateRef,
     printMarginRef,
     protractorOffsetRef,
+    lensRef,
+    sceneStateRef,
     onBeginDrag,
     onUpdateDrag,
   ]);
