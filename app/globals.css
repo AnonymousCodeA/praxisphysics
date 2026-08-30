@@ -177,7 +177,10 @@ footer{border-top:1px solid var(--edge);padding:34px 0 46px}
 /* ---------- pendulum lab ---------- */
 .pendulum-lab{display:grid;gap:16px}
 .pendulum-frame{border:1px solid var(--edge);background:var(--panel);border-radius:4px;overflow:hidden}
-#pendulum-canvas{display:block;width:100%;height:clamp(320px,52vw,460px);touch-action:none;cursor:grab}
+#pendulum-canvas{
+  display:block;width:100%;aspect-ratio:4/3;min-height:320px;max-height:560px;
+  touch-action:none;cursor:grab;
+}
 #pendulum-canvas.swinging{cursor:default}
 #pendulum-canvas.dragging{cursor:grabbing}
 .pendulum-controls{
@@ -227,7 +230,7 @@ footer{border-top:1px solid var(--edge);padding:34px 0 46px}
 
 /* ---------- pendulum workspace (tabs / split shell) ---------- */
 .pendulum-workspace{
-  margin-top:28px;border:1px solid var(--edge);border-radius:4px;
+  max-width:var(--wrap);margin:28px auto 0;border:1px solid var(--edge);border-radius:4px;
   background:var(--panel);overflow:hidden;
 }
 .pendulum-tabs{display:flex;border-bottom:1px solid var(--edge)}
