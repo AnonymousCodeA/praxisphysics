@@ -38,10 +38,12 @@ components/
   PendulumLab.js / PendulumCanvas.js
                           canonical example of a measurement-driven experiment: physics
                           engine + drag/release, decoupled from the instrument panels
-  instruments/            generic digital instruments (Stopwatch, Protractor, Photogate) —
-                          each takes a true value and applies its own resolution/error,
-                          reusable across experiments. Not every instrument is digital: the
-                          ruler is a draggable object drawn on the bench itself (lib/pendulum/scene.js)
+  instruments/            generic digital instruments (Stopwatch; Photogate's trigger-log
+                          panel) — each takes a true value and applies its own resolution/
+                          error, reusable across experiments. Not every instrument is
+                          digital: the ruler, protractor, and photogate itself are drawn as
+                          objects on the bench (lib/pendulum/scene.js), toggled on/off from
+                          the same instrument menu
 data/
   simulations.js         categories[] (fixed 6: mechanics, thermodynamics, electromagnetism,
                           waves-optics, modern-physics, mixed-bag) + simulations{} keyed by
@@ -54,8 +56,9 @@ lib/
   pendulum/usePendulumPhysics.js
                           wraps model.mjs in a wall-clock fixed-step accumulator; see the
                           background-continuity exception below
-  pendulum/scene.js       pure canvas draw functions (pivot, string, bob, ruler) shared
-                          verbatim between the bench and its press-and-hold lens — see below
+  pendulum/scene.js       pure canvas draw functions (pivot, string, bob, ruler, protractor,
+                          photogate) shared verbatim between the bench and its press-and-
+                          hold lens — see below
   instruments/rng.js      session-seeded PRNG for instrument zero-offsets (sessionStorage-
                           backed seed, deterministic per key — stable across reloads)
   instruments/reading.js  quantize(value, resolution) — shared by every instrument
@@ -97,13 +100,17 @@ Follow `components/PendulumLab.js` / `lib/pendulum/usePendulumPhysics.js` for an
 
 Instruments (`components/instruments/*`) are generic and experiment-agnostic: each takes a `trueValue*` prop and applies its own resolution (`lib/instruments/reading.js`'s `quantize`) and, where the experiment calls for it, a fixed session zero-offset (`lib/instruments/rng.js`'s `sessionUniform`, seeded once via `sessionStorage` so it's stable across reloads but not hard-coded). Keep instruments blind to anything but the value they're handed — e.g. the stopwatch must never be given pendulum state, or its "reaction time" error stops being real.
 
-Not every instrument is a digital readout. A physical one (the ruler) is drawn as an object on the bench at true scale — same pixels-per-metre conversion as the pendulum itself — which means its mm ticks are legitimately sub-pixel there; that's the point, not a bug. Reading it needs the press-and-hold lens.
+Not every instrument is a digital readout. Physical ones (ruler, protractor) are drawn as objects on the bench at true scale — same pixels-per-metre conversion as the pendulum itself — which means their finest graduations are legitimately sub-pixel there; that's the point, not a bug. Reading them needs the press-and-hold lens. Their systematics are geometric, not a hidden random number added to a digital value: the ruler's printed "0" sits a session-seeded fraction of a mm in from its physical edge, and the protractor's printed degree scale sits at a session-seeded angular offset from its own centre mark/baseline (`lib/instruments/rng.js`'s `sessionUniform`, same as before, just consumed by the draw code instead of a component's readout). The photogate is physical too but doesn't need the lens — it's a coarse mechanical object (posts + beam), sized to be legible at bench scale directly; only its trigger *log* is a digital panel (`components/instruments/Photogate.js`).
+
+All bench-object tools start off — `open` in `PendulumLab.js` is `{}`, so the bench is empty until the student brings something in from the instrument menu. Bringing a tool onto the bench (toggling it on) resets it to a fixed sensible pose near the pendulum, not wherever it was left before being toggled off — see the `toggleInstrument` callback.
 
 ### Shared draw functions at different scales (bench + lens)
 
-`lib/pendulum/scene.js` exports one `drawScene(ctx, view, state)`. `PendulumCanvas.js` calls it once for the full bench (`view.showGuides: true`, its own `pxPerM`) and, while the ruler is being held, a second time into a `ctx.clip()`-ed circle near the pointer at a higher `pxPerM` (`view.showGuides: false`) — same canvas, same function, just a different view transform; `ctx.clearRect` inside `drawScene` respects the active clip, so the second call only repaints the lens circle. World space is meters with the origin at a fixed point (the pendulum pivot); every object's position is stored in those world coordinates, and each caller supplies its own `{ originX, originY, pxPerM }` to project world → canvas pixels. When a simulation needs a "zoomed" or "magnified" view of the same scene, extend `drawScene` and pass a different `view` — never duplicate the drawing logic into a second component/canvas.
+`lib/pendulum/scene.js` exports one `drawScene(ctx, view, state)`. `PendulumCanvas.js` calls it once for the full bench (`view.showGuides: true`, its own `pxPerM`) and, while the ruler or protractor is being held, a second time into a `ctx.clip()`-ed circle near the pointer at a higher `pxPerM` (`view.showGuides: false`) — same canvas, same function, just a different view transform; `ctx.clearRect` inside `drawScene` respects the active clip, so the second call only repaints the lens circle. `state.visible.{ruler,protractor,photogate}` gates whether each is drawn at all — check the same flags in `PendulumCanvas`'s hit-testing so an invisible tool can't still be grabbed. World space is meters with the origin at a fixed point (the pendulum pivot); every object's position is stored in those world coordinates, and each caller supplies its own `{ originX, originY, pxPerM }` to project world → canvas pixels. When a simulation needs a "zoomed" or "magnified" view of the same scene, extend `drawScene` and pass a different `view` — never duplicate the drawing logic into a second component/canvas.
 
-Draggable bench objects (the ruler's body/rotate-handle) live in a ref owned by the parent (`PendulumLab.js`), not React state — nothing outside the canvas needs to react to it, so mutating `ref.current` from `PendulumCanvas`'s pointer handlers and reading it every rAF frame avoids needless re-renders. Where a gesture is ambiguous (grabbing the ruler's body could mean "move it" or "hold to read it"), disambiguate with a short delay + move-cancel threshold rather than a mode switch the student has to know about — see `HOLD_DELAY_MS`/`HOLD_MOVE_CANCEL_PX` in `PendulumCanvas.js`.
+Draggable bench objects (ruler, protractor, photogate) live in refs owned by the parent (`PendulumLab.js`), not React state — nothing outside the canvas needs to react to them, so mutating `ref.current` from `PendulumCanvas`'s pointer handlers and reading it every rAF frame avoids needless re-renders. Where a gesture is ambiguous (grabbing a ruler/protractor body could mean "move it" or "hold to read it"), disambiguate with a short delay + move-cancel threshold rather than a mode switch the student has to know about — see `HOLD_DELAY_MS`/`HOLD_MOVE_CANCEL_PX` in `PendulumCanvas.js`; the same `pendingBody`/`body` state machine handles both the ruler and the protractor by keying off which one's hit-test matched (`pendingKind`), rather than duplicating the gesture per object. The photogate doesn't rotate and has no fine scale, so it skips the hold gesture entirely — grabbing it is always a plain drag.
+
+Physics that depends on a draggable bench object's position (the photogate's beam) reads it straight from that object's ref inside the fixed-step accumulator — see `photogateRef`/`photogateVisible` in `usePendulumPhysics.js`. The beam is treated as a fixed point at a given angle from the pivot; "the string crosses the beam" reduces to the same interpolated angle-crossing technique used for turning points and the old fixed-position photogate, just against that point's angle instead of a hardcoded one, and gated on the beam being within the string's current reach.
 
 ## Notes
 
