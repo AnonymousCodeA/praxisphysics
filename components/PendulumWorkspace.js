@@ -6,11 +6,17 @@ import PendulumDataTable from './PendulumDataTable';
 import PendulumLab from './PendulumLab';
 import PendulumPlot from './PendulumPlot';
 import { useDataTable } from '@/lib/pendulum/useDataTable';
+import { usePlotConfig } from '@/lib/pendulum/usePlotConfig';
 
 const TABS = [
   { key: 'problem', label: 'PROBLEM' },
   { key: 'table', label: 'TABLE' },
   { key: 'lab', label: 'LAB' },
+];
+
+const PARTS = [
+  { key: 'parta', label: 'PART A' },
+  { key: 'partb', label: 'PART B' },
 ];
 
 const SPLIT_MIN = 28;
@@ -21,15 +27,25 @@ const SPLIT_STEP = 2;
 // Mobile-first shell: three panes (problem, table, lab) that are tab-switched
 // on narrow screens, and become a two-column split with a draggable divider
 // on wide ones (see the min-width breakpoint in globals.css). Left column
-// groups problem+table, right column holds the bench and the plot. The table
-// (lib/pendulum/useDataTable.js) lives here, not inside PendulumDataTable,
-// so PendulumPlot can read the same columns/rows without a second copy.
+// groups the part switch, problem, and table; right column holds the bench
+// (shared, doesn't change with part) and the plot. Table and plot state
+// (lib/pendulum/useDataTable.js, usePlotConfig.js) live here, one instance
+// per part rather than one that's re-keyed, so switching parts is just
+// picking which already-loaded instance to hand down — each part's table
+// and plot stay independently live (and independently in localStorage) the
+// whole time, not just while that part is on screen.
 export default function PendulumWorkspace() {
   const [activeTab, setActiveTab] = useState('problem');
+  const [part, setPart] = useState('parta');
   const [splitPct, setSplitPct] = useState(SPLIT_DEFAULT);
   const wrapRef = useRef(null);
   const draggingRef = useRef(false);
-  const dataTable = useDataTable();
+  const tableA = useDataTable('parta');
+  const tableB = useDataTable('partb');
+  const plotA = usePlotConfig('parta');
+  const plotB = usePlotConfig('partb');
+  const dataTable = part === 'parta' ? tableA : tableB;
+  const plotConfig = part === 'parta' ? plotA : plotB;
 
   const updateSplitFromClientX = useCallback((clientX) => {
     if (!wrapRef.current) return;
@@ -89,8 +105,22 @@ export default function PendulumWorkspace() {
       </div>
 
       <div className="pendulum-col-left">
+        <div className="pendulum-part-switch" role="tablist" aria-label="Pendulum lab part">
+          {PARTS.map((p) => (
+            <button
+              key={p.key}
+              type="button"
+              role="tab"
+              aria-selected={part === p.key}
+              className={part === p.key ? 'active' : ''}
+              onClick={() => setPart(p.key)}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
         <div className="pendulum-pane" data-pane="problem">
-          <PendulumGuide />
+          <PendulumGuide part={part} />
         </div>
         <div className="pendulum-pane" data-pane="table">
           <PendulumDataTable {...dataTable} />
@@ -116,7 +146,7 @@ export default function PendulumWorkspace() {
       <div className="pendulum-col-right">
         <div className="pendulum-pane" data-pane="lab">
           <PendulumLab />
-          {dataTable.table && <PendulumPlot table={dataTable.table} />}
+          {dataTable.table && <PendulumPlot part={part} table={dataTable.table} {...plotConfig} />}
         </div>
       </div>
     </div>

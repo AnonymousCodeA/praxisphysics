@@ -37,10 +37,14 @@ components/
   Figures.js             small inline-SVG line drawings used on the category cards
   PendulumWorkspace.js    page shell for the pendulum lab: tabs on narrow screens, a
                           two-column split with draggable divider on wide ones (see the
-                          min-width breakpoint in globals.css). Owns the shared table state
-                          (lib/pendulum/useDataTable.js) and hands it to both
-                          PendulumDataTable and PendulumPlot so they read the same data
-  PendulumGuide.js        static Part A problem statement/formulae/hints — no method, just prompts
+                          min-width breakpoint in globals.css), plus the Part A/B pill switch
+                          at the top of the left column. Holds one useDataTable/usePlotConfig
+                          instance per part (both always mounted, so both parts' data stay
+                          live and independently saved regardless of which is on screen) and
+                          hands the active part's down to PendulumDataTable/PendulumPlot —
+                          the bench (PendulumLab) is the one thing that doesn't change with part
+  PendulumGuide.js        static per-part problem statement/formulae/hints — no method, just
+                          prompts. Takes a `part` prop; Part B is a placeholder pending content
   PendulumDataTable.js    student-defined table (add/delete row & column, rename headers,
                           free-typed cells) — controlled by the table state in
                           PendulumWorkspace, not owned here
@@ -79,13 +83,18 @@ lib/
                           backed seed, deterministic per key — stable across reloads)
   instruments/reading.js  quantize(value, resolution) — shared by every instrument
   pendulum/useDataTable.js
-                          Part A table state + localStorage persistence — the single
-                          source of truth shared by PendulumDataTable and PendulumPlot
+                          a part's table state + localStorage persistence, keyed by the
+                          `part` argument ('parta'/'partb') — the single source of truth
+                          shared by PendulumDataTable and PendulumPlot. PendulumWorkspace
+                          holds one instance per part rather than re-keying a single
+                          instance, so `part` is read once and never expected to change
+                          under a given instance
   pendulum/usePlotConfig.js
-                          plot state (column choices, axis bounds, current/saved lines)
-                          + localStorage persistence, plus parseBounds/lineStats helpers.
-                          Column choices are keyed by role (`PLOT_ROLES`), not hardcoded
-                          x/y fields, so an error-bar column is a one-line addition later
+                          a part's plot state (column choices, axis bounds, current/saved
+                          lines) + localStorage persistence, same per-part keying as
+                          useDataTable, plus parseBounds/lineStats helpers. Column choices
+                          are keyed by role (`PLOT_ROLES`), not hardcoded x/y fields, so an
+                          error-bar column is a one-line addition later
 ```
 
 Routes are static/data-driven: `generateStaticParams` reads `data/*.js`, and `notFound()` fires for unknown slugs. There's no CMS or DB — content changes are code changes to the `data/` files.

@@ -243,6 +243,23 @@ footer{border-top:1px solid var(--edge);padding:34px 0 46px}
 .pendulum-tabs button:hover{color:var(--trace)}
 .pendulum-tabs button.active{color:var(--trace);background:rgba(78,197,255,.06)}
 
+/* Which part (A/B) — a pill toggle, deliberately distinct from the
+   full-width straight-edged pane tabs above/beside it, since it answers a
+   different question (which problem, not which panel). Lives at the top of
+   pendulum-col-left; unlike the panes it's never display:none, so it stays
+   reachable from any tab on mobile too. */
+.pendulum-part-switch{
+  display:inline-flex;gap:2px;padding:3px;margin:16px 22px 0;
+  border:1px solid var(--edge);border-radius:20px;background:var(--panel-t);
+}
+.pendulum-part-switch button{
+  padding:6px 16px;border-radius:16px;border:0;background:transparent;
+  font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:.08em;
+  color:var(--muted);cursor:pointer;transition:.16s;
+}
+.pendulum-part-switch button:hover{color:var(--trace)}
+.pendulum-part-switch button.active{background:var(--trace);color:#04202F}
+
 .pendulum-pane{display:none;padding:22px}
 .pendulum-workspace[data-active-tab="problem"] .pendulum-pane[data-pane="problem"]{display:block}
 .pendulum-workspace[data-active-tab="table"] .pendulum-pane[data-pane="table"]{display:block}
@@ -257,6 +274,7 @@ footer{border-top:1px solid var(--edge);padding:34px 0 46px}
   }
   .pendulum-tabs{display:none}
   .pendulum-pane{display:block!important;padding:26px}
+  .pendulum-part-switch{margin:20px 26px 0}
   .pendulum-col-left{grid-column:1;border-right:1px solid var(--edge)}
   .pendulum-col-right{grid-column:3}
   .pendulum-divider{

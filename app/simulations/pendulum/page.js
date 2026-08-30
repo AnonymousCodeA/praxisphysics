@@ -8,7 +8,6 @@ export default function PendulumPage() {
       <div className="wrap">
         <div className="head">
           <h2>Pendulum</h2>
-          <span className="count">PART A — MEASURE g</span>
         </div>
         <p className="lede">
           Work the problem, log your own data, and take readings from the bench below.

@@ -1,7 +1,7 @@
-// Static Part A content — problem statement, formulae, and thin prompts.
-// No accompanying method: deciding how to measure and what to tabulate is
-// the skill this experiment is teaching, so this stays deliberately sparse.
-export default function PendulumGuide() {
+// Static problem statement, formulae, and thin prompts per part. No
+// accompanying method: deciding how to measure and what to tabulate is the
+// skill this experiment is teaching, so Part A stays deliberately sparse.
+function PartAGuide() {
   return (
     <div className="pendulum-guide">
       <span className="tag">PART A</span>
@@ -33,4 +33,23 @@ export default function PendulumGuide() {
       </ul>
     </div>
   );
+}
+
+// Placeholder until Part B's physics content is written — keeps the switch,
+// the table, and the plot fully working ahead of that.
+function PartBGuide() {
+  return (
+    <div className="pendulum-guide">
+      <span className="tag">PART B</span>
+      <h3>Coming soon</h3>
+      <p>
+        Part B uses the same bench with a different problem. Its statement, formulae, and
+        hints land here next — the table and plot on this tab are already yours to use.
+      </p>
+    </div>
+  );
+}
+
+export default function PendulumGuide({ part }) {
+  return part === 'partb' ? <PartBGuide /> : <PartAGuide />;
 }

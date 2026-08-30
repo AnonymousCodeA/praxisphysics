@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { usePlotConfig, parseBounds, lineStats, PLOT_ROLES, MAX_LINES } from '@/lib/pendulum/usePlotConfig';
+import { parseBounds, lineStats, PLOT_ROLES, MAX_LINES } from '@/lib/pendulum/usePlotConfig';
 
 const PAD_LEFT = 60;
 const PAD_RIGHT = 16;
@@ -61,9 +61,24 @@ function drawExtendedLine(ctx, toPx, rect, p1, p2, color, dashed) {
   ctx.setLineDash([]);
 }
 
-export default function PendulumPlot({ table }) {
-  const { config, setCol, setBoundText, addLine, updateCurrentPoint, discardCurrent, saveLine, editLine, deleteLine } =
-    usePlotConfig();
+// Config and its mutators are owned by PendulumWorkspace (one usePlotConfig
+// instance per part) and handed down as props — same controlled pattern as
+// PendulumDataTable — so switching parts swaps in a different part's plot
+// without this component needing to know parts exist beyond resetting its
+// own ephemeral click-readout below.
+export default function PendulumPlot({
+  part,
+  table,
+  config,
+  setCol,
+  setBoundText,
+  addLine,
+  updateCurrentPoint,
+  discardCurrent,
+  saveLine,
+  editLine,
+  deleteLine,
+}) {
   const canvasRef = useRef(null);
   const configRef = useRef(config);
   const tableRef = useRef(table);
@@ -80,6 +95,13 @@ export default function PendulumPlot({ table }) {
   useEffect(() => {
     lastClickRef.current = lastClick;
   }, [lastClick]);
+
+  // The click-to-read coordinate is ephemeral UI state, not part of the
+  // persisted config — clear it on a part switch so it doesn't show a stale
+  // reading (or a crosshair placed by the other part's axis bounds) here.
+  useEffect(() => {
+    setLastClick(null);
+  }, [part]);
 
   // Drop a selected column from the config if it no longer exists in the
   // table (renamed away is fine — only a delete needs this).
