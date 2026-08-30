@@ -312,6 +312,18 @@ export default function PendulumCanvas({
     cvs.addEventListener('pointercancel', onUp);
     window.addEventListener('resize', resize);
 
+    // A plain window 'resize' listener misses size changes caused by our own
+    // layout — switching mobile tabs in/out of `display:none`, or dragging
+    // the desktop split divider — since neither fires a window resize event.
+    // ResizeObserver reports the canvas's actual box size changing for any
+    // reason, including the async initial call it makes right after observe(),
+    // which is what rescues a canvas that first mounted inside a hidden pane.
+    let ro = null;
+    if ('ResizeObserver' in window) {
+      ro = new ResizeObserver(resize);
+      ro.observe(cvs);
+    }
+
     let io = null;
     if ('IntersectionObserver' in window) {
       io = new IntersectionObserver((en) => {
@@ -331,6 +343,7 @@ export default function PendulumCanvas({
       cvs.removeEventListener('pointerup', onUp);
       cvs.removeEventListener('pointercancel', onUp);
       window.removeEventListener('resize', resize);
+      if (ro) ro.disconnect();
       if (io) io.disconnect();
     };
   }, [

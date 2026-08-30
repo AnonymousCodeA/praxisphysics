@@ -1,4 +1,4 @@
-import PendulumLab from '@/components/PendulumLab';
+import PendulumWorkspace from '@/components/PendulumWorkspace';
 
 export const metadata = { title: 'Pendulum — Praxis' };
 
@@ -11,10 +11,9 @@ export default function PendulumPage() {
           <span className="count">PART A — MEASURE g</span>
         </div>
         <p className="lede">
-          Drag the bob to a release angle, let it swing, and time enough oscillations to pin
-          down g. Open an instrument below to take a reading.
+          Work the problem, log your own data, and take readings from the bench below.
         </p>
-        <PendulumLab />
+        <PendulumWorkspace />
       </div>
     </section>
   );
