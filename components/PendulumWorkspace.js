@@ -4,6 +4,8 @@ import { useCallback, useRef, useState } from 'react';
 import PendulumGuide from './PendulumGuide';
 import PendulumDataTable from './PendulumDataTable';
 import PendulumLab from './PendulumLab';
+import PendulumPlot from './PendulumPlot';
+import { useDataTable } from '@/lib/pendulum/useDataTable';
 
 const TABS = [
   { key: 'problem', label: 'PROBLEM' },
@@ -19,14 +21,15 @@ const SPLIT_STEP = 2;
 // Mobile-first shell: three panes (problem, table, lab) that are tab-switched
 // on narrow screens, and become a two-column split with a draggable divider
 // on wide ones (see the min-width breakpoint in globals.css). Left column
-// groups problem+table, right column holds the bench — same three panes
-// either way, just regrouped by CSS, never duplicated markup. The right
-// column also reserves a slot for the plot that joins this page later.
+// groups problem+table, right column holds the bench and the plot. The table
+// (lib/pendulum/useDataTable.js) lives here, not inside PendulumDataTable,
+// so PendulumPlot can read the same columns/rows without a second copy.
 export default function PendulumWorkspace() {
   const [activeTab, setActiveTab] = useState('problem');
   const [splitPct, setSplitPct] = useState(SPLIT_DEFAULT);
   const wrapRef = useRef(null);
   const draggingRef = useRef(false);
+  const dataTable = useDataTable();
 
   const updateSplitFromClientX = useCallback((clientX) => {
     if (!wrapRef.current) return;
@@ -90,7 +93,7 @@ export default function PendulumWorkspace() {
           <PendulumGuide />
         </div>
         <div className="pendulum-pane" data-pane="table">
-          <PendulumDataTable />
+          <PendulumDataTable {...dataTable} />
         </div>
       </div>
 
@@ -113,10 +116,7 @@ export default function PendulumWorkspace() {
       <div className="pendulum-col-right">
         <div className="pendulum-pane" data-pane="lab">
           <PendulumLab />
-          <div className="pendulum-plot-slot">
-            <span className="tag">PLOT — SOON</span>
-            <p className="hint">A live g-fit plot joins this panel once there&rsquo;s table data to chart.</p>
-          </div>
+          {dataTable.table && <PendulumPlot table={dataTable.table} />}
         </div>
       </div>
     </div>
