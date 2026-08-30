@@ -11,9 +11,9 @@ import { sessionUniform } from '@/lib/instruments/rng';
 
 const DRAG_CAP_DEG = 85; // the taut-string model is invalid past 90°
 const BOB_RADIUS_M = 0.02;
-const MIN_LENGTH_M = 0.3;
-const MAX_LENGTH_M = 1.2;
-const DEFAULT_LENGTH_M = 0.9;
+const MIN_LENGTH_M = 0.2;
+const MAX_LENGTH_M = 0.5;
+const DEFAULT_LENGTH_M = 0.35;
 const DRAG_CAP_RAD = (DRAG_CAP_DEG * Math.PI) / 180;
 
 // A real ruler's printed "0" doesn't start exactly at its physical edge —

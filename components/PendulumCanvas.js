@@ -10,7 +10,8 @@ import {
   RULER_WIDTH_M,
 } from '@/lib/pendulum/scene';
 
-const MAX_LENGTH_M = 1.3; // headroom for bob radius, sets the draw scale
+const MAX_LENGTH_M = 0.55; // headroom for bob radius, sets the vertical draw-scale constraint
+const FILL = 0.86; // fraction of the binding dimension the apparatus should occupy
 const GRAB_PAD_PX = 30; // touch-friendly hit margin around the bob
 const HANDLE_GRAB_PAD_PX = 20;
 const RULER_BODY_GRAB_PAD_PX = 14;
@@ -18,7 +19,8 @@ const RULER_BODY_GRAB_PAD_PX = 14;
 const HOLD_DELAY_MS = 380; // press-and-hold threshold before the lens raises
 const HOLD_MOVE_CANCEL_PX = 6; // moving more than this before the delay elapses means "drag", not "hold"
 
-const LENS_ZOOM = 2.5;
+const LENS_ZOOM_MULT = 1.5; // multiple of the bench's own pxPerM, when that's already large enough
+const LENS_MIN_PX_PER_M = 3500; // floor: ~3.5 px/mm, the minimum for adjacent mm ticks to be distinguishable
 const LENS_RADIUS_PX = 70;
 const LENS_OFFSET_PX = LENS_RADIUS_PX + 26; // raised above the pointer so a finger doesn't cover it
 
@@ -70,7 +72,15 @@ export default function PendulumCanvas({
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       pivotX = W * 0.5;
       pivotY = H * 0.1;
-      pxPerM = (H * 0.82) / MAX_LENGTH_M;
+      // Fit the taller of the two things that actually need to fit — the
+      // pendulum's vertical swing and the ruler's horizontal length —
+      // against the dimension that constrains it, and use most of that
+      // dimension rather than a fixed fraction of height alone. Otherwise
+      // a wide canvas leaves the apparatus a sliver in the middle of empty
+      // space (see CLAUDE.md).
+      const pxPerMByHeight = (H * FILL) / MAX_LENGTH_M;
+      const pxPerMByWidth = (W * FILL) / RULER_LENGTH_M;
+      pxPerM = Math.min(pxPerMByHeight, pxPerMByWidth);
     }
 
     const toPx = (mx, my) => ({ x: pivotX + mx * pxPerM, y: pivotY + my * pxPerM });
@@ -102,7 +112,7 @@ export default function PendulumCanvas({
       const lensScreenX = lens.px;
       const lensScreenY = lens.py - LENS_OFFSET_PX;
       const world = toWorld(lens.px, lens.py);
-      const lensPxPerM = pxPerM * LENS_ZOOM;
+      const lensPxPerM = Math.max(pxPerM * LENS_ZOOM_MULT, LENS_MIN_PX_PER_M);
       const originX = lensScreenX - world.x * lensPxPerM;
       const originY = lensScreenY - world.y * lensPxPerM;
 
