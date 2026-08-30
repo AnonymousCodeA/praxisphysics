@@ -292,6 +292,10 @@ footer{border-top:1px solid var(--edge);padding:34px 0 46px}
 }
 .pendulum-guide p{margin:0;font-size:14.5px;color:var(--chalk);line-height:1.65}
 .pendulum-guide p em{color:var(--trace);font-style:normal}
+.pendulum-guide p.pendulum-guide-credit{
+  margin:10px 0 0;font-family:var(--font-mono),monospace;font-size:10.5px;
+  letter-spacing:.05em;color:var(--muted);
+}
 .pendulum-formulae{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .pendulum-formulae li{
   display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;
