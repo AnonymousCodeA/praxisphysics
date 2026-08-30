@@ -204,20 +204,15 @@ export default function PendulumPlot({ table }) {
         ctx.restore();
       }
 
+      // Lines are infinite (extended to the box edges) so they still need
+      // clipping; points don't get clipped at all — a point exactly on the
+      // axis boundary should render as a full dot, not be sliced in half by
+      // the plot edge, and drawing it after the restore puts it above the
+      // gridlines/axis box instead of flush with (and hard to read against) them.
       ctx.save();
       ctx.beginPath();
       ctx.rect(rect.x, rect.y, rect.w, rect.h);
       ctx.clip();
-
-      if (cfg.cols.x && cfg.cols.y) {
-        ctx.fillStyle = '#4EC5FF';
-        for (const pt of getPoints(tbl, cfg.cols.x, cfg.cols.y)) {
-          const p = px(pt.x, pt.y);
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, POINT_R, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
 
       for (const line of cfg.saved) {
         drawExtendedLine(ctx, (x, y) => px(x, y), rect, line.p1, line.p2, line.color, false);
@@ -226,6 +221,19 @@ export default function PendulumPlot({ table }) {
       let cur = cfg.current;
       if (cur && dragPreview) cur = { ...cur, [dragPreview.key]: { x: dragPreview.x, y: dragPreview.y } };
       if (cur) drawExtendedLine(ctx, (x, y) => px(x, y), rect, cur.p1, cur.p2, cur.color, true);
+
+      ctx.restore();
+
+      if (cfg.cols.x && cfg.cols.y) {
+        ctx.fillStyle = '#4EC5FF';
+        for (const pt of getPoints(tbl, cfg.cols.x, cfg.cols.y)) {
+          if (pt.x < b.xMin || pt.x > b.xMax || pt.y < b.yMin || pt.y > b.yMax) continue;
+          const p = px(pt.x, pt.y);
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, POINT_R, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
 
       const lc = lastClickRef.current;
       if (lc) {
@@ -241,8 +249,6 @@ export default function PendulumPlot({ table }) {
         ctx.lineTo(p.x, p.y + 6);
         ctx.stroke();
       }
-
-      ctx.restore();
 
       if (cur) {
         for (const key of ['p1', 'p2']) {
