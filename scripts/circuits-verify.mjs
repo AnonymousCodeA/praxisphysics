@@ -1,6 +1,11 @@
 // Verifies the MNA circuit model against known analytic results before any
 // wire gets drawn on a bench. Run with: node scripts/circuits-verify.mjs
-import { createCircuitState, stepCircuit } from '../lib/circuits/model.mjs';
+import {
+  createCircuitState,
+  stepCircuit,
+  VSOURCE_SERIES_R,
+  gminLeakTimeConstant,
+} from '../lib/circuits/model.mjs';
 
 function runSteps(circuit, state, dt, count) {
   let s = state;
@@ -273,3 +278,21 @@ for (const { name, circuit } of degenerateCases) {
   console.log(`${finite ? 'ok  ' : 'FAIL'} — ${name}: ${values.map((v) => v.toFixed(3)).join(', ')}`);
 }
 console.log(allFinite ? 'PASS — no NaN/Infinity in any degenerate case' : 'FAIL — a degenerate case produced NaN/Infinity');
+
+// --- Numerical conveniences that stand in for real physical effects ---
+// These constants keep the solver well-posed for degenerate topologies, but
+// each corresponds to something a real bench circuit actually has, so it's
+// worth knowing their size relative to the experiments run above.
+
+console.log('\n=== Numerical parameters, read as physical quantities ===');
+console.log(
+  `VSOURCE_SERIES_R = ${VSOURCE_SERIES_R} ohm — stands in for real battery internal resistance ` +
+    `(negligible next to the kilohm-scale resistors used above, so it doesn't distort any reading)`
+);
+const smallestCapacitance = Math.min(C_FIXED, C1, C2, Cp, CBig);
+const leakTau = gminLeakTimeConstant(smallestCapacitance);
+console.log(
+  `GMIN leak, against the smallest capacitor used here (Cp = ${smallestCapacitance.toExponential(0)} F): ` +
+    `time constant = ${leakTau.toExponential(3)} s (~${(leakTau / 3600).toFixed(1)} hours) — ` +
+    `stands in for real capacitor self-discharge, and is far longer than any hold time simulated above`
+);
