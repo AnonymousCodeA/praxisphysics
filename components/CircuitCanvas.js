@@ -130,6 +130,10 @@ export default function CircuitCanvas({ rows, cols, placed, armed, voltages, onP
           const va = voltagesRef.current.get(comp.a) ?? 0;
           const vb = voltagesRef.current.get(comp.b) ?? 0;
           reading = va - vb;
+        } else if (comp.type === 'ammeter') {
+          const va = voltagesRef.current.get(comp.a) ?? 0;
+          const vb = voltagesRef.current.get(comp.b) ?? 0;
+          reading = (va - vb) / comp.shuntOhms;
         }
         drawComponent(ctx, p1, p2, comp, { color: TRACE, alpha: 1, reading });
       }

@@ -3,6 +3,7 @@
 import {
   createCircuitState,
   stepCircuit,
+  ammeterReading,
   VSOURCE_SERIES_R,
   gminLeakTimeConstant,
 } from '../lib/circuits/model.mjs';
@@ -219,6 +220,44 @@ console.log(
   `after ${maxN} cycles: U_N = ${uFinal.toFixed(4)} V, approaching U0 = ${U0} V (${((uFinal / U0) * 100).toFixed(
     2
   )}% of saturation) — confirms curvature toward saturation`
+);
+
+// --- Test 4: ammeter reads current via a shunt of explicit resistance ---
+
+console.log('\n=== Test 4: ammeter (series shunt) reads the loop current ===');
+
+const AMMETER_V0 = 5;
+const AMMETER_R = 1000;
+const SHUNT_OHMS = 0.01;
+
+const ammeterCircuit = {
+  ground: 'gnd',
+  elements: [
+    { id: 'V1', type: 'vsource', nodes: ['b', 'gnd'], value: AMMETER_V0 },
+    { id: 'R1', type: 'resistor', nodes: ['b', 'c'], value: AMMETER_R },
+    { id: 'A1', type: 'ammeter', nodes: ['c', 'gnd'], shuntOhms: SHUNT_OHMS },
+  ],
+};
+const { voltages: ammeterVoltages } = stepCircuit(ammeterCircuit, createCircuitState(), 1e-3);
+const iMeasured = ammeterReading(ammeterCircuit, ammeterVoltages, 'A1');
+const iExact = AMMETER_V0 / (AMMETER_R + SHUNT_OHMS + VSOURCE_SERIES_R); // what the loop actually carries
+const iIdeal = AMMETER_V0 / AMMETER_R; // if the shunt (and the source's own series R) weren't there
+
+console.log(`measured current   = ${iMeasured.toExponential(6)} A`);
+console.log(`exact loop current = ${iExact.toExponential(6)} A  (R + R_shunt + source's own series R)`);
+console.log(`ideal (R alone)    = ${iIdeal.toExponential(6)} A`);
+
+const errVsExactPct = (Math.abs(iMeasured - iExact) / iExact) * 100;
+console.log(
+  `measured vs exact loop current: error = ${errVsExactPct.toExponential(2)}% — ${
+    errVsExactPct < 1e-6 ? 'PASS' : 'FAIL'
+  } (tolerance 1e-6%)`
+);
+
+const shuntBiasPct = (Math.abs(iIdeal - iExact) / iIdeal) * 100;
+console.log(
+  `systematic bias from the ammeter's own shuntOhms: ${shuntBiasPct.toFixed(4)}% low ` +
+    `(≈ R_shunt/R = ${((SHUNT_OHMS / AMMETER_R) * 100).toFixed(4)}%) — a deliberate, usable error, not a bug`
 );
 
 // --- Degenerate cases: must not crash or produce NaN ---

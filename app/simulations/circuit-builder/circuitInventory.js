@@ -12,4 +12,5 @@ export const circuitInventory = [
   { id: 'switch', type: 'switch', value: undefined, label: 'SWITCH', count: 2 },
   { id: 'wire', type: 'wire', value: undefined, label: 'WIRE', count: 18 },
   { id: 'voltmeter', type: 'voltmeter', value: undefined, label: 'V', count: 2 },
+  { id: 'ammeter', type: 'ammeter', shuntOhms: 1, label: 'A', count: 1 },
 ];

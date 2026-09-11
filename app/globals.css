@@ -448,8 +448,8 @@ footer{border-top:1px solid var(--edge);padding:34px 0 46px}
 }
 .circuit-cap-label{color:var(--chalk);min-width:80px}
 .circuit-cap-status{color:var(--muted);font-size:10.5px;letter-spacing:.06em}
-.circuit-cap-voltage{color:var(--trace);margin-left:auto}
 .circuit-capacitors button{
+  margin-left:auto;
   font-family:var(--font-mono),monospace;font-size:10.5px;letter-spacing:.06em;
   color:var(--muted);background:transparent;border:1px solid var(--edge);
   border-radius:3px;padding:6px 10px;cursor:pointer;transition:.16s;

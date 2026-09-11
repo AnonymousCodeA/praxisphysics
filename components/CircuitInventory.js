@@ -3,7 +3,15 @@
 import { drawComponent } from '@/lib/circuits/scene';
 import { useEffect, useRef } from 'react';
 
-const SYMBOL_TYPE_SAMPLE = { battery: 'battery', resistor: 'resistor', capacitor: 'capacitor', switch: 'switch', wire: 'wire', voltmeter: 'voltmeter' };
+const SYMBOL_TYPE_SAMPLE = {
+  battery: 'battery',
+  resistor: 'resistor',
+  capacitor: 'capacitor',
+  switch: 'switch',
+  wire: 'wire',
+  voltmeter: 'voltmeter',
+  ammeter: 'ammeter',
+};
 
 function CardSymbol({ type }) {
   const ref = useRef(null);

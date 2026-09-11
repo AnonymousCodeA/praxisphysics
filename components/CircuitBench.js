@@ -18,19 +18,28 @@ const SOLVER_TYPE = {
   switch: 'switch',
   wire: 'wire',
   voltmeter: 'meter',
+  ammeter: 'ammeter',
 };
 
 // Expands the problem definition's inventory ({ id, type, value, label,
-// count }[]) into individually-numbered physical instances. Each is its own
-// object with its own identity for the whole session — critically, this is
-// what lets a specific capacitor keep its charge across being removed to
-// stock and placed again elsewhere: "stock" is a pool of these instances,
-// not a fungible count that would blur which physical object is which.
+// count, shuntOhms? }[]) into individually-numbered physical instances. Each
+// is its own object with its own identity for the whole session —
+// critically, this is what lets a specific capacitor keep its charge across
+// being removed to stock and placed again elsewhere: "stock" is a pool of
+// these instances, not a fungible count that would blur which physical
+// object is which.
 function expandInventory(inventory) {
   const instances = [];
   for (const item of inventory) {
     for (let i = 1; i <= item.count; i++) {
-      instances.push({ instanceId: `${item.id}#${i}`, itemId: item.id, type: item.type, value: item.value, label: item.label });
+      instances.push({
+        instanceId: `${item.id}#${i}`,
+        itemId: item.id,
+        type: item.type,
+        value: item.value,
+        shuntOhms: item.shuntOhms,
+        label: item.label,
+      });
     }
   }
   return instances;
@@ -73,12 +82,13 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7 }) {
         type: SOLVER_TYPE[c.type],
         nodes: [c.a, c.b],
         value: c.value,
+        shuntOhms: c.shuntOhms,
         closed: c.closed,
       })),
     [placed]
   );
 
-  const { voltages, dischargeCapacitor, capacitorVoltage } = useCircuitPhysics({ elements, ground: GROUND });
+  const { voltages, dischargeCapacitor } = useCircuitPhysics({ elements, ground: GROUND });
 
   const handleArm = useCallback((itemId) => {
     setArmedId((prev) => (prev === itemId ? null : itemId));
@@ -163,15 +173,17 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7 }) {
       {capacitorInstances.length > 0 && (
         <div className="circuit-capacitors">
           <h4>Capacitors</h4>
+          {/* No voltage readout here, deliberately — showing it would let a
+              student read a capacitor's charge without ever placing a
+              voltmeter, which is exactly the measurement problem 1 Part B
+              is testing. */}
           <ul>
             {capacitorInstances.map((inst) => {
               const onBoard = placed.some((c) => c.instanceId === inst.instanceId);
-              const v = capacitorVoltage(inst.instanceId, inst.value);
               return (
                 <li key={inst.instanceId}>
                   <span className="circuit-cap-label">{inst.label}</span>
                   <span className="circuit-cap-status">{onBoard ? 'ON BOARD' : 'IN STOCK'}</span>
-                  <span className="circuit-cap-voltage">{v.toFixed(3)} V</span>
                   <button type="button" onClick={() => dischargeCapacitor(inst.instanceId)}>
                     DISCHARGE
                   </button>

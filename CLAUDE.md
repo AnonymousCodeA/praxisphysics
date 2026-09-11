@@ -81,11 +81,13 @@ components/
   CircuitBench.js         the circuit-building bench: owns board state (placed components,
                           undo history, armed inventory item) and lib/circuits/
                           useCircuitPhysics's continuous solve loop; renders CircuitCanvas,
-                          CircuitInventory, and a capacitor panel (live voltage + an explicit
-                          DISCHARGE button per instance — see lib/circuits/model.mjs's
-                          persistent-charge design). Not yet wired into ExperimentWorkspace —
-                          see app/simulations/circuit-builder/ for the standalone harness
-                          it's currently exercised through
+                          CircuitInventory, and a capacitor panel with an explicit DISCHARGE
+                          button per instance (see lib/circuits/model.mjs's persistent-charge
+                          design) — deliberately status only (ON BOARD/IN STOCK), no voltage
+                          readout, since that would let a student read a capacitor's charge
+                          without ever placing a voltmeter. Not yet wired into
+                          ExperimentWorkspace — see app/simulations/circuit-builder/ for the
+                          standalone harness it's currently exercised through
   CircuitCanvas.js        canvas + pointer mechanics for the board, mirroring
                           PendulumCanvas.js's conventions (refs for gesture state, rAF loop
                           paused off-screen, ResizeObserver, pointer events) — see the
@@ -206,6 +208,7 @@ Physics that depends on a draggable bench object's position (the photogate's bea
 - **Every inventory slot is a numbered physical instance** (`expandInventory` in `CircuitBench.js`), not a fungible count — two capacitors of the same value are two independent objects with independent charge histories. This is what makes "remove a charged capacitor, it keeps its charge in stock, place it back down elsewhere" fall out for free: the solver's persistent per-id state (see `model.mjs`) simply doesn't get touched by whether an id currently appears in the elements array a given tick, and instance identity is stable across arm/place/remove/undo.
 - **Switch toggle and capacitor discharge are experiment operations, not build actions** — neither pushes an undo entry, only place/remove do. A placed switch is disambiguated with the same hold-delay/move-cancel pattern as the pendulum's ruler/protractor (`HOLD_DELAY_MS`/`HOLD_MOVE_CANCEL_PX` in `CircuitCanvas.js`): a quick tap toggles it, a press-and-hold removes it — since a plain tap on any other placed component already means "remove."
 - **Solving is continuous**, via `useCircuitPhysics` — same wall-clock fixed-step accumulator as `usePendulumPhysics.js`, and for the same reason: a capacitor mid-charge is a real-time transient, so it must keep running off-screen/backgrounded while `CircuitCanvas`'s `requestAnimationFrame` render loop pauses normally. Nothing here is gated behind `prefers-reduced-motion` either, for the same reason the pendulum's swing isn't: a live meter reading and the placement ghost are the experiment's content and direct manipulation, not decorative animation.
+- **The ammeter goes in series and is modeled as its own named shunt resistance**, not an ideal branch-current unknown — the solver is plain nodal analysis (see `model.mjs`'s header), so an ammeter is stamped exactly like a resistor of `el.shuntOhms`, and its reading is recovered afterward as ΔV/shuntOhms (`ammeterReading`). `shuntOhms` is a real property of the inventory item/placed component (e.g. `app/simulations/circuit-builder/circuitInventory.js`), not a buried constant — the point being a real ammeter's small non-zero resistance is a systematic error a later experiment might want to use deliberately, not just hide. Contrast the voltmeter (`type: 'meter'`), which taps two nodes without joining them (infinite impedance, no stamp at all) since it sits in parallel, not in series.
 - **The board has no ground/earth component.** `stepCircuit` needs *some* reference node, so `CircuitBench` always passes a fixed sentinel (`'__ground__'`) that's never a real grid intersection — it just picks up model.mjs's GMIN leak like every other node. Only voltage *differences* (what a voltmeter reads) are physical, so which node this constant names is arbitrary and invisible to the student.
 - Not yet wired into `ExperimentWorkspace` — `app/simulations/circuit-builder/` is a standalone harness (not registered in `data/simulations.js`) for exercising the bench ahead of a real circuits experiment's guide content and inventory being built.
 
