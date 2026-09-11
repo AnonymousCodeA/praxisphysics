@@ -78,6 +78,21 @@ components/
                           digital: the ruler, protractor, and photogate itself are drawn as
                           objects on the bench (lib/pendulum/scene.js), toggled on/off from
                           the same instrument menu
+  CircuitBench.js         the circuit-building bench: owns board state (placed components,
+                          undo history, armed inventory item) and lib/circuits/
+                          useCircuitPhysics's continuous solve loop; renders CircuitCanvas,
+                          CircuitInventory, and a capacitor panel (live voltage + an explicit
+                          DISCHARGE button per instance — see lib/circuits/model.mjs's
+                          persistent-charge design). Not yet wired into ExperimentWorkspace —
+                          see app/simulations/circuit-builder/ for the standalone harness
+                          it's currently exercised through
+  CircuitCanvas.js        canvas + pointer mechanics for the board, mirroring
+                          PendulumCanvas.js's conventions (refs for gesture state, rAF loop
+                          paused off-screen, ResizeObserver, pointer events) — see the
+                          "Circuit bench" note below for the placement gesture and why
+                          nothing here is reduced-motion-gated
+  CircuitInventory.js     row of cards (schematic symbol via lib/circuits/scene.js, label,
+                          remaining count) — tap to arm for placement, disabled at zero stock
 data/
   simulations.js         categories[] (fixed 6: mechanics, thermodynamics, electromagnetism,
                           waves-optics, modern-physics, mixed-bag) + simulations{} keyed by
@@ -102,6 +117,22 @@ lib/
   instruments/rng.js      session-seeded PRNG for instrument zero-offsets (sessionStorage-
                           backed seed, deterministic per key — stable across reloads)
   instruments/reading.js  quantize(value, resolution) — shared by every instrument
+  circuits/model.mjs      DC circuit solver via modified nodal analysis — see the file's own
+                          header comment and scripts/circuits-verify.mjs for the physics this
+                          is verified against (RC discharge, charge sharing, charge cycling)
+                          before it's the basis of anything drawn
+  circuits/mna.mjs        the dense linear solver model.mjs's stamps feed into
+  circuits/grid.js        pure grid geometry for the circuit bench — node ids ARE the
+                          solver's node ids (no translation layer), edges are the
+                          (row,col)-adjacent pairs a two-terminal component can occupy
+  circuits/scene.js       pure canvas draw functions, one per component symbol, shared
+                          between the real board and its ghost preview — same idea as
+                          lib/pendulum/scene.js
+  circuits/useCircuitPhysics.js
+                          drives model.mjs continuously via a wall-clock fixed-step
+                          accumulator, same reasoning as usePendulumPhysics.js: a capacitor
+                          mid-charge is a real-time transient, so this keeps running
+                          off-screen/backgrounded while CircuitCanvas's render loop pauses
   experiment/useDataTable.js
                           a part's table state + localStorage persistence, keyed by
                           `praxis:<experimentId>-<partId>-table` — the single source of
@@ -166,6 +197,17 @@ All bench-object tools start off — `open` in `PendulumLab.js` is `{}`, so the 
 Draggable bench objects (ruler, protractor, photogate) live in refs owned by the parent (`PendulumLab.js`), not React state — nothing outside the canvas needs to react to them, so mutating `ref.current` from `PendulumCanvas`'s pointer handlers and reading it every rAF frame avoids needless re-renders. Where a gesture is ambiguous (grabbing a ruler/protractor body could mean "move it" or "hold to read it"), disambiguate with a short delay + move-cancel threshold rather than a mode switch the student has to know about — see `HOLD_DELAY_MS`/`HOLD_MOVE_CANCEL_PX` in `PendulumCanvas.js`; the same `pendingBody`/`body` state machine handles both the ruler and the protractor by keying off which one's hit-test matched (`pendingKind`), rather than duplicating the gesture per object. The photogate doesn't rotate and has no fine scale, so it skips the hold gesture entirely — grabbing it is always a plain drag.
 
 Physics that depends on a draggable bench object's position (the photogate's beam) reads it straight from that object's ref inside the fixed-step accumulator — see `photogateRef`/`photogateVisible` in `usePendulumPhysics.js`. The beam is treated as a fixed point at a given angle from the pivot; "the string crosses the beam" reduces to the same interpolated angle-crossing technique used for turning points and the old fixed-position photogate, just against that point's angle instead of a hardcoded one, and gated on the beam being within the string's current reach.
+
+### Circuit bench (grid, placement, persistent charge)
+
+`components/CircuitBench.js` / `CircuitCanvas.js`, on top of `lib/circuits/model.mjs`. Grid intersections are the solver's nodes (a node id here — `"row,col"` — literally *is* the id `stepCircuit` sees, no translation layer); every two-terminal component occupies the edge between two adjacent nodes, and its orientation (horizontal/vertical) falls straight out of which edge it's on, so there's no separate rotate state. `lib/circuits/grid.js` is the pure geometry (`buildEdges`, `nearestEdge`); `lib/circuits/scene.js` is the pure per-symbol draw functions, shared verbatim between a placed component and its ghost preview.
+
+- **Placement is arm-then-place, not drag-and-drop.** Tap an inventory card to arm it; a ghost then tracks the pointer to the nearest edge (dimmed/red if that edge is already occupied). Mouse users get this for free from real hover (`pointermove` fires without a button down), so a single click after hovering commits. Touch has no hover, so the same rule — *"does this release land on the edge that was already ghosted before this gesture began"* — degrades gracefully into a two-tap flow: the first tap has nothing to match against yet (just previews), the second tap on the same edge matches and commits. `CircuitCanvas` implements this with one rule (`wasGhostEdge` captured on `pointerdown`, compared on `pointerup`), not two separate code paths for mouse vs. touch.
+- **Every inventory slot is a numbered physical instance** (`expandInventory` in `CircuitBench.js`), not a fungible count — two capacitors of the same value are two independent objects with independent charge histories. This is what makes "remove a charged capacitor, it keeps its charge in stock, place it back down elsewhere" fall out for free: the solver's persistent per-id state (see `model.mjs`) simply doesn't get touched by whether an id currently appears in the elements array a given tick, and instance identity is stable across arm/place/remove/undo.
+- **Switch toggle and capacitor discharge are experiment operations, not build actions** — neither pushes an undo entry, only place/remove do. A placed switch is disambiguated with the same hold-delay/move-cancel pattern as the pendulum's ruler/protractor (`HOLD_DELAY_MS`/`HOLD_MOVE_CANCEL_PX` in `CircuitCanvas.js`): a quick tap toggles it, a press-and-hold removes it — since a plain tap on any other placed component already means "remove."
+- **Solving is continuous**, via `useCircuitPhysics` — same wall-clock fixed-step accumulator as `usePendulumPhysics.js`, and for the same reason: a capacitor mid-charge is a real-time transient, so it must keep running off-screen/backgrounded while `CircuitCanvas`'s `requestAnimationFrame` render loop pauses normally. Nothing here is gated behind `prefers-reduced-motion` either, for the same reason the pendulum's swing isn't: a live meter reading and the placement ghost are the experiment's content and direct manipulation, not decorative animation.
+- **The board has no ground/earth component.** `stepCircuit` needs *some* reference node, so `CircuitBench` always passes a fixed sentinel (`'__ground__'`) that's never a real grid intersection — it just picks up model.mjs's GMIN leak like every other node. Only voltage *differences* (what a voltmeter reads) are physical, so which node this constant names is arbitrary and invisible to the student.
+- Not yet wired into `ExperimentWorkspace` — `app/simulations/circuit-builder/` is a standalone harness (not registered in `data/simulations.js`) for exercising the bench ahead of a real circuits experiment's guide content and inventory being built.
 
 ## Notes
 
