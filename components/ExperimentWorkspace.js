@@ -1,12 +1,11 @@
 'use client';
 
 import { useCallback, useRef, useState } from 'react';
-import PendulumGuide from './PendulumGuide';
-import PendulumDataTable from './PendulumDataTable';
-import PendulumLab from './PendulumLab';
-import PendulumPlot from './PendulumPlot';
-import { useDataTable } from '@/lib/pendulum/useDataTable';
-import { usePlotConfig } from '@/lib/pendulum/usePlotConfig';
+import ExperimentGuide from './ExperimentGuide';
+import DataTable from './DataTable';
+import Plot from './Plot';
+import { useDataTable } from '@/lib/experiment/useDataTable';
+import { usePlotConfig } from '@/lib/experiment/usePlotConfig';
 
 const TABS = [
   { key: 'problem', label: 'PROBLEM' },
@@ -14,38 +13,50 @@ const TABS = [
   { key: 'lab', label: 'LAB' },
 ];
 
-const PARTS = [
-  { key: 'parta', label: 'PART A' },
-  { key: 'partb', label: 'PART B' },
-];
-
 const SPLIT_MIN = 28;
 const SPLIT_MAX = 72;
 const SPLIT_DEFAULT = 44;
 const SPLIT_STEP = 2;
 
-// Mobile-first shell: three panes (problem, table, lab) that are tab-switched
-// on narrow screens, and become a two-column split with a draggable divider
-// on wide ones (see the min-width breakpoint in globals.css). Left column
-// groups the part switch, problem, and table; right column holds the bench
-// (shared, doesn't change with part) and the plot. Table and plot state
-// (lib/pendulum/useDataTable.js, usePlotConfig.js) live here, one instance
-// per part rather than one that's re-keyed, so switching parts is just
-// picking which already-loaded instance to hand down — each part's table
-// and plot stay independently live (and independently in localStorage) the
-// whole time, not just while that part is on screen.
-export default function PendulumWorkspace() {
+// Mobile-first shell, generalized from the pendulum lab so any experiment
+// with a problem statement, a student-defined table/plot, and a bench can
+// reuse it: three panes (problem, table, lab) that are tab-switched on
+// narrow screens, and become a two-column split with a draggable divider on
+// wide ones (see the min-width breakpoint in globals.css). Left column
+// groups the part switch, problem, and table; right column holds `Bench`
+// (shared, doesn't change with part) and the plot.
+//
+// `experimentId` and each part's `key` pick the localStorage keys
+// (praxis:<experimentId>-<partId>-table / -plot, see lib/experiment/), so
+// every experiment and part keeps independent, persistent data.
+//
+// Table/plot state lives here, one instance per part rather than one that's
+// re-keyed, so switching parts is just picking which already-loaded
+// instance to hand down — each part's table and plot stay independently
+// live (and independently in localStorage) the whole time, not just while
+// that part is on screen. This only supports exactly two parts (matching
+// every experiment built so far, and the two fixed hook-call sites below) —
+// generalizing further would need the per-part state lifted into a small
+// subcomponent instead of two named hook calls.
+//
+// `parts` is a two-element array of { key, label, tag, title, body,
+// formulae?, hints?, credit? } — see data/pendulumGuide.js for the shape.
+// `Bench` is rendered with no props, matching e.g. PendulumLab.
+export default function ExperimentWorkspace({ experimentId, parts, Bench }) {
+  const [partA, partB] = parts;
   const [activeTab, setActiveTab] = useState('problem');
-  const [part, setPart] = useState('parta');
+  const [part, setPart] = useState(partA.key);
   const [splitPct, setSplitPct] = useState(SPLIT_DEFAULT);
   const wrapRef = useRef(null);
   const draggingRef = useRef(false);
-  const tableA = useDataTable('parta');
-  const tableB = useDataTable('partb');
-  const plotA = usePlotConfig('parta');
-  const plotB = usePlotConfig('partb');
-  const dataTable = part === 'parta' ? tableA : tableB;
-  const plotConfig = part === 'parta' ? plotA : plotB;
+  const tableA = useDataTable(experimentId, partA.key);
+  const tableB = useDataTable(experimentId, partB.key);
+  const plotA = usePlotConfig(experimentId, partA.key);
+  const plotB = usePlotConfig(experimentId, partB.key);
+  const isPartA = part === partA.key;
+  const dataTable = isPartA ? tableA : tableB;
+  const plotConfig = isPartA ? plotA : plotB;
+  const activeDef = isPartA ? partA : partB;
 
   const updateSplitFromClientX = useCallback((clientX) => {
     if (!wrapRef.current) return;
@@ -89,7 +100,7 @@ export default function PendulumWorkspace() {
       data-active-tab={activeTab}
       style={{ '--pendulum-split': `${splitPct}%` }}
     >
-      <div className="pendulum-tabs" role="tablist" aria-label="Pendulum lab sections">
+      <div className="pendulum-tabs" role="tablist" aria-label="Lab sections">
         {TABS.map((t) => (
           <button
             key={t.key}
@@ -105,8 +116,8 @@ export default function PendulumWorkspace() {
       </div>
 
       <div className="pendulum-col-left">
-        <div className="pendulum-part-switch" role="tablist" aria-label="Pendulum lab part">
-          {PARTS.map((p) => (
+        <div className="pendulum-part-switch" role="tablist" aria-label="Lab part">
+          {parts.map((p) => (
             <button
               key={p.key}
               type="button"
@@ -120,10 +131,10 @@ export default function PendulumWorkspace() {
           ))}
         </div>
         <div className="pendulum-pane" data-pane="problem">
-          <PendulumGuide part={part} />
+          <ExperimentGuide def={activeDef} />
         </div>
         <div className="pendulum-pane" data-pane="table">
-          <PendulumDataTable {...dataTable} />
+          <DataTable {...dataTable} />
         </div>
       </div>
 
@@ -145,8 +156,8 @@ export default function PendulumWorkspace() {
 
       <div className="pendulum-col-right">
         <div className="pendulum-pane" data-pane="lab">
-          <PendulumLab />
-          {dataTable.table && <PendulumPlot part={part} table={dataTable.table} {...plotConfig} />}
+          <Bench />
+          {dataTable.table && <Plot part={part} table={dataTable.table} {...plotConfig} />}
         </div>
       </div>
     </div>

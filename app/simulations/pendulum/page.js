@@ -1,4 +1,4 @@
-import PendulumWorkspace from '@/components/PendulumWorkspace';
+import PendulumExperiment from '@/components/PendulumExperiment';
 
 export const metadata = { title: 'Pendulum — Praxis' };
 
@@ -12,7 +12,7 @@ export default function PendulumPage() {
         <p className="lede">
           Work the problem, log your own data, and take readings from the bench below.
         </p>
-        <PendulumWorkspace />
+        <PendulumExperiment />
       </div>
     </section>
   );

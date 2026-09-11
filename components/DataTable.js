@@ -2,10 +2,12 @@
 
 // Deliberately structure-free: no computed columns, no built-in T² or
 // averaging. Cells are free text — students decide what's worth tabulating.
-// Table state itself lives in lib/pendulum/useDataTable.js, owned by
-// PendulumWorkspace and shared with PendulumPlot — this component only
-// renders/edits it.
-export default function PendulumDataTable({ table, addColumn, deleteColumn, renameColumn, addRow, deleteRow, setCell }) {
+// Table state itself lives in lib/experiment/useDataTable.js, owned by
+// ExperimentWorkspace and shared with Plot — this component only
+// renders/edits it. CSS classes keep the "pendulum-" prefix: they're shared
+// presentational styles, not experiment-specific, and renaming them is a
+// separate cosmetic change from generalizing the component itself.
+export default function DataTable({ table, addColumn, deleteColumn, renameColumn, addRow, deleteRow, setCell }) {
   if (!table) return null;
 
   return (

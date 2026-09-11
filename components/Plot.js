@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { parseBounds, lineStats, PLOT_ROLES, MAX_LINES } from '@/lib/pendulum/usePlotConfig';
+import { parseBounds, lineStats, PLOT_ROLES, MAX_LINES } from '@/lib/experiment/usePlotConfig';
 
 const PAD_LEFT = 60;
 const PAD_RIGHT = 16;
@@ -61,12 +61,14 @@ function drawExtendedLine(ctx, toPx, rect, p1, p2, color, dashed) {
   ctx.setLineDash([]);
 }
 
-// Config and its mutators are owned by PendulumWorkspace (one usePlotConfig
-// instance per part) and handed down as props — same controlled pattern as
-// PendulumDataTable — so switching parts swaps in a different part's plot
-// without this component needing to know parts exist beyond resetting its
-// own ephemeral click-readout below.
-export default function PendulumPlot({
+// Config and its mutators are owned by ExperimentWorkspace (one
+// usePlotConfig instance per part) and handed down as props — same
+// controlled pattern as DataTable — so switching parts swaps in a
+// different part's plot without this component needing to know parts exist
+// beyond resetting its own ephemeral click-readout below. CSS classes keep
+// the "pendulum-"/"plot-" prefix: shared presentational styles, not
+// experiment-specific — see the matching note on DataTable.
+export default function Plot({
   part,
   table,
   config,

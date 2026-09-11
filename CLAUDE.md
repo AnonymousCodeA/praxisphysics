@@ -35,23 +35,37 @@ components/
   FieldBackground.js     fixed-canvas cursor "charge field" that warps the page's grid lines
   DiffractionGrating.js  the hero simulation — canonical example for how a sim is built
   Figures.js             small inline-SVG line drawings used on the category cards
-  PendulumWorkspace.js    page shell for the pendulum lab: tabs on narrow screens, a
-                          two-column split with draggable divider on wide ones (see the
-                          min-width breakpoint in globals.css), plus the Part A/B pill switch
-                          at the top of the left column. Holds one useDataTable/usePlotConfig
-                          instance per part (both always mounted, so both parts' data stay
-                          live and independently saved regardless of which is on screen) and
-                          hands the active part's down to PendulumDataTable/PendulumPlot —
-                          the bench (PendulumLab) is the one thing that doesn't change with part
-  PendulumGuide.js        static per-part problem statement/formulae/hints — no method, just
-                          prompts. Takes a `part` prop; Part B is a placeholder pending content
-  PendulumDataTable.js    student-defined table (add/delete row & column, rename headers,
+  ExperimentWorkspace.js  reusable lab shell (generalized from the pendulum's original
+                          workspace): tabs on narrow screens, a two-column split with
+                          draggable divider on wide ones (see the min-width breakpoint in
+                          globals.css), plus a part pill switch at the top of the left
+                          column. Takes `experimentId`, a two-element `parts` array (problem
+                          statement/formulae/hints per part — see data/pendulumGuide.js for
+                          the shape), and a `Bench` component to render in the right panel.
+                          Holds one useDataTable/usePlotConfig instance per part (both
+                          always mounted, so both parts' data stay live and independently
+                          saved regardless of which is on screen — only two parts are
+                          supported, one named hook-call site each) and hands the active
+                          part's down to DataTable/Plot; `Bench` is the one thing that
+                          doesn't change with part. CSS classes keep their original
+                          "pendulum-" prefix (shared presentational styles, not
+                          experiment-specific — renaming them is a separate cosmetic change)
+  ExperimentGuide.js      renders a part's problem statement/formulae/hints from the plain
+                          data definition it's given — no method, just prompts; owns no
+                          content of its own
+  DataTable.js            student-defined table (add/delete row & column, rename headers,
                           free-typed cells) — controlled by the table state in
-                          PendulumWorkspace, not owned here
-  PendulumPlot.js         plot for the table's data: student picks x/y columns and types
+                          ExperimentWorkspace, not owned here
+  Plot.js                 plot for the table's data: student picks x/y columns and types
                           axis min/max (no auto-scaling), drags a line's two endpoints
                           freely to set gradient/intercept (never a fit), saves up to four
                           lines in distinct colours — see the palette exception above
+  PendulumExperiment.js   the pendulum as a consumer of ExperimentWorkspace rather than
+                          being the shell itself: wires data/pendulumGuide.js's part
+                          definitions and PendulumLab together and renders the shell.
+                          Kept as its own 'use client' file (rather than passed as props
+                          from app/simulations/pendulum/page.js, a Server Component) so the
+                          guide content's JSX never has to cross the server/client boundary
   PendulumLab.js / PendulumCanvas.js / PendulumLens.js
                           canonical example of a measurement-driven experiment: physics
                           engine + drag/release, decoupled from the instrument panels.
@@ -69,6 +83,12 @@ data/
                           waves-optics, modern-physics, mixed-bag) + simulations{} keyed by
                           category slug — add a sim by pushing into the right array
   papers.js               collections[] for past-paper archives
+  pendulumGuide.js        pendulumParts[] — the pendulum's own problem statement/formulae/
+                          hints, in the shape ExperimentGuide/ExperimentWorkspace expect.
+                          `body`/`credit` are JSX, since this is content, not serializable
+                          data; that's fine as long as it's only ever imported from a
+                          'use client' consumer (PendulumExperiment.js), never passed as a
+                          prop across the Server/Client boundary
 lib/
   pendulum/model.mjs      ground-truth physics (accel/verletStep), verified against the exact
                           AGM period — see docs/pendulum-plan.md. Plain ESM so the same file
@@ -82,19 +102,20 @@ lib/
   instruments/rng.js      session-seeded PRNG for instrument zero-offsets (sessionStorage-
                           backed seed, deterministic per key — stable across reloads)
   instruments/reading.js  quantize(value, resolution) — shared by every instrument
-  pendulum/useDataTable.js
-                          a part's table state + localStorage persistence, keyed by the
-                          `part` argument ('parta'/'partb') — the single source of truth
-                          shared by PendulumDataTable and PendulumPlot. PendulumWorkspace
-                          holds one instance per part rather than re-keying a single
-                          instance, so `part` is read once and never expected to change
+  experiment/useDataTable.js
+                          a part's table state + localStorage persistence, keyed by
+                          `praxis:<experimentId>-<partId>-table` — the single source of
+                          truth shared by DataTable and Plot. ExperimentWorkspace holds one
+                          instance per part rather than re-keying a single instance, so
+                          `experimentId`/`partId` are read once and never expected to change
                           under a given instance
-  pendulum/usePlotConfig.js
+  experiment/usePlotConfig.js
                           a part's plot state (column choices, axis bounds, current/saved
-                          lines) + localStorage persistence, same per-part keying as
-                          useDataTable, plus parseBounds/lineStats helpers. Column choices
-                          are keyed by role (`PLOT_ROLES`), not hardcoded x/y fields, so an
-                          error-bar column is a one-line addition later
+                          lines) + localStorage persistence at
+                          `praxis:<experimentId>-<partId>-plot`, plus parseBounds/lineStats
+                          helpers. Column choices are keyed by role (`PLOT_ROLES`), not
+                          hardcoded x/y fields, so an error-bar column is a one-line
+                          addition later
 ```
 
 Routes are static/data-driven: `generateStaticParams` reads `data/*.js`, and `notFound()` fires for unknown slugs. There's no CMS or DB — content changes are code changes to the `data/` files.
@@ -102,7 +123,7 @@ Routes are static/data-driven: `generateStaticParams` reads `data/*.js`, and `no
 ## Design constraints (non-negotiable)
 
 - **Palette**: near-black ink background (`--ink #060A0F`, panels `--panel #0B1219`) with a single light-blue accent (`--trace #4EC5FF`) used for interactive/live elements, highlights, and glow. Text is off-white (`--chalk`) or muted gray (`--muted`). No other hues — new UI must work within this two-tone system.
-  - **Exception — plot line colours**: `components/PendulumPlot.js` needs up to four saved student-drawn lines to stay visually distinct from each other *and* from the data points/axes, which a single accent can't do. It uses a small fixed palette (`LINE_COLORS` in `lib/pendulum/usePlotConfig.js`) of four hues at the same saturation/lightness as `--trace`, reserved for saved/current lines only — points, axes, and everything else on the plot still key off `--trace` alone. This is a deliberate, scoped exception; don't extend the palette to other UI or collapse it back to monochrome.
+  - **Exception — plot line colours**: `components/Plot.js` needs up to four saved student-drawn lines to stay visually distinct from each other *and* from the data points/axes, which a single accent can't do. It uses a small fixed palette (`LINE_COLORS` in `lib/experiment/usePlotConfig.js`) of four hues at the same saturation/lightness as `--trace`, reserved for saved/current lines only — points, axes, and everything else on the plot still key off `--trace` alone. This is a deliberate, scoped exception; don't extend the palette to other UI or collapse it back to monochrome.
 - **Type**: IBM Plex Sans for prose/headings, IBM Plex Mono for labels/eyebrows/data readouts/nav — the mono face is what signals "instrument panel" and should be used for anything numeric or tag-like, not for body copy.
 - **Mobile-first, metered-data-first**: the audience is students in Bangladesh, often on phones with capped/slow data and modest batteries. Concretely this means:
   - Fonts self-hosted through `next/font` (never fetched from Google at request time).
