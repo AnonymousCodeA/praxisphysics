@@ -4,6 +4,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import CircuitCanvas from './CircuitCanvas';
 import CircuitInventory from './CircuitInventory';
 import { useCircuitPhysics } from '@/lib/circuits/useCircuitPhysics';
+import {
+  VOLT_RANGE_ORDER,
+  AMP_RANGE_ORDER,
+  DEFAULT_VOLT_RANGE,
+  DEFAULT_AMP_RANGE,
+} from '@/lib/circuits/scene';
 
 const GROUND = '__ground__'; // an internal reference node, never a real grid
 // intersection — see model.mjs: any unreferenced node still gets its GMIN
@@ -106,7 +112,14 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7 }) {
       const usedInstanceIds = new Set(placedRef.current.map((c) => c.instanceId));
       const inst = instances.find((i) => i.itemId === itemId && !usedInstanceIds.has(i.instanceId));
       if (!inst) return;
-      const comp = { ...inst, edgeKey: edge.key, a: edge.a, b: edge.b, closed: inst.type === 'switch' ? false : undefined };
+      const comp = {
+        ...inst,
+        edgeKey: edge.key,
+        a: edge.a,
+        b: edge.b,
+        closed: inst.type === 'switch' ? false : undefined,
+        range: inst.type === 'voltmeter' ? DEFAULT_VOLT_RANGE : inst.type === 'ammeter' ? DEFAULT_AMP_RANGE : undefined,
+      };
       setPlaced((prev) => [...prev, comp]);
       setHistory((prev) => [...prev, { action: 'place', component: comp }]);
     },
@@ -126,6 +139,12 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7 }) {
     setPlaced((prev) => prev.map((c) => (c.instanceId === instanceId ? { ...c, closed: !c.closed } : c)));
   }, []);
 
+  // Same reasoning as the switch: a meter's range is an experiment
+  // operation (like flipping a real range dial), not a build action.
+  const handleSetRange = useCallback((instanceId, range) => {
+    setPlaced((prev) => prev.map((c) => (c.instanceId === instanceId ? { ...c, range } : c)));
+  }, []);
+
   const handleUndo = useCallback(() => {
     setHistory((prev) => {
       if (prev.length === 0) return prev;
@@ -141,6 +160,12 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7 }) {
 
   const armedItem = armedId ? instances.find((i) => i.itemId === armedId) : null;
   const capacitorInstances = useMemo(() => instances.filter((i) => i.type === 'capacitor'), [instances]);
+  // Range only means anything for a meter that's actually on the board —
+  // unlike capacitor charge, it isn't a property worth tracking in stock.
+  const placedMeters = useMemo(
+    () => placed.filter((c) => c.type === 'voltmeter' || c.type === 'ammeter'),
+    [placed]
+  );
 
   return (
     <div className="circuit-bench">
@@ -158,7 +183,9 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7 }) {
         <p className="hint">
           Tap a component below to arm it, move over the board to preview it on the nearest
           edge, then tap again to place it. Tap a placed component to remove it and return it
-          to stock. Tap a placed switch to toggle it — press and hold a switch to remove it.
+          to stock. Tap a placed switch to toggle it — press and hold a switch to remove it. A
+          placed meter reads OL if the value is beyond its selected range — switch its range in
+          the Meters panel below.
         </p>
       </div>
 
@@ -187,6 +214,36 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7 }) {
                   <button type="button" onClick={() => dischargeCapacitor(inst.instanceId)}>
                     DISCHARGE
                   </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+
+      {placedMeters.length > 0 && (
+        <div className="circuit-meters">
+          <h4>Meters</h4>
+          <ul>
+            {placedMeters.map((c) => {
+              const options = c.type === 'voltmeter' ? VOLT_RANGE_ORDER : AMP_RANGE_ORDER;
+              return (
+                <li key={c.instanceId}>
+                  <span className="circuit-meter-label">{c.label}</span>
+                  <div className="circuit-range-switch" role="tablist" aria-label={`${c.label} meter range`}>
+                    {options.map((r) => (
+                      <button
+                        key={r}
+                        type="button"
+                        role="tab"
+                        aria-selected={c.range === r}
+                        className={c.range === r ? 'active' : ''}
+                        onClick={() => handleSetRange(c.instanceId, r)}
+                      >
+                        {r}
+                      </button>
+                    ))}
+                  </div>
                 </li>
               );
             })}
