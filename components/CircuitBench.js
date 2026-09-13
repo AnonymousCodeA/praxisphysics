@@ -94,7 +94,7 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7 }) {
     [placed]
   );
 
-  const { voltages, dischargeCapacitor } = useCircuitPhysics({ elements, ground: GROUND });
+  const { voltages, floatingNodes, dischargeCapacitor } = useCircuitPhysics({ elements, ground: GROUND });
 
   const handleArm = useCallback((itemId) => {
     setArmedId((prev) => (prev === itemId ? null : itemId));
@@ -176,6 +176,7 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7 }) {
           placed={placed}
           armed={armedItem}
           voltages={voltages}
+          floatingNodes={floatingNodes}
           onPlace={handlePlace}
           onRemove={handleRemove}
           onToggleSwitch={handleToggleSwitch}

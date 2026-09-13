@@ -260,6 +260,63 @@ console.log(
     `(≈ R_shunt/R = ${((SHUNT_OHMS / AMMETER_R) * 100).toFixed(4)}%) — a deliberate, usable error, not a bug`
 );
 
+// --- Test 5: a meter's nodes must be flagged floating when cut off from
+// every source, and NOT flagged just because a resistor chain doesn't
+// happen to be wire-merged with a source terminal ---
+
+console.log('\n=== Test 5: floating-node detection ===');
+
+// Same shape as the reported bug: battery - switch1(open) - a wire-tied
+// middle section a voltmeter taps across - switch2(open) - capacitor -
+// resistor - back to the battery. Both switches open isolates the middle
+// section from every source; it must read as floating, not a number.
+const floatingBugCircuit = {
+  ground: 'gnd',
+  elements: [
+    { id: 'V1', type: 'vsource', nodes: ['top', 'gnd'], value: 6 },
+    { id: 'SW1', type: 'switch', nodes: ['top', 'mid'], closed: false },
+    { id: 'W1', type: 'wire', nodes: ['mid', 'mid2'] },
+    { id: 'VM', type: 'meter', nodes: ['mid', 'mid2'] },
+    { id: 'SW2', type: 'switch', nodes: ['mid2', 'n4'], closed: false },
+    { id: 'C1', type: 'capacitor', nodes: ['n4', 'n5'], value: 100e-6 },
+    { id: 'R1', type: 'resistor', nodes: ['n5', 'gnd'], value: 4700 },
+  ],
+};
+const bugResult = stepCircuit(floatingBugCircuit, createCircuitState(), 1e-3);
+const bothOpenFloating = bugResult.floatingNodes.has('mid') && bugResult.floatingNodes.has('mid2');
+console.log(`both switches open: mid/mid2 flagged floating = ${bothOpenFloating} — ${bothOpenFloating ? 'PASS' : 'FAIL'}`);
+
+// Closing either switch reconnects the section to the source; it must stop
+// being flagged.
+const oneClosedCircuit = {
+  ...floatingBugCircuit,
+  elements: floatingBugCircuit.elements.map((el) => (el.id === 'SW1' ? { ...el, closed: true } : el)),
+};
+const oneClosedResult = stepCircuit(oneClosedCircuit, createCircuitState(), 1e-3);
+const reconnected = !oneClosedResult.floatingNodes.has('mid') && !oneClosedResult.floatingNodes.has('mid2');
+console.log(`closing SW1: mid/mid2 no longer floating = ${reconnected} — ${reconnected ? 'PASS' : 'FAIL'}`);
+
+// Regression: a plain series resistor chain must NOT be flagged floating
+// just because a resistor (unlike a wire or closed switch) doesn't get
+// union-merged with anything — the junction between two resistors is a
+// real, current-carrying node, reached via a real conducting path.
+const seriesCircuit = {
+  ground: 'gnd',
+  elements: [
+    { id: 'V1', type: 'vsource', nodes: ['a', 'gnd'], value: 6 },
+    { id: 'R1', type: 'resistor', nodes: ['a', 'b'], value: 1000 },
+    { id: 'R2', type: 'resistor', nodes: ['b', 'gnd'], value: 1000 },
+    { id: 'VM', type: 'meter', nodes: ['b', 'gnd'] },
+  ],
+};
+const seriesResult = stepCircuit(seriesCircuit, createCircuitState(), 1e-3);
+const noFalsePositive = seriesResult.floatingNodes.size === 0;
+console.log(
+  `series resistor divider (no explicit wire at the junction): floatingNodes = [${[...seriesResult.floatingNodes]}] — ${
+    noFalsePositive ? 'PASS' : 'FAIL'
+  } (should be empty)`
+);
+
 // --- Degenerate cases: must not crash or produce NaN ---
 
 console.log('\n=== Degenerate cases: no crash, no NaN ===');

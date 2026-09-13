@@ -20,14 +20,16 @@ const HOLD_MOVE_CANCEL_PX = 6;
 // direct manipulation, not decorative animation (see CLAUDE.md's carve-out
 // for measurement-driven experiments).
 //
-// `placed`/`armed`/`voltages` are plain props, synced into refs on every
-// change so the draw loop and pointer handlers (which run inside one
-// long-lived effect) always see the latest values without re-binding.
-export default function CircuitCanvas({ rows, cols, placed, armed, voltages, onPlace, onRemove, onToggleSwitch }) {
+// `placed`/`armed`/`voltages`/`floatingNodes` are plain props, synced into
+// refs on every change so the draw loop and pointer handlers (which run
+// inside one long-lived effect) always see the latest values without
+// re-binding.
+export default function CircuitCanvas({ rows, cols, placed, armed, voltages, floatingNodes, onPlace, onRemove, onToggleSwitch }) {
   const canvasRef = useRef(null);
   const placedRef = useRef(placed);
   const armedRef = useRef(armed);
   const voltagesRef = useRef(voltages);
+  const floatingNodesRef = useRef(floatingNodes);
 
   useEffect(() => {
     placedRef.current = placed;
@@ -38,6 +40,9 @@ export default function CircuitCanvas({ rows, cols, placed, armed, voltages, onP
   useEffect(() => {
     voltagesRef.current = voltages;
   }, [voltages]);
+  useEffect(() => {
+    floatingNodesRef.current = floatingNodes;
+  }, [floatingNodes]);
 
   useEffect(() => {
     const cvs = canvasRef.current;
@@ -126,16 +131,21 @@ export default function CircuitCanvas({ rows, cols, placed, armed, voltages, onP
         const p1 = project(comp.a);
         const p2 = project(comp.b);
         let reading;
-        if (comp.type === 'voltmeter') {
-          const va = voltagesRef.current.get(comp.a) ?? 0;
-          const vb = voltagesRef.current.get(comp.b) ?? 0;
-          reading = va - vb;
-        } else if (comp.type === 'ammeter') {
-          const va = voltagesRef.current.get(comp.a) ?? 0;
-          const vb = voltagesRef.current.get(comp.b) ?? 0;
-          reading = (va - vb) / comp.shuntOhms;
+        let floating = false;
+        if (comp.type === 'voltmeter' || comp.type === 'ammeter') {
+          // A node held up only by GMIN (no real path to any source) gives
+          // the solver a numerically well-defined but physically arbitrary
+          // voltage — see floatingNodes in model.mjs. Showing that as a
+          // confident number would be a lie a real meter wouldn't tell.
+          const fn = floatingNodesRef.current;
+          floating = (fn && fn.has(comp.a)) || (fn && fn.has(comp.b));
+          if (!floating) {
+            const va = voltagesRef.current.get(comp.a) ?? 0;
+            const vb = voltagesRef.current.get(comp.b) ?? 0;
+            reading = comp.type === 'ammeter' ? (va - vb) / comp.shuntOhms : va - vb;
+          }
         }
-        drawComponent(ctx, p1, p2, comp, { color: TRACE, alpha: 1, reading });
+        drawComponent(ctx, p1, p2, comp, { color: TRACE, alpha: 1, reading, floating });
       }
 
       const armedItem = armedRef.current;
