@@ -1,0 +1,25 @@
+'use client';
+
+// The circuits experiment as a consumer of the generic ExperimentWorkspace
+// shell, rather than being the shell itself: this file just wires the
+// circuits guide content, the shared inventory, and the bench into it.
+import ExperimentWorkspace from './ExperimentWorkspace';
+import CircuitBench from './CircuitBench';
+import { circuitsParts } from '@/data/circuitsGuide';
+import { circuitsInventory } from '@/data/circuitsInventory';
+
+const ROWS = 6;
+const COLS = 9;
+
+// A module-level function (not defined inside CircuitsExperiment) so its
+// identity is stable across renders — ExperimentWorkspace renders `<Bench />`
+// with no props, and a freshly-created component reference every render
+// would remount CircuitBench (and with it, the board and every capacitor's
+// charge) instead of leaving it alone across a part switch.
+function Bench() {
+  return <CircuitBench inventory={circuitsInventory} rows={ROWS} cols={COLS} />;
+}
+
+export default function CircuitsExperiment() {
+  return <ExperimentWorkspace experimentId="circuits" parts={circuitsParts} Bench={Bench} />;
+}
