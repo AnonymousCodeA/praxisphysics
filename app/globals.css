@@ -436,6 +436,17 @@ footer{border-top:1px solid var(--edge);padding:34px 0 46px}
 }
 .circuit-card-count{font-family:var(--font-mono),monospace;font-size:10.5px;color:var(--muted)}
 
+.circuit-heater{border:1px solid var(--edge);border-radius:4px;background:var(--panel-t);padding:14px 16px}
+.circuit-heater h4{
+  margin:0 0 10px;font-family:var(--font-mono),monospace;font-size:11px;
+  letter-spacing:.12em;color:var(--muted);font-weight:400;
+}
+.circuit-heater-row{display:flex;flex-wrap:wrap;align-items:center;gap:14px}
+.circuit-heater-temp{
+  margin-left:auto;font-family:var(--font-mono),monospace;font-size:16px;font-weight:700;color:var(--trace);
+}
+.circuit-heater-note{margin:10px 0 0;font-size:12px;color:var(--muted)}
+
 .circuit-capacitors{border:1px solid var(--edge);border-radius:4px;background:var(--panel-t);padding:14px 16px}
 .circuit-capacitors h4{
   margin:0 0 10px;font-family:var(--font-mono),monospace;font-size:11px;

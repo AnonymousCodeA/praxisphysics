@@ -11,9 +11,10 @@ const SYMBOL_TYPE_SAMPLE = {
   wire: 'wire',
   voltmeter: 'voltmeter',
   ammeter: 'ammeter',
+  thermistor: 'thermistor',
 };
 
-function CardSymbol({ type }) {
+function CardSymbol({ type, value }) {
   const ref = useRef(null);
   useEffect(() => {
     const cvs = ref.current;
@@ -30,10 +31,10 @@ function CardSymbol({ type }) {
       ctx,
       { x: 6, y: h / 2 },
       { x: w - 6, y: h / 2 },
-      { type: SYMBOL_TYPE_SAMPLE[type] || type, label: '', closed: true },
+      { type: SYMBOL_TYPE_SAMPLE[type] || type, value, label: '', closed: true },
       { color: '#4EC5FF' }
     );
-  }, [type]);
+  }, [type, value]);
   return <canvas ref={ref} className="circuit-card-symbol" aria-hidden="true" />;
 }
 
@@ -56,7 +57,7 @@ export default function CircuitInventory({ items, remaining, armedId, onArm }) {
             aria-pressed={armedId === item.id}
             onClick={() => onArm(item.id)}
           >
-            <CardSymbol type={item.type} />
+            <CardSymbol type={item.type} value={item.value} />
             <span className="circuit-card-label">{item.label}</span>
             <span className="circuit-card-count">×{count}</span>
           </button>

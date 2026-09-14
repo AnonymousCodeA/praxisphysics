@@ -157,7 +157,7 @@ export default function CircuitCanvas({ rows, cols, placed, armed, voltages, flo
           ctx,
           p1,
           p2,
-          { type: armedItem.type, label: armedItem.label, closed: true },
+          { type: armedItem.type, value: armedItem.value, label: armedItem.label, closed: true },
           { color: occupied ? DANGER : TRACE, alpha: occupied ? 0.55 : 0.6 }
         );
       }

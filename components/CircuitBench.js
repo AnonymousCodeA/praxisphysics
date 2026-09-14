@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import CircuitCanvas from './CircuitCanvas';
 import CircuitInventory from './CircuitInventory';
 import { useCircuitPhysics } from '@/lib/circuits/useCircuitPhysics';
+import { useHeater } from '@/lib/circuits/useHeater';
 import {
   VOLT_RANGE_ORDER,
   AMP_RANGE_ORDER,
@@ -25,15 +26,16 @@ const SOLVER_TYPE = {
   wire: 'wire',
   voltmeter: 'meter',
   ammeter: 'ammeter',
+  thermistor: 'thermistor',
 };
 
 // Expands the problem definition's inventory ({ id, type, value, label,
-// count, shuntOhms? }[]) into individually-numbered physical instances. Each
-// is its own object with its own identity for the whole session —
-// critically, this is what lets a specific capacitor keep its charge across
-// being removed to stock and placed again elsewhere: "stock" is a pool of
-// these instances, not a fungible count that would blur which physical
-// object is which.
+// count, shuntOhms?, capacitanceFn?, r0?/beta?/t0? }[]) into individually-
+// numbered physical instances. Each is its own object with its own
+// identity for the whole session — critically, this is what lets a
+// specific capacitor keep its charge across being removed to stock and
+// placed again elsewhere: "stock" is a pool of these instances, not a
+// fungible count that would blur which physical object is which.
 function expandInventory(inventory) {
   const instances = [];
   for (const item of inventory) {
@@ -44,6 +46,10 @@ function expandInventory(inventory) {
         type: item.type,
         value: item.value,
         shuntOhms: item.shuntOhms,
+        capacitanceFn: item.capacitanceFn,
+        r0: item.r0,
+        beta: item.beta,
+        t0: item.t0,
         label: item.label,
       });
     }
@@ -58,6 +64,13 @@ function expandInventory(inventory) {
 // not recreated every render) since it drives every callback's identity.
 export default function CircuitBench({ inventory, rows = 5, cols = 7 }) {
   const instances = useMemo(() => expandInventory(inventory), [inventory]);
+  // Whether this problem's inventory includes a thermistor at all — drives
+  // whether the Heater/Thermometer panel exists. useHeater() is still
+  // called unconditionally below regardless (hooks can't be conditional),
+  // it's only the panel and the temperature fed into a thermistor element
+  // that are gated on this.
+  const hasThermistor = useMemo(() => inventory.some((item) => item.type === 'thermistor'), [inventory]);
+  const heater = useHeater();
 
   const [placed, setPlaced] = useState([]); // on-board components
   const [history, setHistory] = useState([]); // undo stack: { action: 'place'|'remove', component }
@@ -89,9 +102,17 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7 }) {
         nodes: [c.a, c.b],
         value: c.value,
         shuntOhms: c.shuntOhms,
+        capacitanceFn: c.capacitanceFn,
         closed: c.closed,
+        r0: c.r0,
+        beta: c.beta,
+        t0: c.t0,
+        // No thermal lag: a placed thermistor sits at exactly the heater's
+        // displayed temperature, converted to kelvin for model.mjs's
+        // thermistorResistance — never a separately-simulated value.
+        temperature: c.type === 'thermistor' ? heater.displayTemperature + 273.15 : undefined,
       })),
-    [placed]
+    [placed, heater.displayTemperature]
   );
 
   const { voltages, floatingNodes, dischargeCapacitor } = useCircuitPhysics({ elements, ground: GROUND });
@@ -197,6 +218,29 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7 }) {
       </div>
 
       <CircuitInventory items={inventory} remaining={remaining} armedId={armedId} onArm={handleArm} />
+
+      {hasThermistor && (
+        <div className="circuit-heater">
+          <h4>Heater / thermometer</h4>
+          <div className="circuit-heater-row">
+            <div className="circuit-range-switch" role="tablist" aria-label="Heater power">
+              <button type="button" role="tab" aria-selected={heater.on} className={heater.on ? 'active' : ''} onClick={() => heater.setHeaterOn(true)}>
+                ON
+              </button>
+              <button type="button" role="tab" aria-selected={!heater.on} className={!heater.on ? 'active' : ''} onClick={() => heater.setHeaterOn(false)}>
+                OFF
+              </button>
+            </div>
+            <span className="circuit-heater-temp" aria-label="Thermometer reading">
+              {heater.displayTemperature.toFixed(1)} °C
+            </span>
+          </div>
+          <p className="circuit-heater-note">
+            Heats toward its 80 °C limit while on; cools back toward 25 °C ambient, more slowly, while off. The
+            thermistor sits at exactly this temperature.
+          </p>
+        </div>
+      )}
 
       {capacitorInstances.length > 0 && (
         <div className="circuit-capacitors">
