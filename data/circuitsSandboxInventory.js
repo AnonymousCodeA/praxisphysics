@@ -10,7 +10,10 @@ const MANY = 40;
 
 export const circuitsSandboxInventory = [
   { id: 'battery', type: 'battery', value: 9, label: '9V', count: MANY },
-  { id: 'resistor', type: 'resistor', value: 1000, label: '1kΩ', count: MANY },
+  { id: 'resistor-1k', type: 'resistor', value: 1000, label: '1kΩ', count: MANY },
+  // 1k paired with the 100uF capacitor below gives RC = 0.1s — nothing
+  // watchable on a meter. 220k gives RC = 22s, slow enough to actually read.
+  { id: 'resistor-220k', type: 'resistor', value: 220000, label: '220kΩ', count: MANY },
   { id: 'capacitor', type: 'capacitor', value: 100e-6, label: '100µF', count: MANY },
   { id: 'inductor', type: 'inductor', value: 1, label: '1H', count: MANY },
   {

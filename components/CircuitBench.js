@@ -181,7 +181,11 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7 }) {
   }, []);
 
   const armedItem = armedId ? instances.find((i) => i.itemId === armedId) : null;
-  const capacitorInstances = useMemo(() => instances.filter((i) => i.type === 'capacitor'), [instances]);
+  // Only capacitors actually on the board — not every stocked instance (see
+  // expandInventory): with a sandbox-sized stock (dozens per type), listing
+  // every one in stock here would swamp the panel with rows for components
+  // that aren't even placed yet.
+  const placedCapacitors = useMemo(() => placed.filter((c) => c.type === 'capacitor'), [placed]);
   // Range only means anything for a meter that's actually on the board —
   // unlike capacitor charge, it isn't a property worth tracking in stock.
   const placedMeters = useMemo(
@@ -243,7 +247,7 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7 }) {
         </div>
       )}
 
-      {capacitorInstances.length > 0 && (
+      {placedCapacitors.length > 0 && (
         <div className="circuit-capacitors">
           <h4>Capacitors</h4>
           {/* No voltage readout here, deliberately — showing it would let a
@@ -251,18 +255,14 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7 }) {
               voltmeter, which is exactly the measurement problem 1 Part B
               is testing. */}
           <ul>
-            {capacitorInstances.map((inst) => {
-              const onBoard = placed.some((c) => c.instanceId === inst.instanceId);
-              return (
-                <li key={inst.instanceId}>
-                  <span className="circuit-cap-label">{inst.label}</span>
-                  <span className="circuit-cap-status">{onBoard ? 'ON BOARD' : 'IN STOCK'}</span>
-                  <button type="button" onClick={() => dischargeCapacitor(inst.instanceId)}>
-                    DISCHARGE
-                  </button>
-                </li>
-              );
-            })}
+            {placedCapacitors.map((inst) => (
+              <li key={inst.instanceId}>
+                <span className="circuit-cap-label">{inst.label}</span>
+                <button type="button" onClick={() => dischargeCapacitor(inst.instanceId)}>
+                  DISCHARGE
+                </button>
+              </li>
+            ))}
           </ul>
         </div>
       )}

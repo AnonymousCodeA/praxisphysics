@@ -458,7 +458,6 @@ footer{border-top:1px solid var(--edge);padding:34px 0 46px}
   font-family:var(--font-mono),monospace;font-size:12px;
 }
 .circuit-cap-label{color:var(--chalk);min-width:80px}
-.circuit-cap-status{color:var(--muted);font-size:10.5px;letter-spacing:.06em}
 .circuit-capacitors button{
   margin-left:auto;
   font-family:var(--font-mono),monospace;font-size:10.5px;letter-spacing:.06em;
