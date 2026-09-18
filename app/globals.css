@@ -429,6 +429,8 @@ footer{border-top:1px solid var(--edge);padding:34px 0 46px}
 
 .circuit-toolbar{display:flex;gap:10px}
 
+.circuit-presets{display:flex;flex-wrap:wrap;gap:10px}
+
 .circuit-inventory{display:flex;flex-wrap:wrap;gap:10px}
 .circuit-card{
   display:flex;flex-direction:column;align-items:center;gap:6px;

@@ -6,6 +6,7 @@ import CircuitInventory from './CircuitInventory';
 import Oscilloscope from './Oscilloscope';
 import { useCircuitPhysics } from '@/lib/circuits/useCircuitPhysics';
 import { useHeater } from '@/lib/circuits/useHeater';
+import { nodeId, edgeKey } from '@/lib/circuits/grid';
 import {
   VOLT_RANGE_ORDER,
   AMP_RANGE_ORDER,
@@ -97,15 +98,11 @@ function expandInventory(inventory) {
 // Bench wrapper; undefined on the circuit-builder sandbox page, which
 // renders CircuitBench directly with no ExperimentWorkspace/table at all.
 // Passed straight through to Oscilloscope, which mirrors it into its own
-// panel when expanded.
-export default function CircuitBench({ inventory, rows = 5, cols = 7, dataTable }) {
+// panel when expanded. `presets` is likewise optional — see
+// handleLoadPreset below and data/circuitsSandboxPresets.js — and only the
+// circuit-builder sandbox page supplies it.
+export default function CircuitBench({ inventory, rows = 5, cols = 7, dataTable, presets }) {
   const instances = useMemo(() => expandInventory(inventory), [inventory]);
-  // Whether this problem's inventory includes a thermistor at all — drives
-  // whether the Heater/Thermometer panel exists. useHeater() is still
-  // called unconditionally below regardless (hooks can't be conditional),
-  // it's only the panel and the temperature fed into a thermistor element
-  // that are gated on this.
-  const hasThermistor = useMemo(() => inventory.some((item) => item.type === 'thermistor'), [inventory]);
   const heater = useHeater();
 
   const [placed, setPlaced] = useState([]); // on-board components
@@ -230,12 +227,58 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7, dataTable 
     setPlaced((prev) => prev.map((c) => (c.instanceId === instanceId ? { ...c, ...patch } : c)));
   }, []);
 
+  // Loads a preset's component list wholesale (data/circuitsSandboxPresets.js
+  // shape: { type, value, a: [row,col], b: [row,col], ... any other field a
+  // regular placement can carry — shuntOhms, r0/beta/t0, outputImpedance }).
+  // Preset instances are namespaced (`preset:<id>:<index>`), distinct from
+  // any inventory-derived instanceId, so they never collide with — or draw
+  // down — the board's own stock counts (see `remaining` above): a preset
+  // is extra, independent circuitry, not built from the inventory cards.
+  // Clears the board first (a full replace, not an append) and pushes ONE
+  // 'loadPreset' history entry carrying the board's prior state, so a
+  // single undo restores it exactly rather than having to be undone
+  // component-by-component.
+  const handleLoadPreset = useCallback((preset) => {
+    const newPlaced = preset.components.map((placement, i) => {
+      const a = nodeId(placement.a[0], placement.a[1]);
+      const b = nodeId(placement.b[0], placement.b[1]);
+      return {
+        instanceId: `preset:${preset.id}:${i}`,
+        itemId: undefined,
+        type: placement.type,
+        value: placement.value,
+        shuntOhms: placement.shuntOhms,
+        capacitanceFn: placement.capacitanceFn,
+        r0: placement.r0,
+        beta: placement.beta,
+        t0: placement.t0,
+        outputImpedance: placement.outputImpedance,
+        label: placement.label,
+        edgeKey: edgeKey(a, b),
+        a,
+        b,
+        closed: placement.type === 'switch' ? false : undefined,
+        range:
+          placement.type === 'voltmeter' ? DEFAULT_VOLT_RANGE : placement.type === 'ammeter' ? DEFAULT_AMP_RANGE : undefined,
+        waveform: placement.type === 'generator' ? DEFAULT_GENERATOR_WAVEFORM : undefined,
+        amplitudePkPk: placement.type === 'generator' ? DEFAULT_GENERATOR_AMPLITUDE_PKPK : undefined,
+        freqDecade: placement.type === 'generator' ? DEFAULT_GENERATOR_DECADE : undefined,
+        freqCoarse: placement.type === 'generator' ? DEFAULT_GENERATOR_COARSE : undefined,
+        freqFine: placement.type === 'generator' ? DEFAULT_GENERATOR_FINE : undefined,
+      };
+    });
+    setHistory((prev) => [...prev, { action: 'loadPreset', previousPlaced: placedRef.current }]);
+    setPlaced(newPlaced);
+  }, []);
+
   const handleUndo = useCallback(() => {
     setHistory((prev) => {
       if (prev.length === 0) return prev;
       const last = prev[prev.length - 1];
       if (last.action === 'place') {
         setPlaced((p) => p.filter((c) => c.instanceId !== last.component.instanceId));
+      } else if (last.action === 'loadPreset') {
+        setPlaced(last.previousPlaced);
       } else {
         setPlaced((p) => [...p, last.component]);
       }
@@ -244,6 +287,14 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7, dataTable 
   }, []);
 
   const armedItem = armedId ? instances.find((i) => i.itemId === armedId) : null;
+  // Whether a thermistor is actually ON THE BOARD — not just in the
+  // problem's inventory (that would show the Heater/Thermometer panel for
+  // an unplaced-but-stocked thermistor, same bug the other placedX
+  // memos below already avoid for their own component types). useHeater()
+  // is still called unconditionally above regardless (hooks can't be
+  // conditional) — only the panel and the temperature fed into a placed
+  // thermistor element are gated on this.
+  const hasThermistor = useMemo(() => placed.some((c) => c.type === 'thermistor'), [placed]);
   // Only capacitors actually on the board — not every stocked instance (see
   // expandInventory): with a sandbox-sized stock (dozens per type), listing
   // every one in stock here would swamp the panel with rows for components
@@ -301,6 +352,16 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7, dataTable 
       )}
 
       {!scopeExpanded && <CircuitInventory items={inventory} remaining={remaining} armedId={armedId} onArm={handleArm} />}
+
+      {!scopeExpanded && presets && presets.length > 0 && (
+        <div className="circuit-presets">
+          {presets.map((preset) => (
+            <button type="button" key={preset.id} className="btn btn-line" onClick={() => handleLoadPreset(preset)}>
+              {preset.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {hasThermistor && (
         <div className="circuit-heater">
