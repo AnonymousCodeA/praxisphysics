@@ -11,8 +11,8 @@ import { circuitsNonlinearInventory } from '@/data/circuitsNonlinearInventory';
 const ROWS = 6;
 const COLS = 9;
 
-function Bench() {
-  return <CircuitBench inventory={circuitsNonlinearInventory} rows={ROWS} cols={COLS} />;
+function Bench({ dataTable }) {
+  return <CircuitBench inventory={circuitsNonlinearInventory} rows={ROWS} cols={COLS} dataTable={dataTable} />;
 }
 
 export default function CircuitsNonlinearExperiment() {

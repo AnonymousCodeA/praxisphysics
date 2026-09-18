@@ -88,17 +88,21 @@ components/
                           without ever placing a voltmeter — and a Meters panel: a range pill
                           switch per placed voltmeter/ammeter (see lib/circuits/scene.js's
                           VOLT_RANGES/AMP_RANGES), the visible "not hidden" control the spec
-                          calls for. Takes `inventory`/`rows`/`cols` as props — CircuitsExperiment.js
-                          is what actually supplies them, since ExperimentWorkspace renders
-                          `Bench` with no props of its own
+                          calls for. Takes `inventory`/`rows`/`cols` as props, plus an optional
+                          `dataTable` (the active part's useDataTable() return value) forwarded
+                          straight through to Oscilloscope — CircuitsExperiment.js is what
+                          actually supplies all of these, since ExperimentWorkspace renders
+                          `Bench` with just that one prop of its own
   CircuitsExperiment.js   the circuits experiment as a consumer of ExperimentWorkspace: binds
                           data/circuitsGuide.js's parts and data/circuitsInventory.js's shared
                           stock into a module-level `Bench` wrapper around CircuitBench (module-
                           level, not defined inside the component — a fresh function identity
                           every render would remount CircuitBench, and with it the board and
-                          every capacitor's charge, on every re-render). Same
-                          consumer-not-shell relationship, and same JSX-content caveat, as
-                          PendulumExperiment.js
+                          every capacitor's charge, on every re-render; ExperimentWorkspace's
+                          own `dataTable` prop update doesn't have this problem, since it's a
+                          plain prop change on the same stable `Bench` reference, and is simply
+                          forwarded into CircuitBench). Same consumer-not-shell relationship,
+                          and same JSX-content caveat, as PendulumExperiment.js
   CircuitCanvas.js        canvas + pointer mechanics for the board, mirroring
                           PendulumCanvas.js's conventions (refs for gesture state, rAF loop
                           paused off-screen, ResizeObserver, pointer events) — see the
@@ -106,6 +110,17 @@ components/
                           nothing here is reduced-motion-gated
   CircuitInventory.js     row of cards (schematic symbol via lib/circuits/scene.js, label,
                           remaining count) — tap to arm for placement, disabled at zero stock
+  Oscilloscope.js         two-channel scope panel rendered by CircuitBench when at least one
+                          probe is placed: collapsed by default (OPEN SCOPE), expands into a
+                          large in-page front panel (screen left, HORIZONTAL/VERTICAL/TRIGGER
+                          controls in a column on the right at wide widths, stacked below on
+                          narrow ones). Captures live via lib/circuits/useOscilloscope.js
+                          (its own slow interval, independent of useCircuitPhysics's real-time
+                          loop) and draws the trace itself here. Mirrors the active part's
+                          `dataTable` (see CircuitBench.js) into a DATA TABLE section below the
+                          panel when one exists — the same live state DataTable already
+                          renders elsewhere in ExperimentWorkspace, not a copy of it — so
+                          nothing appears on the circuit-builder sandbox, which has none
 data/
   simulations.js         categories[] (fixed 6: mechanics, thermodynamics, electromagnetism,
                           waves-optics, modern-physics, mixed-bag) + simulations{} keyed by
@@ -179,6 +194,7 @@ Routes are static/data-driven: `generateStaticParams` reads `data/*.js`, and `no
 
 - **Palette**: near-black ink background (`--ink #060A0F`, panels `--panel #0B1219`) with a single light-blue accent (`--trace #4EC5FF`) used for interactive/live elements, highlights, and glow. Text is off-white (`--chalk`) or muted gray (`--muted`). No other hues — new UI must work within this two-tone system.
   - **Exception — plot line colours**: `components/Plot.js` needs up to four saved student-drawn lines to stay visually distinct from each other *and* from the data points/axes, which a single accent can't do. It uses a small fixed palette (`LINE_COLORS` in `lib/experiment/usePlotConfig.js`) of four hues at the same saturation/lightness as `--trace`, reserved for saved/current lines only — points, axes, and everything else on the plot still key off `--trace` alone. This is a deliberate, scoped exception; don't extend the palette to other UI or collapse it back to monochrome.
+  - **Exception — oscilloscope screen**: `components/Oscilloscope.js`'s scope screen is green phosphor on black, not `--trace` on `--ink` — a scope is green because phosphor is green, and every real one looks like this. Colors (`SCOPE_BG`/`SCOPE_GRATICULE`/`SCOPE_CH1_COLOR`/`SCOPE_CH2_COLOR`) live in `lib/circuits/oscilloscopeControls.js`. The green also appears once outside the canvas itself: the `OSCILLOSCOPE` nameplate (`.circuit-scope-nameplate` in `globals.css`, hardcoded to match `SCOPE_CH1_COLOR` since CSS can't import the JS constant) — an instrument's case label reads as part of the instrument, not as UI chrome. Everything else in the scope's own panel (section headings, buttons, sliders, control labels) still keys off the normal palette. Channel 2 is a second, distinct hue (amber) rather than a second shade of green, so the two traces stay distinguishable at a glance. Same deliberate-and-scoped rule as the plot line colours above — don't spread the green any further than the screen and its nameplate.
 - **Type**: IBM Plex Sans for prose/headings, IBM Plex Mono for labels/eyebrows/data readouts/nav — the mono face is what signals "instrument panel" and should be used for anything numeric or tag-like, not for body copy.
 - **Mobile-first, metered-data-first**: the audience is students in Bangladesh, often on phones with capped/slow data and modest batteries. Concretely this means:
   - Fonts self-hosted through `next/font` (never fetched from Google at request time).
@@ -234,7 +250,7 @@ Physics that depends on a draggable bench object's position (the photogate's bea
 - **Voltmeter/ammeter readings are ranged, not auto-scaled** (`VOLT_RANGES`/`AMP_RANGES` in `lib/circuits/scene.js`): the student picks mV/V or µA/mA (Meters panel in `CircuitBench.js`), and the reading always displays in that range's own unit at that range's own fixed resolution — never a unit picked to make the number look nice. A value beyond the selected range's max reads `OL` (drawn in the danger color, not the reading color) instead of a number, exactly like a real meter that needs re-ranging. This doubles as the noise floor: every range's resolution (1e-4 V finest, 1e-7 A finest) sits five-plus orders of magnitude above the solver's GMIN leak (~1e-13 A for a node at a few volts — see `GMIN` in `model.mjs`), so leakage always rounds to a clean zero rather than a meaningless tiny decimal — no separate floor constant needed once ranges exist.
 - **The board has no ground/earth component.** `stepCircuit` needs *some* reference node, so `CircuitBench` always passes a fixed sentinel (`'__ground__'`) that's never a real grid intersection — it just picks up model.mjs's GMIN leak like every other node. Only voltage *differences* (what a voltmeter reads) are physical, so which node this constant names is arbitrary and invisible to the student.
 - **A meter on a section with no path to any source reads a dash, not a number.** GMIN keeps a fully isolated node's voltage numerically well-defined (that's the whole point of GMIN — see above), but that value is a numerical accident of an arbitrary regularization, not a measurement: two open switches isolating a voltmeter-tapped section from both the source and the rest of the circuit can read a confident-looking but meaningless value (e.g. 13.92 V from a 6 V source). `stepCircuit` runs a *second*, separate union-find (`connUf` in `model.mjs`, distinct from the one used for MNA node-identity reduction) that also unions across resistors/capacitors/vsources/the ammeter's own shunt — real conducting paths, just not same-potential ones — and returns `floatingNodes`: every node whose group contains no voltage-source terminal. `CircuitCanvas` checks a placed voltmeter/ammeter's two nodes against it and draws `---` (muted, not the danger color — this isn't an out-of-range error) instead of computing a reading. Deliberately a *second* union-find rather than extending the first: merging a resistor's two ends for MNA purposes would be wrong (they're genuinely at different potentials), but excluding resistors/capacitors from the *reachability* check would false-positive on any ordinary series circuit whose junctions aren't independently wire-tied to a source (see the regression case in `scripts/circuits-verify.mjs`'s Test 5).
-- **The board persists across a part switch — it's not per-part state.** `CircuitsExperiment.js` renders one `CircuitBench` as `ExperimentWorkspace`'s `Bench`, and `Bench` is never re-mounted when the part pill switches (see `ExperimentWorkspace.js`: `<Bench />` sits outside the per-part table/plot instances). Placed components and every capacitor's charge — real React/solver state, not persisted to storage — survive a part switch the same way they survive a tab switch on mobile. This is deliberate for the circuits experiment specifically: Part B's whole framing is bringing back the capacitor characterized in Part A, still charged, without rebuilding.
+- **The board persists across a part switch — it's not per-part state.** `CircuitsExperiment.js` renders one `CircuitBench` as `ExperimentWorkspace`'s `Bench`, and `Bench` is never re-mounted when the part pill switches (see `ExperimentWorkspace.js`: `<Bench dataTable={dataTable} />` sits outside the per-part table/plot instances — `dataTable` itself changes with the part, but that's a prop update on the same stable `Bench` reference, not a remount). Placed components and every capacitor's charge — real React/solver state, not persisted to storage — survive a part switch the same way they survive a tab switch on mobile. This is deliberate for the circuits experiment specifically: Part B's whole framing is bringing back the capacitor characterized in Part A, still charged, without rebuilding.
 - **A voltage-dependent capacitor's charge is the integral of C(U), never capacitanceFn(U)*U.** `stepCircuit` still uses the same trapezoidal-with-backward-Euler-restart companion model as a fixed capacitor, linearized each step around the previous step's own voltage (`vPrev`) — "evaluate C at the current voltage" means at that linearization point, re-read fresh every step, not cached from further back. What's persisted in `state.capacitorCharge` is real charge either way, so recovering `vPrev` from it means inverting the integral (`invertCharge`, safeguarded Newton/bisection, using `capacitanceFn` itself as the derivative) — there's no shortcut through "divide by C" once C isn't constant. A thermistor (`thermistorResistance`, the standard B-parameter equation) is the easy version of the same idea: no history at all, just re-evaluate R from `el.temperature` every step, exactly like a resistor. Neither is wired into the bench/inventory yet — verified independently in `scripts/circuits-nonlinear-verify.mjs` by recovering C(U) from simulated meter-style samples via I/(dU/dt), the same method a student would use, specifically to know an experiment built on this is soluble (and where a fixed sampling interval stops being able to resolve it — near the rail a capacitor charges toward, not near where C(U) itself peaks, a real and easy-to-get-backwards distinction) before any UI exists.
 
 ## Notes

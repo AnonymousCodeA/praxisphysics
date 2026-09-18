@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import CircuitCanvas from './CircuitCanvas';
 import CircuitInventory from './CircuitInventory';
+import Oscilloscope from './Oscilloscope';
 import { useCircuitPhysics } from '@/lib/circuits/useCircuitPhysics';
 import { useHeater } from '@/lib/circuits/useHeater';
 import {
@@ -47,6 +48,14 @@ const SOLVER_TYPE = {
   thermistor: 'thermistor',
   inductor: 'inductor',
   generator: 'generator',
+  // The scope's probes tap two nodes without loading the circuit — exactly
+  // a voltmeter's own 'meter' stamp (infinite impedance, purely a read).
+  // Two distinct inventory/board types (rather than one 'probe' type with
+  // a channel field) so a channel is decided at placement, the same way a
+  // voltmeter and ammeter are separate types rather than one "meter" with
+  // a mode.
+  probe1: 'meter',
+  probe2: 'meter',
 };
 
 // Expands the problem definition's inventory ({ id, type, value, label,
@@ -83,7 +92,13 @@ function expandInventory(inventory) {
 // continuously by lib/circuits/model.mjs. `inventory` is the problem
 // definition's stock list and should be a stable reference (defined once,
 // not recreated every render) since it drives every callback's identity.
-export default function CircuitBench({ inventory, rows = 5, cols = 7 }) {
+// `dataTable` is optional — the active part's useDataTable() return value,
+// forwarded from ExperimentWorkspace via the CircuitsExperiment.js-style
+// Bench wrapper; undefined on the circuit-builder sandbox page, which
+// renders CircuitBench directly with no ExperimentWorkspace/table at all.
+// Passed straight through to Oscilloscope, which mirrors it into its own
+// panel when expanded.
+export default function CircuitBench({ inventory, rows = 5, cols = 7, dataTable }) {
   const instances = useMemo(() => expandInventory(inventory), [inventory]);
   // Whether this problem's inventory includes a thermistor at all — drives
   // whether the Heater/Thermometer panel exists. useHeater() is still
@@ -146,7 +161,7 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7 }) {
     [placed, heater.displayTemperature]
   );
 
-  const { voltages, floatingNodes, dischargeCapacitor } = useCircuitPhysics({ elements, ground: GROUND });
+  const { voltages, floatingNodes, solverStateRef, dischargeCapacitor } = useCircuitPhysics({ elements, ground: GROUND });
 
   const handleArm = useCallback((itemId) => {
     setArmedId((prev) => (prev === itemId ? null : itemId));
@@ -241,37 +256,51 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7 }) {
     [placed]
   );
   const placedGenerators = useMemo(() => placed.filter((c) => c.type === 'generator'), [placed]);
+  const placedProbes = useMemo(() => placed.filter((c) => c.type === 'probe1' || c.type === 'probe2'), [placed]);
+
+  // Lifted here (not owned by Oscilloscope itself) because expanding the
+  // scope needs to hide the board-building UI below — see the render:
+  // canvas/toolbar/inventory disappear while expanded, but every info/
+  // control panel, Generators included, stays in normal flow underneath
+  // the now-much-taller scope panel, satisfying "generator controls stay
+  // visible below the expanded scope" for free, with no absolute-position
+  // overlay math needed.
+  const [scopeExpanded, setScopeExpanded] = useState(false);
 
   return (
     <div className="circuit-bench">
-      <div className="circuit-frame">
-        <CircuitCanvas
-          rows={rows}
-          cols={cols}
-          placed={placed}
-          armed={armedItem}
-          voltages={voltages}
-          floatingNodes={floatingNodes}
-          onPlace={handlePlace}
-          onRemove={handleRemove}
-          onToggleSwitch={handleToggleSwitch}
-        />
-        <p className="hint">
-          Tap a component below to arm it, move over the board to preview it on the nearest
-          edge, then tap again to place it. Tap a placed component to remove it and return it
-          to stock. Tap a placed switch to toggle it — press and hold a switch to remove it. A
-          placed meter reads OL if the value is beyond its selected range — switch its range in
-          the Meters panel below.
-        </p>
-      </div>
+      {!scopeExpanded && (
+        <div className="circuit-frame">
+          <CircuitCanvas
+            rows={rows}
+            cols={cols}
+            placed={placed}
+            armed={armedItem}
+            voltages={voltages}
+            floatingNodes={floatingNodes}
+            onPlace={handlePlace}
+            onRemove={handleRemove}
+            onToggleSwitch={handleToggleSwitch}
+          />
+          <p className="hint">
+            Tap a component below to arm it, move over the board to preview it on the nearest
+            edge, then tap again to place it. Tap a placed component to remove it and return it
+            to stock. Tap a placed switch to toggle it — press and hold a switch to remove it. A
+            placed meter reads OL if the value is beyond its selected range — switch its range in
+            the Meters panel below.
+          </p>
+        </div>
+      )}
 
-      <div className="circuit-toolbar">
-        <button type="button" className="btn btn-line" onClick={handleUndo} disabled={history.length === 0}>
-          UNDO
-        </button>
-      </div>
+      {!scopeExpanded && (
+        <div className="circuit-toolbar">
+          <button type="button" className="btn btn-line" onClick={handleUndo} disabled={history.length === 0}>
+            UNDO
+          </button>
+        </div>
+      )}
 
-      <CircuitInventory items={inventory} remaining={remaining} armedId={armedId} onArm={handleArm} />
+      {!scopeExpanded && <CircuitInventory items={inventory} remaining={remaining} armedId={armedId} onArm={handleArm} />}
 
       {hasThermistor && (
         <div className="circuit-heater">
@@ -344,6 +373,19 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7 }) {
             })}
           </ul>
         </div>
+      )}
+
+      {placedProbes.length > 0 && (
+        <Oscilloscope
+          placedProbes={placedProbes}
+          elements={elements}
+          ground={GROUND}
+          solverStateRef={solverStateRef}
+          floatingNodes={floatingNodes}
+          expanded={scopeExpanded}
+          onExpandedChange={setScopeExpanded}
+          dataTable={dataTable}
+        />
       )}
 
       {placedGenerators.length > 0 && (

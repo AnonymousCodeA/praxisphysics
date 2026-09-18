@@ -41,7 +41,11 @@ const SPLIT_STEP = 2;
 //
 // `parts` is a two-element array of { key, label, tag, title, body,
 // formulae?, hints?, credit? } — see data/pendulumGuide.js for the shape.
-// `Bench` is rendered with no props, matching e.g. PendulumLab.
+// `Bench` gets the active part's `dataTable` (the same useDataTable() return
+// value handed to the DataTable/Plot below) as its one prop — a plain prop
+// update, not a remount trigger, since `Bench`'s own identity never changes
+// here; most consumers (e.g. PendulumLab) simply don't use it. CircuitBench
+// uses it to mirror the table into its oscilloscope panel — see that file.
 export default function ExperimentWorkspace({ experimentId, parts, Bench }) {
   const [partA, partB] = parts;
   const [activeTab, setActiveTab] = useState('problem');
@@ -156,7 +160,7 @@ export default function ExperimentWorkspace({ experimentId, parts, Bench }) {
 
       <div className="pendulum-col-right">
         <div className="pendulum-pane" data-pane="lab">
-          <Bench />
+          <Bench dataTable={dataTable} />
           {dataTable.table && <Plot part={part} table={dataTable.table} {...plotConfig} />}
         </div>
       </div>

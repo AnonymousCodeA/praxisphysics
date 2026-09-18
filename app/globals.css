@@ -88,9 +88,16 @@ h1 em{font-style:normal;color:var(--trace)}
 .ctas{display:flex;flex-wrap:wrap;gap:12px}
 .btn{
   display:inline-flex;align-items:center;gap:9px;
-  padding:12px 20px;border-radius:3px;text-decoration:none;
-  font-size:14.5px;font-weight:500;transition:.16s;
+  padding:12px 20px;border-radius:3px;border:0;text-decoration:none;
+  font-family:inherit;font-size:14.5px;font-weight:500;cursor:pointer;
+  background:transparent;transition:.16s;
 }
+/* .btn is used on both <a> (no UA chrome to begin with) and real <button>
+   elements (UNDO, the scope's OPEN SCOPE/CLOSE/AUTO) — without an explicit
+   background/border/font reset here, a plain <button> falls back to the
+   browser's own default button chrome (a pale face, its own font), which
+   on this dark panel reads as a pale, near-unreadable box behind
+   .btn-line's near-white text instead of the intended transparent pill. */
 .btn-fill{background:var(--trace);color:#04202F}
 .btn-fill:hover{background:#7FD6FF}
 .btn-line{border:1px solid var(--edge);color:var(--chalk)}
@@ -505,6 +512,108 @@ footer{border-top:1px solid var(--edge);padding:34px 0 46px}
 .circuit-generator-value{min-width:56px;text-align:right;color:var(--chalk)}
 .circuit-generator-freq{
   justify-self:end;font-family:var(--font-mono),monospace;font-size:16px;font-weight:700;color:var(--trace);
+}
+
+.circuit-scope{border:1px solid var(--edge);border-radius:4px;background:var(--panel-t);padding:14px 16px;display:grid;gap:14px}
+/* The nameplate is the one place outside the screen itself that borrows
+   the phosphor green (see the exception note in CLAUDE.md) — an
+   instrument's case label reads as part of the instrument, not as a UI
+   section heading, so it gets the screen's own colour rather than the
+   app's --trace/--chalk. Must match SCOPE_CH1_COLOR in
+   lib/circuits/oscilloscopeControls.js. */
+.circuit-scope-nameplate{
+  margin:0;font-family:var(--font-mono),monospace;font-size:22px;font-weight:700;
+  letter-spacing:.2em;color:#33FF66;
+}
+.circuit-scope-collapsed{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.circuit-scope-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+
+/* Green phosphor on black is a deliberate, scoped exception to the
+   two-tone palette — see CLAUDE.md — so colours here come from
+   lib/circuits/oscilloscopeControls.js (SCOPE_*), not the CSS vars above;
+   these rules only size/frame the screen. The status bar is a normal-flow
+   row above the canvas, not an overlay on top of it — it used to sit
+   absolutely positioned over the graticule's own top edge, which left the
+   canvas's true vertical centre (used for a 0-position trace) sitting
+   visibly above the part of the screen actually free to draw on. */
+.scope-screen{
+  display:flex;flex-direction:column;width:100%;
+  border:1px solid var(--edge);border-radius:3px;overflow:hidden;background:#000;
+}
+.scope-statusbar{
+  display:flex;flex-wrap:wrap;gap:14px;padding:6px 10px;
+  font-family:var(--font-mono),monospace;font-size:10.5px;letter-spacing:.04em;
+  background:rgba(0,0,0,.55);
+}
+.scope-status-run{margin-left:auto;color:var(--chalk);font-weight:700}
+/* A real scope's graticule is square divisions, 10 across by 8 down (see
+   SCOPE_DIVISIONS_X/Y in oscilloscopeControls.js — keep these two numbers
+   in sync). aspect-ratio derives the canvas's height from its own width so
+   each division renders square at any panel width, rather than fixing a
+   height independently and letting the divisions stretch to fit it. */
+.scope-canvas-wrap{width:100%;aspect-ratio:10/8}
+.scope-canvas{display:block;width:100%;height:100%}
+
+/* Stacked by default (screen, then controls) — a real front-panel's
+   side-by-side layout needs width a narrow viewport doesn't have. */
+.circuit-scope-body{display:grid;gap:14px}
+.circuit-scope-controls{display:grid;gap:16px;align-content:start}
+.circuit-scope-section{display:grid;gap:10px}
+/* A brighter, more deliberate rule than the panel's usual near-invisible
+   --edge dividers — a physical instrument's sections are set off by an
+   actual engraved line, not a hairline. */
+.circuit-scope-section + .circuit-scope-section{padding-top:16px;border-top:1px solid var(--trace-soft)}
+.circuit-scope-section h5{
+  margin:0;font-family:var(--font-mono),monospace;font-size:14px;font-weight:700;
+  letter-spacing:.16em;color:var(--chalk);
+}
+.circuit-scope-channel{display:grid;gap:8px;padding-top:12px;border-top:1px solid var(--edge)}
+.circuit-scope-channel-label{font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:.08em;font-weight:700}
+.circuit-scope-buttons{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding-top:12px;border-top:1px solid var(--edge)}
+/* Control labels beneath each section heading stay the same small size as
+   elsewhere (.circuit-generator-row/-slider, shared with the Generators
+   panel) but shouldn't read as dim on an instrument panel — brightened
+   here rather than in the shared rule, which the Generators panel keeps
+   using unchanged. */
+.circuit-scope-controls .circuit-generator-row,
+.circuit-scope-controls .circuit-generator-slider{
+  color:var(--chalk);
+}
+/* The experiment's own data table, mirrored beneath the scope while
+   expanded (see Oscilloscope.js) — reuses .circuit-scope-section for the
+   same bright instrument-panel heading style as HORIZONTAL/VERTICAL/
+   TRIGGER, plus its own top rule since it isn't adjacent to another
+   .circuit-scope-section for the sibling-combinator rule above to catch. */
+.circuit-scope-table{padding-top:16px;border-top:1px solid var(--trace-soft)}
+
+@media(min-width:900px){
+  /* Screen on the left taking most of the width via 1fr (so it's strictly
+     bounded by the row's available space — it can never grow into or
+     under the fixed-width control column on the right), like a real
+     scope's front panel. align-items:start is the actual fix for the
+     screen leaving black space below its own graticule: without it, grid
+     stretches the shorter item (almost always the screen — the controls
+     column, with HORIZONTAL/VERTICAL/TRIGGER/buttons, is normally taller)
+     to match the row height, and the graticule (sized by
+     .scope-canvas-wrap's aspect-ratio, not by its container) doesn't grow
+     to fill that extra stretched space. With start alignment, the screen's
+     own box just wraps its content tightly instead, and the panel's
+     overall height follows from whichever column is naturally taller —
+     usually the controls column, which is simply allowed to run longer
+     than the screen alongside it, not matched to it. */
+  .circuit-scope-body{grid-template-columns:1fr 240px;align-items:start}
+  /* Reused from .circuit-generators (Timebase's row, each channel's
+     Volts/div and Position sliders) — those are label-beside-control rows
+     sized for a wide panel; a 240px column doesn't have room for that, so
+     stack label above control here instead. Scoped to .circuit-scope-controls
+     so the Generators panel's own layout is untouched. */
+  .circuit-scope-controls .circuit-generator-row,
+  .circuit-scope-controls .circuit-generator-slider{
+    flex-direction:column;align-items:stretch;gap:4px;
+  }
+  .circuit-scope-controls .circuit-generator-row .circuit-range-switch{margin-left:0}
+  .circuit-scope-controls .circuit-generator-slider span:first-child{min-width:0}
+  .circuit-scope-controls .circuit-generator-value{text-align:left}
 }
 
 /* ---------- cursor field ---------- */

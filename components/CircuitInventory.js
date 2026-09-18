@@ -14,6 +14,8 @@ const SYMBOL_TYPE_SAMPLE = {
   thermistor: 'thermistor',
   inductor: 'inductor',
   generator: 'generator',
+  probe1: 'probe1',
+  probe2: 'probe2',
 };
 
 function CardSymbol({ type, value }) {

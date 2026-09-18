@@ -36,4 +36,10 @@ export const circuitsSandboxInventory = [
   { id: 'wire', type: 'wire', label: 'WIRE', count: MANY },
   { id: 'voltmeter', type: 'voltmeter', label: 'V', count: MANY },
   { id: 'ammeter', type: 'ammeter', shuntOhms: 1, label: 'A', count: MANY },
+  // One of each — a real 2-channel scope has exactly two probes, and
+  // CircuitBench/Oscilloscope key a probe's channel off its type directly
+  // (probe1 -> ch1, probe2 -> ch2), so more than one of a given channel
+  // would be ambiguous.
+  { id: 'probe1', type: 'probe1', label: 'CH1 PROBE', count: 1 },
+  { id: 'probe2', type: 'probe2', label: 'CH2 PROBE', count: 1 },
 ];
