@@ -11,6 +11,24 @@ import {
   DEFAULT_VOLT_RANGE,
   DEFAULT_AMP_RANGE,
 } from '@/lib/circuits/scene';
+import {
+  GENERATOR_WAVEFORMS,
+  DEFAULT_GENERATOR_WAVEFORM,
+  DEFAULT_GENERATOR_AMPLITUDE_PKPK,
+  GENERATOR_AMPLITUDE_PKPK_MAX,
+  GENERATOR_AMPLITUDE_PKPK_STEP,
+  GENERATOR_DECADES,
+  DEFAULT_GENERATOR_DECADE,
+  GENERATOR_COARSE_MIN,
+  GENERATOR_COARSE_MAX,
+  GENERATOR_COARSE_STEP,
+  DEFAULT_GENERATOR_COARSE,
+  GENERATOR_FINE_RANGE,
+  GENERATOR_FINE_STEP,
+  DEFAULT_GENERATOR_FINE,
+  generatorFrequency,
+  formatFrequency,
+} from '@/lib/circuits/generatorControls';
 
 const GROUND = '__ground__'; // an internal reference node, never a real grid
 // intersection — see model.mjs: any unreferenced node still gets its GMIN
@@ -28,6 +46,7 @@ const SOLVER_TYPE = {
   ammeter: 'ammeter',
   thermistor: 'thermistor',
   inductor: 'inductor',
+  generator: 'generator',
 };
 
 // Expands the problem definition's inventory ({ id, type, value, label,
@@ -51,6 +70,7 @@ function expandInventory(inventory) {
         r0: item.r0,
         beta: item.beta,
         t0: item.t0,
+        outputImpedance: item.outputImpedance,
         label: item.label,
       });
     }
@@ -112,6 +132,16 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7 }) {
         // displayed temperature, converted to kelvin for model.mjs's
         // thermistorResistance — never a separately-simulated value.
         temperature: c.type === 'thermistor' ? heater.displayTemperature + 273.15 : undefined,
+        outputImpedance: c.outputImpedance,
+        waveform: c.waveform,
+        // model.mjs's `amplitude` is a PEAK value; the control panel shows
+        // peak-to-peak (what a student would actually read a generator's
+        // own dial as), so the halving happens here, at the one point the
+        // two representations meet.
+        amplitude: c.type === 'generator' ? c.amplitudePkPk / 2 : undefined,
+        frequency: c.type === 'generator' ? generatorFrequency(c.freqDecade, c.freqCoarse, c.freqFine) : undefined,
+        offset: c.type === 'generator' ? 0 : undefined,
+        phase: c.type === 'generator' ? 0 : undefined,
       })),
     [placed, heater.displayTemperature]
   );
@@ -141,6 +171,14 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7 }) {
         b: edge.b,
         closed: inst.type === 'switch' ? false : undefined,
         range: inst.type === 'voltmeter' ? DEFAULT_VOLT_RANGE : inst.type === 'ammeter' ? DEFAULT_AMP_RANGE : undefined,
+        // Reset to a fixed sensible default on every fresh placement, same
+        // convention as a switch's `closed` or a meter's `range` — not
+        // persisted per-instance across a remove/replace.
+        waveform: inst.type === 'generator' ? DEFAULT_GENERATOR_WAVEFORM : undefined,
+        amplitudePkPk: inst.type === 'generator' ? DEFAULT_GENERATOR_AMPLITUDE_PKPK : undefined,
+        freqDecade: inst.type === 'generator' ? DEFAULT_GENERATOR_DECADE : undefined,
+        freqCoarse: inst.type === 'generator' ? DEFAULT_GENERATOR_COARSE : undefined,
+        freqFine: inst.type === 'generator' ? DEFAULT_GENERATOR_FINE : undefined,
       };
       setPlaced((prev) => [...prev, comp]);
       setHistory((prev) => [...prev, { action: 'place', component: comp }]);
@@ -165,6 +203,16 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7 }) {
   // operation (like flipping a real range dial), not a build action.
   const handleSetRange = useCallback((instanceId, range) => {
     setPlaced((prev) => prev.map((c) => (c.instanceId === instanceId ? { ...c, range } : c)));
+  }, []);
+
+  // Same reasoning again: waveform/amplitude/frequency are dials on the
+  // generator itself, not build actions, so — like handleSetRange — this
+  // never touches `history`. `patch` merges into the placed component's
+  // own state so one handler covers every dial (waveform pill, amplitude
+  // slider, decade pill, coarse/fine sliders) rather than one callback per
+  // field.
+  const handleSetGeneratorParam = useCallback((instanceId, patch) => {
+    setPlaced((prev) => prev.map((c) => (c.instanceId === instanceId ? { ...c, ...patch } : c)));
   }, []);
 
   const handleUndo = useCallback(() => {
@@ -192,6 +240,7 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7 }) {
     () => placed.filter((c) => c.type === 'voltmeter' || c.type === 'ammeter'),
     [placed]
   );
+  const placedGenerators = useMemo(() => placed.filter((c) => c.type === 'generator'), [placed]);
 
   return (
     <div className="circuit-bench">
@@ -294,6 +343,92 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7 }) {
               );
             })}
           </ul>
+        </div>
+      )}
+
+      {placedGenerators.length > 0 && (
+        <div className="circuit-generators">
+          <h4>Generators</h4>
+          {placedGenerators.map((c) => {
+            const freq = generatorFrequency(c.freqDecade, c.freqCoarse, c.freqFine);
+            return (
+              <div className="circuit-generator" key={c.instanceId}>
+                <div className="circuit-generator-row">
+                  <span className="circuit-generator-label">{c.label}</span>
+                  <div className="circuit-range-switch" role="tablist" aria-label={`${c.label} waveform`}>
+                    {GENERATOR_WAVEFORMS.map((wf) => (
+                      <button
+                        key={wf}
+                        type="button"
+                        role="tab"
+                        aria-selected={c.waveform === wf}
+                        className={c.waveform === wf ? 'active' : ''}
+                        onClick={() => handleSetGeneratorParam(c.instanceId, { waveform: wf })}
+                      >
+                        {wf.toUpperCase()}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <label className="circuit-generator-slider">
+                  <span>Amplitude (pk-pk)</span>
+                  <input
+                    type="range"
+                    min={0}
+                    max={GENERATOR_AMPLITUDE_PKPK_MAX}
+                    step={GENERATOR_AMPLITUDE_PKPK_STEP}
+                    value={c.amplitudePkPk}
+                    onChange={(e) => handleSetGeneratorParam(c.instanceId, { amplitudePkPk: parseFloat(e.target.value) })}
+                  />
+                  <span className="circuit-generator-value">{c.amplitudePkPk.toFixed(1)} V</span>
+                </label>
+
+                <div className="circuit-generator-row">
+                  <span>Range</span>
+                  <div className="circuit-range-switch" role="tablist" aria-label={`${c.label} frequency range`}>
+                    {GENERATOR_DECADES.map((d) => (
+                      <button
+                        key={d}
+                        type="button"
+                        role="tab"
+                        aria-selected={c.freqDecade === d}
+                        className={c.freqDecade === d ? 'active' : ''}
+                        onClick={() => handleSetGeneratorParam(c.instanceId, { freqDecade: d })}
+                      >
+                        {formatFrequency(d)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <label className="circuit-generator-slider">
+                  <span>Coarse</span>
+                  <input
+                    type="range"
+                    min={GENERATOR_COARSE_MIN}
+                    max={GENERATOR_COARSE_MAX}
+                    step={GENERATOR_COARSE_STEP}
+                    value={c.freqCoarse}
+                    onChange={(e) => handleSetGeneratorParam(c.instanceId, { freqCoarse: parseFloat(e.target.value) })}
+                  />
+                </label>
+                <label className="circuit-generator-slider">
+                  <span>Fine</span>
+                  <input
+                    type="range"
+                    min={-GENERATOR_FINE_RANGE}
+                    max={GENERATOR_FINE_RANGE}
+                    step={GENERATOR_FINE_STEP}
+                    value={c.freqFine}
+                    onChange={(e) => handleSetGeneratorParam(c.instanceId, { freqFine: parseFloat(e.target.value) })}
+                  />
+                </label>
+
+                <span className="circuit-generator-freq">{formatFrequency(freq)}</span>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

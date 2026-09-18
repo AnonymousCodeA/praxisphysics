@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { buildEdges, nearestEdge, nodePx } from '@/lib/circuits/grid';
 import { drawGrid, drawComponent, TRACE, DANGER } from '@/lib/circuits/scene';
+import { generatorFrequency, formatFrequency } from '@/lib/circuits/generatorControls';
 
 const FILL = 0.82; // fraction of the binding dimension the grid should occupy
 const SNAP_PX = 26; // max distance from an edge for it to count as "near" while armed
@@ -145,7 +146,15 @@ export default function CircuitCanvas({ rows, cols, placed, armed, voltages, flo
             reading = comp.type === 'ammeter' ? (va - vb) / comp.shuntOhms : va - vb;
           }
         }
-        drawComponent(ctx, p1, p2, comp, { color: TRACE, alpha: 1, reading, floating });
+        // A generator's label is its current frequency, not a fixed
+        // inventory string — computed fresh here rather than kept in sync
+        // on every dial change, since it's cheap and this already runs
+        // every frame.
+        const drawComp =
+          comp.type === 'generator'
+            ? { ...comp, label: formatFrequency(generatorFrequency(comp.freqDecade, comp.freqCoarse, comp.freqFine)) }
+            : comp;
+        drawComponent(ctx, p1, p2, drawComp, { color: TRACE, alpha: 1, reading, floating });
       }
 
       const armedItem = armedRef.current;

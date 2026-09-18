@@ -489,6 +489,24 @@ footer{border-top:1px solid var(--edge);padding:34px 0 46px}
 .circuit-range-switch button:hover{color:var(--trace)}
 .circuit-range-switch button.active{background:var(--trace);color:#04202F}
 
+.circuit-generators{border:1px solid var(--edge);border-radius:4px;background:var(--panel-t);padding:14px 16px;display:grid;gap:16px}
+.circuit-generators h4{
+  margin:0;font-family:var(--font-mono),monospace;font-size:11px;
+  letter-spacing:.12em;color:var(--muted);font-weight:400;
+}
+.circuit-generator{display:grid;gap:10px}
+.circuit-generator + .circuit-generator{padding-top:16px;border-top:1px solid var(--edge)}
+.circuit-generator-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-family:var(--font-mono),monospace;font-size:12px}
+.circuit-generator-label{color:var(--chalk);min-width:60px}
+.circuit-generator-row .circuit-range-switch{margin-left:auto}
+.circuit-generator-slider{display:flex;align-items:center;gap:10px;font-family:var(--font-mono),monospace;font-size:11px;color:var(--muted)}
+.circuit-generator-slider span:first-child{min-width:88px}
+.circuit-generator-slider input[type=range]{flex:1;accent-color:var(--trace)}
+.circuit-generator-value{min-width:56px;text-align:right;color:var(--chalk)}
+.circuit-generator-freq{
+  justify-self:end;font-family:var(--font-mono),monospace;font-size:16px;font-weight:700;color:var(--trace);
+}
+
 /* ---------- cursor field ---------- */
 #field{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;display:none}
 body.warp #field{display:block}
