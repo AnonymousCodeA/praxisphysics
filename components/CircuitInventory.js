@@ -12,6 +12,7 @@ const SYMBOL_TYPE_SAMPLE = {
   voltmeter: 'voltmeter',
   ammeter: 'ammeter',
   thermistor: 'thermistor',
+  inductor: 'inductor',
 };
 
 function CardSymbol({ type, value }) {

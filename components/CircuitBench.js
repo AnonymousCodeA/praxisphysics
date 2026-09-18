@@ -27,6 +27,7 @@ const SOLVER_TYPE = {
   voltmeter: 'meter',
   ammeter: 'ammeter',
   thermistor: 'thermistor',
+  inductor: 'inductor',
 };
 
 // Expands the problem definition's inventory ({ id, type, value, label,

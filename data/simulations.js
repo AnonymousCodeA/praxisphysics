@@ -1,7 +1,7 @@
 export const categories = [
   { slug: 'mechanics',        title: 'Mechanics',        blurb: 'Kinematics, forces, energy, rotation, oscillations.', tag: '1 LIVE' },
   { slug: 'thermodynamics',   title: 'Thermodynamics',   blurb: 'Heat, gases, kinetic theory, entropy.',               tag: 'SOON' },
-  { slug: 'electromagnetism', title: 'Electromagnetism', blurb: 'Circuits, fields, magnetism, induction.',             tag: '2 LIVE' },
+  { slug: 'electromagnetism', title: 'Electromagnetism', blurb: 'Circuits, fields, magnetism, induction.',             tag: '3 LIVE' },
   { slug: 'waves-optics',     title: 'Waves & optics',   blurb: 'Interference, diffraction, lenses, sound.',           tag: '1 LIVE' },
   { slug: 'modern-physics',   title: 'Modern physics',   blurb: 'Quanta, atoms, nuclei, relativity.',                  tag: 'SOON' },
   { slug: 'mixed-bag',        title: 'Mixed bag',        blurb: 'Cross-topic experiments and one-offs.',               tag: 'SOON' },
@@ -32,6 +32,13 @@ export const simulations = {
       blurb: 'Find B from a heated thermistor, then chase a capacitance that depends on voltage.',
       status: 'live',
       href: '/simulations/circuits-nonlinear',
+    },
+    {
+      slug: 'circuit-builder',
+      title: 'Circuit Builder',
+      blurb: 'Free-build sandbox — every component, unlimited stock, no guide.',
+      status: 'live',
+      href: '/simulations/circuit-builder',
     },
   ],
   'waves-optics': [
