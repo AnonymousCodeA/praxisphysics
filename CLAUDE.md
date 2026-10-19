@@ -30,8 +30,18 @@ app/
   globals.css             all styling; CSS vars at the top define the palette/type/spacing
   simulations/[slug]/    one page per category (data-driven, see data/simulations.js)
   papers/[slug]/         one page per collection (data-driven, see data/papers.js)
+  guide/                 long-form practical-skills guide: page.js is the contents,
+                          [slug]/ one page per section (outline from data/guide.js, prose
+                          from content/guide/<slug>.js). layout.js loads Plex Sans italic
+                          for these routes only
 components/
   Header.js / Footer.js
+  Maths.js                KaTeX via react-katex: <M> inline, <Eq> display. Rendered to HTML
+                          on the server (no maths JS shipped); imports katex.min.css itself
+                          so only pages using it carry the stylesheet. Bad TeX throws, so a
+                          typo fails `next build`
+  Fig.js                  numbered, captioned figure for guide prose (distinct from
+                          Figures.js's card drawings)
   FieldBackground.js     fixed-canvas cursor "charge field" that warps the page's grid lines
   DiffractionGrating.js  the hero simulation — canonical example for how a sim is built
   Figures.js             small inline-SVG line drawings used on the category cards
@@ -126,6 +136,14 @@ data/
                           waves-optics, modern-physics, mixed-bag) + simulations{} keyed by
                           category slug — add a sim by pushing into the right array
   papers.js               collections[] for past-paper archives
+  guide.js                guideSections[] — the guide's four sections and every subsection's
+                          anchor id, plus guideHref(slug, id), which throws on an unknown id.
+                          These ids are the deep-link contract experiment hints point at —
+                          don't rename one without updating its links. Kept free of prose so
+                          a client component can import guideHref cheaply
+content/guide/            the guide's prose, one file per section: `intro` + `bodies` keyed by
+                          data/guide.js's subsection ids (missing key → "Not written yet."
+                          stub). Authoring conventions in content/guide/README.md
   pendulumGuide.js        pendulumParts[] — the pendulum's own problem statement/formulae/
                           hints, in the shape ExperimentGuide/ExperimentWorkspace expect.
                           `body`/`credit` are JSX, since this is content, not serializable
@@ -196,6 +214,7 @@ Routes are static/data-driven: `generateStaticParams` reads `data/*.js`, and `no
   - **Exception — plot line colours**: `components/Plot.js` needs up to four saved student-drawn lines to stay visually distinct from each other *and* from the data points/axes, which a single accent can't do. It uses a small fixed palette (`LINE_COLORS` in `lib/experiment/usePlotConfig.js`) of four hues at the same saturation/lightness as `--trace`, reserved for saved/current lines only — points, axes, and everything else on the plot still key off `--trace` alone. This is a deliberate, scoped exception; don't extend the palette to other UI or collapse it back to monochrome.
   - **Exception — oscilloscope screen**: `components/Oscilloscope.js`'s scope screen is green phosphor on black, not `--trace` on `--ink` — a scope is green because phosphor is green, and every real one looks like this. Colors (`SCOPE_BG`/`SCOPE_GRATICULE`/`SCOPE_CH1_COLOR`/`SCOPE_CH2_COLOR`) live in `lib/circuits/oscilloscopeControls.js`. The green also appears once outside the canvas itself: the `OSCILLOSCOPE` nameplate (`.circuit-scope-nameplate` in `globals.css`, hardcoded to match `SCOPE_CH1_COLOR` since CSS can't import the JS constant) — an instrument's case label reads as part of the instrument, not as UI chrome. Everything else in the scope's own panel (section headings, buttons, sliders, control labels) still keys off the normal palette. Channel 2 is a second, distinct hue (amber) rather than a second shade of green, so the two traces stay distinguishable at a glance. Same deliberate-and-scoped rule as the plot line colours above — don't spread the green any further than the screen and its nameplate.
 - **Type**: IBM Plex Sans for prose/headings, IBM Plex Mono for labels/eyebrows/data readouts/nav — the mono face is what signals "instrument panel" and should be used for anything numeric or tag-like, not for body copy.
+  - **Guide pages** (`.guide`/`.prose` in `globals.css`) are for reading rather than operating an instrument, so their typography differs in scale and rhythm instead of using a new typeface: larger body text, longer leading, a ~68ch measure, and a solid background so the grid and cursor field don't run behind the text. The one addition is a real Plex Sans italic, loaded only on `/guide` routes.
 - **Mobile-first, metered-data-first**: the audience is students in Bangladesh, often on phones with capped/slow data and modest batteries. Concretely this means:
   - Fonts self-hosted through `next/font` (never fetched from Google at request time).
   - Canvas animations pause off-screen (`IntersectionObserver`) and on tab-hide (`visibilitychange`) — see `DiffractionGrating.js`.

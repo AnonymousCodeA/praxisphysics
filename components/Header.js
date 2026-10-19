@@ -14,8 +14,13 @@ export default function Header() {
           <span className="mark-name">PRAXIS</span>
         </Link>
         <nav className="nav">
-          <Link href="/#sims">SIMULATIONS</Link>
+          {/* Shortened on the narrowest phones so five nav items still fit at 360px. */}
+          <Link href="/#sims" aria-label="Simulations">
+            <span className="nav-full">SIMULATIONS</span>
+            <span className="nav-short">SIMS</span>
+          </Link>
           <Link href="/#papers">PAPERS</Link>
+          <Link href="/guide">GUIDE</Link>
           <Link href="/#community">DISCORD</Link>
           <span className="nav-sep" aria-hidden="true" />
           <Link className="signup" href="/signup">Sign up</Link>
