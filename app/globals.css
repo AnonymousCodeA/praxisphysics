@@ -390,6 +390,7 @@ footer{border-top:1px solid var(--edge);padding:34px 0 46px}
   font-family:var(--font-mono),monospace;font-size:12px;padding:4px 2px;
 }
 .plot-bound-group input:focus{outline:none}
+.plot-err{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .plot-canvas-wrap{position:relative;border:1px solid var(--edge);border-radius:4px;background:var(--panel-t)}
 .plot-canvas{display:block;width:100%;aspect-ratio:3/2;min-height:260px;max-height:420px;touch-action:none;cursor:crosshair}
 .plot-canvas.dragging{cursor:grabbing}

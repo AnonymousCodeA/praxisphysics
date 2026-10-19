@@ -69,7 +69,12 @@ components/
   Plot.js                 plot for the table's data: student picks x/y columns and types
                           axis min/max (no auto-scaling), drags a line's two endpoints
                           freely to set gradient/intercept (never a fit), saves up to four
-                          lines in distinct colours — see the palette exception above
+                          lines in distinct colours — see the palette exception above.
+                          Optional x/y error bars (capped, point colour, drawn under the
+                          lines, clipped at the axes), each from a table column or one
+                          typed constant. Drawn exactly as given — the plot never
+                          estimates, propagates or derives an uncertainty; a blank,
+                          non-numeric or negative value just means no bar for that point
   PendulumExperiment.js   the pendulum as a consumer of ExperimentWorkspace rather than
                           being the shell itself: wires data/pendulumGuide.js's part
                           definitions and PendulumLab together and renders the shell.
@@ -202,8 +207,10 @@ lib/
                           lines) + localStorage persistence at
                           `praxis:<experimentId>-<partId>-plot`, plus parseBounds/lineStats
                           helpers. Column choices are keyed by role (`PLOT_ROLES`), not
-                          hardcoded x/y fields, so an error-bar column is a one-line
-                          addition later
+                          hardcoded x/y fields; the `error: true` roles (xErr/yErr) also
+                          accept ERR_CONSTANT, with the typed value in `errConst`. A stored
+                          config from before a role existed is merged over the defaults on
+                          load (withDefaults), not discarded
 ```
 
 Routes are static/data-driven: `generateStaticParams` reads `data/*.js`, and `notFound()` fires for unknown slugs. There's no CMS or DB — content changes are code changes to the `data/` files.
