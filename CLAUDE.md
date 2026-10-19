@@ -65,7 +65,11 @@ components/
                           content of its own
   DataTable.js            student-defined table (add/delete row & column, rename headers,
                           free-typed cells) — controlled by the table state in
-                          ExperimentWorkspace, not owned here
+                          ExperimentWorkspace, not owned here. A symbol bar above it (Δ θ λ
+                          ω Ω µ ± ° ² ³) inserts at the caret of the last focused cell or
+                          header, through the same setCell/renameColumn a keystroke uses;
+                          buttons preventDefault on pointerdown so the cell (and a phone's
+                          keyboard) keeps focus. Pure input convenience — still free text
   Plot.js                 plot for the table's data: student picks x/y columns and types
                           axis min/max (no auto-scaling), drags a line's two endpoints
                           freely to set gradient/intercept (never a fit), saves up to four

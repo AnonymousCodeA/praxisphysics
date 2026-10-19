@@ -333,6 +333,14 @@ footer{border-top:1px solid var(--edge);padding:34px 0 46px}
 
 /* ---------- pendulum data table ---------- */
 .pendulum-table-box{display:flex;flex-direction:column;gap:12px}
+.table-symbols{display:flex;flex-wrap:wrap;gap:6px}
+.table-symbols button{
+  min-width:36px;height:36px;padding:0 8px;background:var(--panel-t);
+  border:1px solid var(--edge);border-radius:3px;color:var(--chalk);
+  font-family:var(--font-sans),system-ui,sans-serif;font-size:17px;line-height:1;cursor:pointer;transition:.16s;
+  touch-action:manipulation;
+}
+.table-symbols button:hover:not(:disabled){color:var(--trace);border-color:var(--trace)}
 .pendulum-table-wrap{overflow-x:auto;border:1px solid var(--edge);border-radius:4px}
 .pendulum-table{border-collapse:collapse;width:100%;font-family:var(--font-mono),monospace;font-size:12.5px}
 .pendulum-table th,.pendulum-table td{border:1px solid var(--edge);padding:0}
