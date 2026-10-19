@@ -6,12 +6,9 @@ import {
   rulerLocalToPx,
   rulerHandleLocal,
   worldToRulerLocal,
-  protractorLocalToPx,
-  protractorHandleLocal,
-  worldToProtractorLocal,
+  isOnAnglePlate,
   RULER_LENGTH_M,
   RULER_WIDTH_M,
-  PROTRACTOR_RADIUS_M,
 } from '@/lib/pendulum/scene';
 
 const MAX_LENGTH_M = 0.55; // headroom for bob radius, sets the vertical draw-scale constraint
@@ -34,11 +31,10 @@ export default function PendulumCanvas({
   bobRadius,
   dragCapRad,
   rulerRef,
-  protractorRef,
   photogateRef,
   printMarginRef,
-  protractorOffsetRef,
-  visible, // { ruler, protractor, photogate } — current toggle state
+  plateOffsetRef,
+  visible, // { ruler, anglePlate, photogate } — current toggle state
   lensRef, // written here on hold/move/release, read+drawn by PendulumLens
   sceneStateRef, // written here every frame, read by PendulumLens
   onBeginDrag,
@@ -69,10 +65,9 @@ export default function PendulumCanvas({
       raf = 0;
     let pivotX = 0,
       pivotY = 0;
-    // null | 'bob' | 'rulerHandle' | 'protractorHandle' | 'photogate' |
-    // 'pendingBody' | 'body' | 'lens'
+    // null | 'bob' | 'rulerHandle' | 'photogate' | 'pendingBody' | 'body' | 'lens'
     let dragTarget = null;
-    let pendingKind = null; // 'ruler' | 'protractor', while dragTarget is 'pendingBody'/'body'
+    let pendingKind = null; // 'ruler' | 'anglePlate', while dragTarget is 'pendingBody'/'body'
     let grabOffset = { dx: 0, dy: 0 };
     let holdStartPx = { px: 0, py: 0 };
     let holdTimer = null;
@@ -111,8 +106,7 @@ export default function PendulumCanvas({
         visible: visibleRef.current,
         ruler: rulerRef.current,
         rulerPrintMarginM: printMarginRef.current,
-        protractor: protractorRef.current,
-        protractorOffsetRad: protractorOffsetRef.current,
+        anglePlateOffsetRad: plateOffsetRef.current,
         photogate: photogateRef.current,
       };
     }
@@ -173,10 +167,6 @@ export default function PendulumCanvas({
       updateLens(px, py, clientX, clientY);
     }
 
-    function refFor(kind) {
-      return kind === 'ruler' ? rulerRef : protractorRef;
-    }
-
     function onDown(e) {
       const { px, py } = pointerXY(e);
       const v = visibleRef.current;
@@ -193,19 +183,7 @@ export default function PendulumCanvas({
         }
       }
 
-      // 2. protractor rotate handle
-      if (v.protractor) {
-        const hl = protractorHandleLocal();
-        const hp = protractorLocalToPx(toPx, protractorRef.current, hl.lx, hl.ly);
-        if (Math.hypot(px - hp.x, py - hp.y) <= HANDLE_GRAB_PAD_PX) {
-          dragTarget = 'protractorHandle';
-          cvs.setPointerCapture(e.pointerId);
-          cvs.classList.add('dragging');
-          return;
-        }
-      }
-
-      // 3. photogate — small, compact, just dragged by its beam centre
+      // 2. photogate — small, compact, just dragged by its beam centre
       if (v.photogate) {
         const gp = toPx(photogateRef.current.xM, photogateRef.current.yM);
         if (Math.hypot(px - gp.x, py - gp.y) <= PHOTOGATE_GRAB_PAD_PX) {
@@ -218,7 +196,7 @@ export default function PendulumCanvas({
         }
       }
 
-      // 4. ruler body — press-and-hold raises the lens; moving first drags it
+      // 3. ruler body — press-and-hold raises the lens; moving first drags it
       if (v.ruler) {
         const world = toWorld(px, py);
         const local = worldToRulerLocal(rulerRef.current, world.x, world.y);
@@ -229,18 +207,9 @@ export default function PendulumCanvas({
         }
       }
 
-      // 5. protractor body — same press-and-hold-vs-drag gesture
-      if (v.protractor) {
-        const world = toWorld(px, py);
-        const local = worldToProtractorLocal(protractorRef.current, world.x, world.y);
-        const padM = BODY_GRAB_PAD_PX / pxPerM;
-        if (local.lx * local.lx + local.ly * local.ly <= (PROTRACTOR_RADIUS_M + padM) ** 2 && local.ly >= -padM) {
-          beginPendingBody('protractor', px, py, world, e.pointerId, e.clientX, e.clientY);
-          return;
-        }
-      }
-
-      // 6. bob
+      // 4. bob — ahead of the angle plate, since the bob's generous grab
+      // margin reaches over the plate's edge and grabbing the bob there
+      // should still work
       const bob = bobPos();
       const rPx = Math.max(6, bobRadius * pxPerM);
       if (Math.hypot(px - bob.x, py - bob.y) <= rPx + GRAB_PAD_PX) {
@@ -248,15 +217,24 @@ export default function PendulumCanvas({
         cvs.setPointerCapture(e.pointerId);
         cvs.classList.add('dragging');
         onBeginDrag(angleFromEvent(e));
+        return;
+      }
+
+      // 5. angle plate — fixed apparatus, so only the hold half of the
+      // gesture: press and hold raises the lens; moving first cancels
+      if (v.anglePlate) {
+        const world = toWorld(px, py);
+        if (isOnAnglePlate(world.x, world.y, BODY_GRAB_PAD_PX / pxPerM)) {
+          beginPendingBody('anglePlate', px, py, world, e.pointerId, e.clientX, e.clientY);
+        }
       }
     }
 
     function beginPendingBody(kind, px, py, world, pointerId, clientX, clientY) {
-      const state = refFor(kind).current;
       dragTarget = 'pendingBody';
       pendingKind = kind;
       holdStartPx = { px, py };
-      grabOffset = { dx: state.xM - world.x, dy: state.yM - world.y };
+      if (kind === 'ruler') grabOffset = { dx: rulerRef.current.xM - world.x, dy: rulerRef.current.yM - world.y };
       cvs.setPointerCapture(pointerId);
       clearHoldTimer();
       holdTimer = setTimeout(() => {
@@ -272,14 +250,19 @@ export default function PendulumCanvas({
         const dist = Math.hypot(px - holdStartPx.px, py - holdStartPx.py);
         if (dist <= HOLD_MOVE_CANCEL_PX) return;
         clearHoldTimer();
+        if (pendingKind === 'anglePlate') {
+          // nothing to drag: the plate isn't the student's to move
+          dragTarget = null;
+          pendingKind = null;
+          return;
+        }
         dragTarget = 'body';
         cvs.classList.add('dragging');
       }
 
       if (dragTarget === 'body') {
         const world = toWorld(px, py);
-        const r = refFor(pendingKind);
-        r.current = { ...r.current, xM: world.x + grabOffset.dx, yM: world.y + grabOffset.dy };
+        rulerRef.current = { ...rulerRef.current, xM: world.x + grabOffset.dx, yM: world.y + grabOffset.dy };
       } else if (dragTarget === 'photogate') {
         const world = toWorld(px, py);
         photogateRef.current = { xM: world.x + grabOffset.dx, yM: world.y + grabOffset.dy };
@@ -289,10 +272,6 @@ export default function PendulumCanvas({
         const world = toWorld(px, py);
         const angleRad = Math.atan2(world.y - rulerRef.current.yM, world.x - rulerRef.current.xM);
         rulerRef.current = { ...rulerRef.current, angleRad };
-      } else if (dragTarget === 'protractorHandle') {
-        const world = toWorld(px, py);
-        const angleRad = Math.atan2(world.y - protractorRef.current.yM, world.x - protractorRef.current.xM);
-        protractorRef.current = { ...protractorRef.current, angleRad };
       } else if (dragTarget === 'bob') {
         onUpdateDrag(angleFromEvent(e));
       }
@@ -351,10 +330,9 @@ export default function PendulumCanvas({
     bobRadius,
     dragCapRad,
     rulerRef,
-    protractorRef,
     photogateRef,
     printMarginRef,
-    protractorOffsetRef,
+    plateOffsetRef,
     lensRef,
     sceneStateRef,
     onBeginDrag,
@@ -366,7 +344,7 @@ export default function PendulumCanvas({
       id="pendulum-canvas"
       ref={ref}
       className={mode === 'swinging' ? 'swinging' : ''}
-      aria-label="Interactive pendulum bench. Drag the bob to set a release angle. Bring in a ruler, protractor, or photogate from the instrument menu below, drag them to position, drag their end handle to rotate, and press and hold on the ruler or protractor to magnify that spot."
+      aria-label="Interactive pendulum bench. Drag the bob to set a release angle. Bring in a ruler, angle plate, or photogate from the instrument menu below; drag the ruler and photogate to position, drag the ruler's end handle to rotate it, and press and hold on the ruler or angle plate to magnify that spot."
     />
   );
 }

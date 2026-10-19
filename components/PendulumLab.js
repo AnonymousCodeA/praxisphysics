@@ -7,7 +7,7 @@ import InstrumentMenu from './instruments/InstrumentMenu';
 import Stopwatch from './instruments/Stopwatch';
 import Photogate from './instruments/Photogate';
 import { usePendulumPhysics } from '@/lib/pendulum/usePendulumPhysics';
-import { sessionUniform } from '@/lib/instruments/rng';
+import { sessionRandom, sessionUniform } from '@/lib/instruments/rng';
 
 const DRAG_CAP_DEG = 85; // the taut-string model is invalid past 90°
 const BOB_RADIUS_M = 0.02;
@@ -23,22 +23,26 @@ const DRAG_CAP_RAD = (DRAG_CAP_DEG * Math.PI) / 180;
 const PRINT_MARGIN_MIN_M = 0.001;
 const PRINT_MARGIN_MAX_M = 0.002;
 
-// Same idea for the protractor: its printed degree scale sits at a small,
-// fixed angular offset from the geometric baseline/centre mark.
-const PROTRACTOR_OFFSET_MIN_RAD = (-1 * Math.PI) / 180;
-const PROTRACTOR_OFFSET_MAX_RAD = (1 * Math.PI) / 180;
+// Same idea for the angle plate: its printed scale sits at a small fixed
+// angular offset from true vertical. A magnitude range with a separate sign
+// (rather than one uniform draw across zero) so it's never negligibly
+// small — the string hanging at rest never quite sits on 0°, which a
+// careful student reading through the lens can catch.
+const PLATE_OFFSET_MIN_RAD = (0.3 * Math.PI) / 180;
+const PLATE_OFFSET_MAX_RAD = (1 * Math.PI) / 180;
 
 // Sensible starting poses, applied fresh every time a tool is toggled on —
 // "bringing it onto the bench" resets where it lands, it isn't remembered
-// from before it was put away.
+// from before it was put away. The angle plate has none: it's part of the
+// apparatus, always centred on the pivot, so the menu only toggles whether
+// it's mounted, never where.
 const RULER_DEFAULT = { xM: 0.1, yM: 0.55, angleRad: 0 };
-const PROTRACTOR_DEFAULT = { xM: -0.14, yM: 0.06, angleRad: 0 };
 const PHOTOGATE_DEFAULT = { xM: 0.08, yM: 0.34 };
 
 const INSTRUMENTS = [
   { key: 'stopwatch', label: 'STOPWATCH' },
   { key: 'ruler', label: 'RULER' },
-  { key: 'protractor', label: 'PROTRACTOR' },
+  { key: 'anglePlate', label: 'ANGLE PLATE' },
   { key: 'photogate', label: 'PHOTOGATE' },
 ];
 
@@ -47,20 +51,17 @@ export default function PendulumLab() {
   const [open, setOpen] = useState({}); // every tool off by default — empty bench
 
   const rulerRef = useRef({ ...RULER_DEFAULT });
-  const protractorRef = useRef({ ...PROTRACTOR_DEFAULT });
   const photogateRef = useRef({ ...PHOTOGATE_DEFAULT });
   const printMarginRef = useRef((PRINT_MARGIN_MIN_M + PRINT_MARGIN_MAX_M) / 2);
-  const protractorOffsetRef = useRef(0);
+  const plateOffsetRef = useRef(0);
   const lensRef = useRef({ active: false, clientX: 0, clientY: 0, worldX: 0, worldY: 0, pxPerM: 1 });
   const sceneStateRef = useRef({});
 
   useEffect(() => {
     printMarginRef.current = sessionUniform('ruler-print-margin-m', PRINT_MARGIN_MIN_M, PRINT_MARGIN_MAX_M);
-    protractorOffsetRef.current = sessionUniform(
-      'protractor-scale-offset-rad',
-      PROTRACTOR_OFFSET_MIN_RAD,
-      PROTRACTOR_OFFSET_MAX_RAD
-    );
+    const sign = sessionRandom('angle-plate-offset-sign') < 0.5 ? -1 : 1;
+    plateOffsetRef.current =
+      sign * sessionUniform('angle-plate-offset-rad', PLATE_OFFSET_MIN_RAD, PLATE_OFFSET_MAX_RAD);
   }, []);
 
   const effectiveLength = stringLength + BOB_RADIUS_M; // pivot to bob centre
@@ -76,7 +77,6 @@ export default function PendulumLab() {
       const turningOn = !prev[key];
       if (turningOn) {
         if (key === 'ruler') rulerRef.current = { ...RULER_DEFAULT };
-        if (key === 'protractor') protractorRef.current = { ...PROTRACTOR_DEFAULT };
         if (key === 'photogate') photogateRef.current = { ...PHOTOGATE_DEFAULT };
       }
       return { ...prev, [key]: turningOn };
@@ -84,8 +84,8 @@ export default function PendulumLab() {
   }, []);
 
   const visible = useMemo(
-    () => ({ ruler: !!open.ruler, protractor: !!open.protractor, photogate: !!open.photogate }),
-    [open.ruler, open.protractor, open.photogate]
+    () => ({ ruler: !!open.ruler, anglePlate: !!open.anglePlate, photogate: !!open.photogate }),
+    [open.ruler, open.anglePlate, open.photogate]
   );
 
   const swinging = mode === 'swinging';
@@ -100,10 +100,9 @@ export default function PendulumLab() {
           bobRadius={BOB_RADIUS_M}
           dragCapRad={DRAG_CAP_RAD}
           rulerRef={rulerRef}
-          protractorRef={protractorRef}
           photogateRef={photogateRef}
           printMarginRef={printMarginRef}
-          protractorOffsetRef={protractorOffsetRef}
+          plateOffsetRef={plateOffsetRef}
           visible={visible}
           lensRef={lensRef}
           sceneStateRef={sceneStateRef}
@@ -132,8 +131,8 @@ export default function PendulumLab() {
         <p className="hint">
           Drag the bob to set a release angle (capped at {DRAG_CAP_DEG}°), then press Release.
           Grab the bob again at any time to stop it and reposition it. Bring instruments onto
-          the bench from the menu below — drag a ruler or protractor by its body to move it,
-          drag its end handle to turn it, and press and hold on it to magnify that spot.
+          the bench from the menu below — drag the ruler by its body to move it and by its end
+          handle to turn it. Press and hold on the ruler or the angle plate to magnify that spot.
         </p>
       </div>
 

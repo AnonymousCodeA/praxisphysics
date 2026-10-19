@@ -36,12 +36,12 @@ drawn once per TRIAL from a session-seeded PRNG, never per frame.
 | Stopwatch | 0.01 s | student's own reaction time — do not synthesise |
 | Photogate | 1 ms | none; triggers twice per period |
 | Ruler | 1 mm | fixed session zero offset; reads to string end, not bob centre |
-| Protractor | 1° | fixed session zero offset |
+| Angle plate | 1° | fixed session offset of the printed scale from true vertical |
 
 Systematics are placed deliberately:
 - Length and stopwatch errors hit Part A, cancel in Part B (α, β are
   ratios of T to T₀).
-- Protractor offset is harmless in Part A, bites Part B via sin²(φ₀/2).
+- Angle plate offset is harmless in Part A, bites Part B via sin²(φ₀/2).
 - Bob-centre length error falls out of the ruler geometry for free.
 
 ## Part A — measure g
@@ -88,6 +88,6 @@ what the exam marks.
 1. Model + AGM verification — a script printing simulated vs exact.
 2. Stopwatch + table — Part A end to end.
 3. Plot with draggable lines.
-4. Photogate + protractor — Part B.
+4. Photogate + angle plate — Part B.
 
 Part A working completely beats both parts half-built.

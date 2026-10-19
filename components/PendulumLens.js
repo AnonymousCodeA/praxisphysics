@@ -53,13 +53,19 @@ export default function PendulumLens({ lensRef, sceneStateRef }) {
 
         const originX = LENS_RADIUS_PX - lens.worldX * lens.pxPerM;
         const originY = LENS_RADIUS_PX - lens.worldY * lens.pxPerM;
-        ctx.fillStyle = '#0B1219';
-        ctx.fillRect(0, 0, LENS_SIZE_PX, LENS_SIZE_PX);
         drawScene(
           ctx,
           { originX, originY, pxPerM: lens.pxPerM, width: LENS_SIZE_PX, height: LENS_SIZE_PX, showGuides: false },
           sceneStateRef.current
         );
+        // Background goes in underneath afterwards: drawScene clears the
+        // canvas first, so a fill painted before it is wiped, leaving every
+        // gap between objects transparent and the full-scale bench showing
+        // through the lens (a second, wrong-scale copy of the string and plate).
+        ctx.globalCompositeOperation = 'destination-over';
+        ctx.fillStyle = '#0B1219';
+        ctx.fillRect(0, 0, LENS_SIZE_PX, LENS_SIZE_PX);
+        ctx.globalCompositeOperation = 'source-over';
       }
       raf = requestAnimationFrame(loop);
     }
