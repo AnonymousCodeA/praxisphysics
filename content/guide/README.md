@@ -29,7 +29,12 @@ export const bodies = {
 - **Headings inside a subsection**: plain `<h3>` (and `<h4>` for a small label).
   Give an `<h3>` an `id` if a hint should be able to link to it.
 - **Figures**: `<Fig num caption id>` around an inline SVG or `<img>`. Drawings
-  use `currentColor` / `var(--trace)` so they sit in the site palette.
+  use `currentColor` / `var(--trace)` so they sit in the site palette. A drawing
+  too big to sit in the prose goes in `content/guide/figures/` as a component
+  (`QuadratureCuboid.js`) imported by the section file — inline JSX, not an
+  `.svg` behind an `<img>`, which couldn't inherit `currentColor` or the CSS
+  variables. Prefix its class names and ids (`qc-…`): a `<style>` block inside
+  an inline SVG applies to the whole page.
 - **Tables**: wrap in `<div className="guide-table">` so they scroll sideways
   on a phone instead of widening the page.
 - **Asides**: `<aside>` for a boxed note ("A common mistake…").

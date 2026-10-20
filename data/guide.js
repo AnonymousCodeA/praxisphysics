@@ -5,6 +5,11 @@
 // dead anchor). The prose itself lives separately in content/guide/<slug>.js,
 // keyed by these same ids, so this file stays small enough to import from a
 // client component without pulling the whole guide into its bundle.
+//
+// `anchors` lists the <h3 id>s inside a subsection that a hint may link to
+// directly (`guideHref('error-analysis', 'max-min-method')`); the content
+// file must give its <h3> the same id. `short` is an optional label for the
+// page's sidebar when the heading itself is too long to sit there.
 export const guideSections = [
   {
     slug: 'measurement',
@@ -25,14 +30,27 @@ export const guideSections = [
     slug: 'error-analysis',
     index: '02',
     title: 'Error analysis',
-    blurb: 'Random and systematic error, how uncertainties combine, and how honestly to state a result.',
+    blurb: 'Finding the error in a single reading or a set of repeats, then carrying it through to a calculated result — by quadrature, the max–min method, or the general partial-derivative formula.',
     subsections: [
-      { id: 'random-and-systematic', title: 'Random and systematic errors' },
-      { id: 'absolute-and-percentage', title: 'Absolute, fractional and percentage uncertainty' },
-      { id: 'repeated-readings', title: 'Repeated readings and the mean' },
-      { id: 'combining-uncertainties', title: 'Combining uncertainties' },
-      { id: 'significant-figures', title: 'Significant figures' },
-      { id: 'comparing-results', title: 'Comparing a result with an accepted value' },
+      { id: 'introduction', title: 'Introduction' },
+      {
+        id: 'finding-the-error',
+        title: 'Finding the error',
+        anchors: [
+          { id: 'measurement-device', title: 'Error in Measurement device' },
+          { id: 'statistical-error', title: 'Statistical error' },
+        ],
+      },
+      {
+        id: 'propagating-errors',
+        title: 'Propagating Errors',
+        anchors: [{ id: 'max-min-method', title: 'The max–min method' }],
+      },
+      {
+        id: 'formal-propagation',
+        title: "Now let's get serious (formal) and generalize EVERYTHING",
+        short: 'The general formula',
+      },
     ],
   },
   {
@@ -70,7 +88,10 @@ export function guideHref(slug, id) {
   const section = guideSections.find((s) => s.slug === slug);
   if (!section) throw new Error(`guideHref: no guide section "${slug}"`);
   if (id === undefined) return `/guide/${slug}`;
-  if (!section.subsections.some((s) => s.id === id)) {
+  const known = section.subsections.some(
+    (s) => s.id === id || s.anchors?.some((a) => a.id === id),
+  );
+  if (!known) {
     throw new Error(`guideHref: no subsection "${id}" in guide section "${slug}"`);
   }
   return `/guide/${slug}#${id}`;

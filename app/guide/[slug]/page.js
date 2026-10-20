@@ -47,7 +47,7 @@ export default async function GuideSectionPage({ params }) {
               <li key={sub.id}>
                 <a href={`#${sub.id}`}>
                   <span>{num(i)}</span>
-                  {sub.title}
+                  {sub.short ?? sub.title}
                 </a>
               </li>
             ))}
