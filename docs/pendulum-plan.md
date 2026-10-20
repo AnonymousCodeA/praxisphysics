@@ -35,20 +35,20 @@ drawn once per TRIAL from a session-seeded PRNG, never per frame.
 |---|---|---|
 | Stopwatch | 0.01 s | student's own reaction time — do not synthesise |
 | Photogate | 1 ms | none; triggers twice per period |
-| Ruler | 1 mm | fixed session zero offset; reads to string end, not bob centre |
+| Vertical scale | 1 mm | printed 0 a fixed session distance below the physical top (level with the pivot); string end vs bob centre is the student's call |
 | Angle plate | 1° | fixed session offset of the printed scale from true vertical |
 
 Systematics are placed deliberately:
 - Length and stopwatch errors hit Part A, cancel in Part B (α, β are
   ratios of T to T₀).
 - Angle plate offset is harmless in Part A, bites Part B via sin²(φ₀/2).
-- Bob-centre length error falls out of the ruler geometry for free.
+- Bob-centre length error falls out of the scale geometry for free.
 
 ## Part A — measure g
 
 Small amplitude, vary length, time many oscillations, repeat.
 Linearise T² vs L; gradient gives g. Reaction-time limited, so the
-lesson is repeats and averaging. Ruler offset and bob radius both
+lesson is repeats and averaging. Scale offset and bob radius both
 appear in the intercept.
 
 ## Part B — the amplitude series

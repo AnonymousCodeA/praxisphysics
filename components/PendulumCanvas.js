@@ -3,18 +3,18 @@
 import { useEffect, useRef } from 'react';
 import {
   drawScene,
-  rulerLocalToPx,
-  rulerHandleLocal,
-  worldToRulerLocal,
   isOnAnglePlate,
-  RULER_LENGTH_M,
-  RULER_WIDTH_M,
+  isOnScale,
 } from '@/lib/pendulum/scene';
 
 const MAX_LENGTH_M = 0.55; // headroom for bob radius, sets the vertical draw-scale constraint
 const FILL = 0.86; // fraction of the binding dimension the apparatus should occupy
+// The bench's horizontal framing: wide enough for a good part of the swing
+// either side of the pivot. (It was the old 50cm ruler's length, kept so
+// the bench is framed exactly as before.)
+const BENCH_MIN_WIDTH_M = 0.5;
 const GRAB_PAD_PX = 30; // touch-friendly hit margin around the bob
-const HANDLE_GRAB_PAD_PX = 20;
+const BOB_DIRECT_PAD_PX = 4; // a press this close to the bob is unambiguously on it
 const BODY_GRAB_PAD_PX = 14;
 const PHOTOGATE_GRAB_PAD_PX = 30;
 
@@ -30,11 +30,10 @@ export default function PendulumCanvas({
   length,
   bobRadius,
   dragCapRad,
-  rulerRef,
   photogateRef,
   printMarginRef,
   plateOffsetRef,
-  visible, // { ruler, anglePlate, photogate } — current toggle state
+  visible, // { scale, anglePlate, photogate } — current toggle state
   lensRef, // written here on hold/move/release, read+drawn by PendulumLens
   sceneStateRef, // written here every frame, read by PendulumLens
   onBeginDrag,
@@ -65,9 +64,8 @@ export default function PendulumCanvas({
       raf = 0;
     let pivotX = 0,
       pivotY = 0;
-    // null | 'bob' | 'rulerHandle' | 'photogate' | 'pendingBody' | 'body' | 'lens'
+    // null | 'bob' | 'photogate' | 'pendingHold' | 'lens'
     let dragTarget = null;
-    let pendingKind = null; // 'ruler' | 'anglePlate', while dragTarget is 'pendingBody'/'body'
     let grabOffset = { dx: 0, dy: 0 };
     let holdStartPx = { px: 0, py: 0 };
     let holdTimer = null;
@@ -83,13 +81,13 @@ export default function PendulumCanvas({
       pivotX = W * 0.5;
       pivotY = H * 0.1;
       // Fit the taller of the two things that actually need to fit — the
-      // pendulum's vertical swing and the ruler's horizontal length —
+      // pendulum's vertical swing and the bench's horizontal framing —
       // against the dimension that constrains it, and use most of that
       // dimension rather than a fixed fraction of height alone. Otherwise
       // a wide canvas leaves the apparatus a sliver in the middle of empty
       // space (see CLAUDE.md).
       const pxPerMByHeight = (H * FILL) / MAX_LENGTH_M;
-      const pxPerMByWidth = (W * FILL) / RULER_LENGTH_M;
+      const pxPerMByWidth = (W * FILL) / BENCH_MIN_WIDTH_M;
       pxPerM = Math.min(pxPerMByHeight, pxPerMByWidth);
     }
 
@@ -104,8 +102,7 @@ export default function PendulumCanvas({
         dragCapRad,
         maxLengthM: MAX_LENGTH_M,
         visible: visibleRef.current,
-        ruler: rulerRef.current,
-        rulerPrintMarginM: printMarginRef.current,
+        scalePrintMarginM: printMarginRef.current,
         anglePlateOffsetRad: plateOffsetRef.current,
         photogate: photogateRef.current,
       };
@@ -171,19 +168,7 @@ export default function PendulumCanvas({
       const { px, py } = pointerXY(e);
       const v = visibleRef.current;
 
-      // 1. ruler rotate handle — instant, unaffected by the hold gesture
-      if (v.ruler) {
-        const hl = rulerHandleLocal();
-        const hp = rulerLocalToPx(toPx, rulerRef.current, hl.lx, hl.ly);
-        if (Math.hypot(px - hp.x, py - hp.y) <= HANDLE_GRAB_PAD_PX) {
-          dragTarget = 'rulerHandle';
-          cvs.setPointerCapture(e.pointerId);
-          cvs.classList.add('dragging');
-          return;
-        }
-      }
-
-      // 2. photogate — small, compact, just dragged by its beam centre
+      // 1. photogate — small, compact, just dragged by its beam centre
       if (v.photogate) {
         const gp = toPx(photogateRef.current.xM, photogateRef.current.yM);
         if (Math.hypot(px - gp.x, py - gp.y) <= PHOTOGATE_GRAB_PAD_PX) {
@@ -196,49 +181,58 @@ export default function PendulumCanvas({
         }
       }
 
-      // 3. ruler body — press-and-hold raises the lens; moving first drags it
-      if (v.ruler) {
-        const world = toWorld(px, py);
-        const local = worldToRulerLocal(rulerRef.current, world.x, world.y);
-        const padM = BODY_GRAB_PAD_PX / pxPerM;
-        if (Math.abs(local.lx) <= RULER_LENGTH_M / 2 + padM && Math.abs(local.ly) <= RULER_WIDTH_M / 2 + padM) {
-          beginPendingBody('ruler', px, py, world, e.pointerId, e.clientX, e.clientY);
-          return;
-        }
-      }
-
-      // 4. bob — ahead of the angle plate, since the bob's generous grab
-      // margin reaches over the plate's edge and grabbing the bob there
-      // should still work
+      // The scale sits right beside the hanging bob, inside the bob's
+      // generous touch margin — and the bob's height is exactly where a
+      // student wants to hold the lens. So a press on the bob itself grabs
+      // it; a press on the scale (even within that margin) raises the lens;
+      // only then does the margin catch near-misses for the bob.
+      const world = toWorld(px, py);
       const bob = bobPos();
       const rPx = Math.max(6, bobRadius * pxPerM);
-      if (Math.hypot(px - bob.x, py - bob.y) <= rPx + GRAB_PAD_PX) {
-        dragTarget = 'bob';
-        cvs.setPointerCapture(e.pointerId);
-        cvs.classList.add('dragging');
-        onBeginDrag(angleFromEvent(e));
+      const bobDist = Math.hypot(px - bob.x, py - bob.y);
+
+      // 2. bob, pressed directly
+      if (bobDist <= rPx + BOB_DIRECT_PAD_PX) {
+        beginBobDrag(e);
         return;
       }
 
-      // 5. angle plate — fixed apparatus, so only the hold half of the
-      // gesture: press and hold raises the lens; moving first cancels
-      if (v.anglePlate) {
-        const world = toWorld(px, py);
-        if (isOnAnglePlate(world.x, world.y, BODY_GRAB_PAD_PX / pxPerM)) {
-          beginPendingBody('anglePlate', px, py, world, e.pointerId, e.clientX, e.clientY);
-        }
+      // 3. vertical scale — fixed apparatus: press and hold raises the lens
+      if (v.scale && isOnScale(world.x, world.y, 0)) {
+        beginHold(px, py, e.pointerId, e.clientX, e.clientY);
+        return;
+      }
+
+      // 4. bob, within its touch margin — ahead of the angle plate, since
+      // the margin reaches over the plate's edge
+      if (bobDist <= rPx + GRAB_PAD_PX) {
+        beginBobDrag(e);
+        return;
+      }
+
+      // 5. angle plate — same press-and-hold as the scale
+      if (v.anglePlate && isOnAnglePlate(world.x, world.y, BODY_GRAB_PAD_PX / pxPerM)) {
+        beginHold(px, py, e.pointerId, e.clientX, e.clientY);
       }
     }
 
-    function beginPendingBody(kind, px, py, world, pointerId, clientX, clientY) {
-      dragTarget = 'pendingBody';
-      pendingKind = kind;
+    function beginBobDrag(e) {
+      dragTarget = 'bob';
+      cvs.setPointerCapture(e.pointerId);
+      cvs.classList.add('dragging');
+      onBeginDrag(angleFromEvent(e));
+    }
+
+    // The scale and angle plate are part of the apparatus, so pressing on
+    // either only ever means "read it": hold to raise the lens. Moving first
+    // cancels rather than dragging — neither is the student's to move.
+    function beginHold(px, py, pointerId, clientX, clientY) {
+      dragTarget = 'pendingHold';
       holdStartPx = { px, py };
-      if (kind === 'ruler') grabOffset = { dx: rulerRef.current.xM - world.x, dy: rulerRef.current.yM - world.y };
       cvs.setPointerCapture(pointerId);
       clearHoldTimer();
       holdTimer = setTimeout(() => {
-        if (dragTarget === 'pendingBody') raiseLens(px, py, clientX, clientY);
+        if (dragTarget === 'pendingHold') raiseLens(px, py, clientX, clientY);
       }, HOLD_DELAY_MS);
     }
 
@@ -246,32 +240,19 @@ export default function PendulumCanvas({
       if (!dragTarget) return;
       const { px, py } = pointerXY(e);
 
-      if (dragTarget === 'pendingBody') {
+      if (dragTarget === 'pendingHold') {
         const dist = Math.hypot(px - holdStartPx.px, py - holdStartPx.py);
         if (dist <= HOLD_MOVE_CANCEL_PX) return;
         clearHoldTimer();
-        if (pendingKind === 'anglePlate') {
-          // nothing to drag: the plate isn't the student's to move
-          dragTarget = null;
-          pendingKind = null;
-          return;
-        }
-        dragTarget = 'body';
-        cvs.classList.add('dragging');
+        dragTarget = null;
+        return;
       }
 
-      if (dragTarget === 'body') {
-        const world = toWorld(px, py);
-        rulerRef.current = { ...rulerRef.current, xM: world.x + grabOffset.dx, yM: world.y + grabOffset.dy };
-      } else if (dragTarget === 'photogate') {
+      if (dragTarget === 'photogate') {
         const world = toWorld(px, py);
         photogateRef.current = { xM: world.x + grabOffset.dx, yM: world.y + grabOffset.dy };
       } else if (dragTarget === 'lens') {
         updateLens(px, py, e.clientX, e.clientY);
-      } else if (dragTarget === 'rulerHandle') {
-        const world = toWorld(px, py);
-        const angleRad = Math.atan2(world.y - rulerRef.current.yM, world.x - rulerRef.current.xM);
-        rulerRef.current = { ...rulerRef.current, angleRad };
       } else if (dragTarget === 'bob') {
         onUpdateDrag(angleFromEvent(e));
       }
@@ -281,7 +262,6 @@ export default function PendulumCanvas({
       clearHoldTimer();
       if (dragTarget === 'lens') lensRef.current = { ...lensRef.current, active: false };
       dragTarget = null;
-      pendingKind = null;
       cvs.classList.remove('dragging');
     }
 
@@ -329,7 +309,6 @@ export default function PendulumCanvas({
     physicsRef,
     bobRadius,
     dragCapRad,
-    rulerRef,
     photogateRef,
     printMarginRef,
     plateOffsetRef,
@@ -344,7 +323,7 @@ export default function PendulumCanvas({
       id="pendulum-canvas"
       ref={ref}
       className={mode === 'swinging' ? 'swinging' : ''}
-      aria-label="Interactive pendulum bench. Drag the bob to set a release angle. Bring in a ruler, angle plate, or photogate from the instrument menu below; drag the ruler and photogate to position, drag the ruler's end handle to rotate it, and press and hold on the ruler or angle plate to magnify that spot."
+      aria-label="Interactive pendulum bench. Drag the bob to set a release angle. Bring in the vertical scale, angle plate, or photogate from the instrument menu below; drag the photogate to position it, and press and hold on the scale or angle plate to magnify that spot."
     />
   );
 }

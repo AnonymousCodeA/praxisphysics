@@ -16,7 +16,7 @@ const MAX_LENGTH_M = 0.5;
 const DEFAULT_LENGTH_M = 0.35;
 const DRAG_CAP_RAD = (DRAG_CAP_DEG * Math.PI) / 180;
 
-// A real ruler's printed "0" doesn't start exactly at its physical edge —
+// A real scale's printed "0" doesn't start exactly at its physical top —
 // there's a small blank margin. Session-seeded so it's a fixed, unstated
 // systematic (not a random per-reading fudge), and geometric/visible
 // rather than a numeric offset baked into a digital readout.
@@ -33,15 +33,14 @@ const PLATE_OFFSET_MAX_RAD = (1 * Math.PI) / 180;
 
 // Sensible starting poses, applied fresh every time a tool is toggled on —
 // "bringing it onto the bench" resets where it lands, it isn't remembered
-// from before it was put away. The angle plate has none: it's part of the
-// apparatus, always centred on the pivot, so the menu only toggles whether
-// it's mounted, never where.
-const RULER_DEFAULT = { xM: 0.1, yM: 0.55, angleRad: 0 };
+// from before it was put away. The vertical scale and angle plate have
+// none: they're part of the apparatus, fixed relative to the pivot, so the
+// menu only toggles whether each is mounted, never where.
 const PHOTOGATE_DEFAULT = { xM: 0.08, yM: 0.34 };
 
 const INSTRUMENTS = [
   { key: 'stopwatch', label: 'STOPWATCH' },
-  { key: 'ruler', label: 'RULER' },
+  { key: 'scale', label: 'SCALE' },
   { key: 'anglePlate', label: 'ANGLE PLATE' },
   { key: 'photogate', label: 'PHOTOGATE' },
 ];
@@ -50,7 +49,6 @@ export default function PendulumLab() {
   const [stringLength, setStringLength] = useState(DEFAULT_LENGTH_M);
   const [open, setOpen] = useState({}); // every tool off by default — empty bench
 
-  const rulerRef = useRef({ ...RULER_DEFAULT });
   const photogateRef = useRef({ ...PHOTOGATE_DEFAULT });
   const printMarginRef = useRef((PRINT_MARGIN_MIN_M + PRINT_MARGIN_MAX_M) / 2);
   const plateOffsetRef = useRef(0);
@@ -58,7 +56,7 @@ export default function PendulumLab() {
   const sceneStateRef = useRef({});
 
   useEffect(() => {
-    printMarginRef.current = sessionUniform('ruler-print-margin-m', PRINT_MARGIN_MIN_M, PRINT_MARGIN_MAX_M);
+    printMarginRef.current = sessionUniform('scale-print-margin-m', PRINT_MARGIN_MIN_M, PRINT_MARGIN_MAX_M);
     const sign = sessionRandom('angle-plate-offset-sign') < 0.5 ? -1 : 1;
     plateOffsetRef.current =
       sign * sessionUniform('angle-plate-offset-rad', PLATE_OFFSET_MIN_RAD, PLATE_OFFSET_MAX_RAD);
@@ -76,7 +74,6 @@ export default function PendulumLab() {
     setOpen((prev) => {
       const turningOn = !prev[key];
       if (turningOn) {
-        if (key === 'ruler') rulerRef.current = { ...RULER_DEFAULT };
         if (key === 'photogate') photogateRef.current = { ...PHOTOGATE_DEFAULT };
       }
       return { ...prev, [key]: turningOn };
@@ -84,8 +81,8 @@ export default function PendulumLab() {
   }, []);
 
   const visible = useMemo(
-    () => ({ ruler: !!open.ruler, anglePlate: !!open.anglePlate, photogate: !!open.photogate }),
-    [open.ruler, open.anglePlate, open.photogate]
+    () => ({ scale: !!open.scale, anglePlate: !!open.anglePlate, photogate: !!open.photogate }),
+    [open.scale, open.anglePlate, open.photogate]
   );
 
   const swinging = mode === 'swinging';
@@ -99,7 +96,6 @@ export default function PendulumLab() {
           length={effectiveLength}
           bobRadius={BOB_RADIUS_M}
           dragCapRad={DRAG_CAP_RAD}
-          rulerRef={rulerRef}
           photogateRef={photogateRef}
           printMarginRef={printMarginRef}
           plateOffsetRef={plateOffsetRef}
@@ -131,8 +127,8 @@ export default function PendulumLab() {
         <p className="hint">
           Drag the bob to set a release angle (capped at {DRAG_CAP_DEG}°), then press Release.
           Grab the bob again at any time to stop it and reposition it. Bring instruments onto
-          the bench from the menu below — drag the ruler by its body to move it and by its end
-          handle to turn it. Press and hold on the ruler or the angle plate to magnify that spot.
+          the bench from the menu below, and press and hold on the scale or the angle plate to
+          magnify that spot.
         </p>
       </div>
 
