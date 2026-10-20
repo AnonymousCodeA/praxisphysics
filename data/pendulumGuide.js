@@ -1,11 +1,24 @@
-// Static problem statement, formulae, and thin prompts per part — the
+// Static problem statement, formulae, and task or prompts per part — the
 // pendulum experiment's content, consumed by the generic ExperimentGuide via
 // ExperimentWorkspace. No accompanying method: deciding how to measure and
-// what to tabulate is the skill this experiment is teaching, so Part A stays
-// deliberately sparse. Part B's series is given deliberately unrearranged —
+// what to tabulate is the skill this experiment is teaching.
+//
+// Part A splits three ways: the task (A1–A3) says what to produce and never
+// how — no T² against L, no best-fit or worst-acceptable lines, no repeated
+// timings, nothing on reaction time; working those out is the point. The
+// bench explains its own controls (`notes`, shown beside the table and the
+// plot). The guide (/guide) teaches method. The answer box under A3 commits
+// once and then reveals the g the simulation uses (G, from
+// usePendulumPhysics) and whether the student's interval contains it. The
+// only way back is "Start Part A over", which clears the table and plot too.
+// The formulae give the governing relation only, no rearrangement.
+//
+// Part B's series is given deliberately unrearranged —
 // deciding what to linearise, and that no single linearisation covers the
-// whole amplitude range, is the exercise; hints stay as thin as Part A's:
-// questions to weigh, never a named instrument or method.
+// whole amplitude range, is the exercise; its hints stay thin: questions to
+// weigh, never a named instrument or method.
+import { G } from '@/lib/pendulum/usePendulumPhysics';
+
 export const pendulumParts = [
   {
     key: 'parta',
@@ -19,16 +32,26 @@ export const pendulumParts = [
         gravitational acceleration <em>g</em> — and an honest estimate of its uncertainty.
       </p>
     ),
-    formulae: [
-      { expr: 'T = 2π√(L / g)', note: 'period of small oscillations' },
-      { expr: 'g = 4π²L / T²', note: 'rearranged for g' },
+    // Only the governing relation: rearranging it into something with a
+    // gradient is the step A2 asks for, so it isn't done for them here.
+    formulae: [{ expr: 'T = 2π√(L / g)', note: 'period of small oscillations' }],
+    task: [
+      {
+        id: 'A1',
+        text: 'Measure the period of the pendulum for at least six different lengths. Record the uncertainty in every quantity you measure.',
+      },
+      { id: 'A2', text: 'Plot a graph whose gradient gives g, with error bars on your points.' },
+      { id: 'A3', text: 'Determine g, with its uncertainty.' },
     ],
-    hints: [
-      'What exactly counts as one oscillation, and where in the swing is the best place to start and stop a timing?',
-      'A single swing carries your full reaction-time error. Is there a way to shrink its effect on T?',
-      'Does L mean the string’s length, or the distance from the pivot to the bob’s centre?',
-      'Which reading dominates your uncertainty in g — and can you reduce it by changing what or how you measure?',
-    ],
+    answer: { symbol: 'g', unit: 'm s⁻²', trueValue: G },
+    startOver: {
+      label: 'Start Part A over',
+      confirm: 'This clears your table, your plot and your committed answer for Part A.',
+    },
+    notes: {
+      table: 'Record your readings in the table; add a column for the uncertainty in any quantity.',
+      plot: 'On the plot, choose which columns are the axes and which hold the error bars, and set the axis range. Drag across the plot to draw a line.',
+    },
   },
   {
     key: 'partb',

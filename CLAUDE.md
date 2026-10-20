@@ -50,8 +50,14 @@ components/
                           draggable divider on wide ones (see the min-width breakpoint in
                           globals.css), plus a part pill switch at the top of the left
                           column. Takes `experimentId`, a two-element `parts` array (problem
-                          statement/formulae/hints per part — see data/pendulumGuide.js for
-                          the shape), and a `Bench` component to render in the right panel.
+                          statement/formulae/task/answer/hints/notes per part — see
+                          data/pendulumGuide.js for the shape), and a `Bench` component to
+                          render in the right panel. A part's `notes.table`/`notes.plot` (the
+                          bench explaining its own controls) render directly above the table
+                          and the plot, not with the problem. Also holds each part's
+                          useCommittedAnswer, and a part's `startOver` clears its table,
+                          plot and answer together (never the answer alone, never the
+                          other part's), re-keying that part's guide/table/plot
                           Holds one useDataTable/usePlotConfig instance per part (both
                           always mounted, so both parts' data stay live and independently
                           saved regardless of which is on screen — only two parts are
@@ -60,9 +66,15 @@ components/
                           doesn't change with part. CSS classes keep their original
                           "pendulum-" prefix (shared presentational styles, not
                           experiment-specific — renaming them is a separate cosmetic change)
-  ExperimentGuide.js      renders a part's problem statement/formulae/hints from the plain
-                          data definition it's given — no method, just prompts; owns no
-                          content of its own
+  ExperimentGuide.js      renders a part's problem statement/formulae/task/hints from the
+                          plain data definition it's given — no method; owns no content of
+                          its own. A `task` (pendulum Part A's A1–A3) says what to produce,
+                          never how; `answer` adds an AnswerBox under it
+  AnswerBox.js            commit-once value ± uncertainty answer; after commit, reveals the
+                          simulation's true value and states flatly whether the interval
+                          contains it — coverage only, never closeness or praise
+  StartOver.js            quiet "Start Part A over" text button with an inline confirm
+                          naming what goes; a rare destructive action, not a control
   DataTable.js            student-defined table (add/delete row & column, rename headers,
                           free-typed cells) — controlled by the table state in
                           ExperimentWorkspace, not owned here. A symbol bar above it (Δ θ λ
@@ -206,6 +218,11 @@ lib/
                           instance per part rather than re-keying a single instance, so
                           `experimentId`/`partId` are read once and never expected to change
                           under a given instance
+  experiment/useCommittedAnswer.js
+                          a part's committed answer at `praxis:<experimentId>-<partId>-answer`.
+                          Final once committed: a reload restores it and its reveal rather
+                          than offering a fresh attempt; `clear` is called only by the
+                          part's start-over, alongside the table and plot resets
   experiment/usePlotConfig.js
                           a part's plot state (column choices, axis bounds, current/saved
                           lines) + localStorage persistence at

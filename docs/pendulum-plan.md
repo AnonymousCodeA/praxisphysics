@@ -67,9 +67,18 @@ series fails.
 Mobile-first: tabs (problem / table / lab / plot) that expand into a
 draggable split on desktop. Build the tab version first.
 
-- Left: problem statement, thin guide, student-built table with
-  free-typed columns, answer box reporting percentage error without
-  revealing the true value.
+- Left: problem statement, the task (A1–A3: what to produce, never how
+  — the bench explains its controls and the guide teaches method),
+  student-built table with free-typed columns, and a commit-once answer
+  box (g = ___ ± ___). After the commit it reveals the true g and states
+  flatly whether the student's interval contains it; coverage is the only
+  check, so an honest wide interval that brackets g reads no worse than a
+  tight one. The only way to a fresh attempt is "Start Part A over",
+  which clears the part's table and plot along with the answer, so a
+  student can't re-guess against the same data. Formulae give only
+  T = 2π√(L/g); the rearrangement is the student's. The simulated g is a
+  plausible local value (9.787 m s⁻², Dhaka), not 9.81, so the reveal
+  can't be matched from memory.
 - Right: the pendulum, an instrument menu, the plot.
 
 Instruments are global components; each experiment declares what they

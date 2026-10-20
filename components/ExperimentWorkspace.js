@@ -6,6 +6,7 @@ import DataTable from './DataTable';
 import Plot from './Plot';
 import { useDataTable } from '@/lib/experiment/useDataTable';
 import { usePlotConfig } from '@/lib/experiment/usePlotConfig';
+import { useCommittedAnswer } from '@/lib/experiment/useCommittedAnswer';
 
 const TABS = [
   { key: 'problem', label: 'PROBLEM' },
@@ -40,7 +41,19 @@ const SPLIT_STEP = 2;
 // subcomponent instead of two named hook calls.
 //
 // `parts` is a two-element array of { key, label, tag, title, body,
-// formulae?, hints?, credit? } — see data/pendulumGuide.js for the shape.
+// formulae?, task?, answer?, hints?, credit?, notes? } — see
+// data/pendulumGuide.js for the shape. `notes.table` / `notes.plot` are the
+// bench's own one-line explanations of its controls, shown directly above
+// the table and the plot (not with the problem, which says only what to
+// produce) so they sit where they're needed, and so each still appears on
+// a phone where the table and lab are separate tabs.
+//
+// A part with `startOver` gets a confirmed "start this part over" under its
+// answer box. It clears that part's table, plot and committed answer
+// together — never the answer alone, which would let a student re-guess
+// against the same data — and never the other part's. Each part's reset
+// count keys its guide/DataTable/Plot so their ephemeral UI state (a plot
+// readout, half-typed answer fields) goes too.
 // `Bench` gets the active part's `dataTable` (the same useDataTable() return
 // value handed to the DataTable/Plot below) as its one prop — a plain prop
 // update, not a remount trigger, since `Bench`'s own identity never changes
@@ -57,10 +70,22 @@ export default function ExperimentWorkspace({ experimentId, parts, Bench }) {
   const tableB = useDataTable(experimentId, partB.key);
   const plotA = usePlotConfig(experimentId, partA.key);
   const plotB = usePlotConfig(experimentId, partB.key);
+  const answerA = useCommittedAnswer(experimentId, partA.key);
+  const answerB = useCommittedAnswer(experimentId, partB.key);
+  const [resets, setResets] = useState({}); // part key → times started over
   const isPartA = part === partA.key;
   const dataTable = isPartA ? tableA : tableB;
   const plotConfig = isPartA ? plotA : plotB;
+  const answer = isPartA ? answerA : answerB;
   const activeDef = isPartA ? partA : partB;
+  const gen = `${part}:${resets[part] || 0}`;
+
+  const startOver = useCallback(() => {
+    dataTable.reset();
+    plotConfig.reset();
+    answer.clear();
+    setResets((r) => ({ ...r, [part]: (r[part] || 0) + 1 }));
+  }, [dataTable, plotConfig, answer, part]);
 
   const updateSplitFromClientX = useCallback((clientX) => {
     if (!wrapRef.current) return;
@@ -135,10 +160,11 @@ export default function ExperimentWorkspace({ experimentId, parts, Bench }) {
           ))}
         </div>
         <div className="pendulum-pane" data-pane="problem">
-          <ExperimentGuide def={activeDef} />
+          <ExperimentGuide key={gen} def={activeDef} answer={answer} onStartOver={startOver} />
         </div>
         <div className="pendulum-pane" data-pane="table">
-          <DataTable {...dataTable} />
+          {activeDef.notes?.table && <p className="bench-note">{activeDef.notes.table}</p>}
+          <DataTable key={gen} {...dataTable} />
         </div>
       </div>
 
@@ -161,7 +187,8 @@ export default function ExperimentWorkspace({ experimentId, parts, Bench }) {
       <div className="pendulum-col-right">
         <div className="pendulum-pane" data-pane="lab">
           <Bench dataTable={dataTable} />
-          {dataTable.table && <Plot part={part} table={dataTable.table} {...plotConfig} />}
+          {dataTable.table && activeDef.notes?.plot && <p className="bench-note bench-note-plot">{activeDef.notes.plot}</p>}
+          {dataTable.table && <Plot key={gen} part={part} table={dataTable.table} {...plotConfig} />}
         </div>
       </div>
     </div>
