@@ -42,8 +42,10 @@ function CardSymbol({ type, value }) {
   return <canvas ref={ref} className="circuit-card-symbol" aria-hidden="true" />;
 }
 
-// Row of cards, one per inventory item from the problem definition — tap to
-// arm it for placement (see CircuitBench). A card at zero stock is disabled
+// One-row tray of compact tiles, one per inventory item from the problem
+// definition, scrolling sideways when they don't fit — tap to arm one for
+// placement (see CircuitBench). The symbol is drawn at 64×34 and shown
+// smaller by CSS, so the drawing code's fixed symbol sizes still fit. A card at zero stock is disabled
 // rather than removed, so the student can still see what the problem
 // originally provided.
 export default function CircuitInventory({ items, remaining, armedId, onArm }) {

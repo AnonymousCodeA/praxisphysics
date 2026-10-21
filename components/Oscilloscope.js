@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import DataTable from './DataTable';
 import { useOscilloscope } from '@/lib/circuits/useOscilloscope';
 import {
@@ -122,10 +123,11 @@ function drawScopeScreen(ctx, w, h, { display, voltsPerDiv, verticalPosition, sh
 // voltmeter — see CircuitBench.js's SOLVER_TYPE, both map to the same
 // non-loading 'meter' solver element) read out here as a live trace.
 // Collapsed by default; OPEN SCOPE expands it into a large in-page panel
-// (never a modal/fullscreen takeover) — CircuitBench hides the board-
-// building UI (canvas/inventory) while expanded and keeps every info/
-// control panel, Generators included, visible below, so `expanded` is
-// lifted to the parent rather than owned here.
+// (never a modal/fullscreen takeover). Expanded, its header and screen are
+// portaled into `pinnedSlot` — CircuitBench's pinned region, which the
+// board's frame vacates — so the trace stays on screen while the controls
+// here and every other panel, Generators included, scroll beneath it.
+// `expanded` is lifted to the parent since the parent does that swap.
 //
 // `dataTable` (the active part's useDataTable() return value, forwarded
 // from ExperimentWorkspace through CircuitBench — see that file) is
@@ -145,6 +147,7 @@ export default function Oscilloscope({
   expanded,
   onExpandedChange,
   dataTable,
+  pinnedSlot,
 }) {
   const [running, setRunning] = useState(true);
   const [timePerDiv, setTimePerDiv] = useState(DEFAULT_TIME_PER_DIV);
@@ -379,36 +382,41 @@ export default function Oscilloscope({
     );
   }
 
-  return (
-    <div className="circuit-scope circuit-scope-expanded">
+  // Header + screen: the part that has to stay in view. Portaled into the
+  // bench's pinned region when there is one; rendered in place otherwise.
+  const screen = (
+    <div className="scope-pinned">
       <div className="circuit-scope-header">
         <h4 className="circuit-scope-nameplate">OSCILLOSCOPE</h4>
         <button type="button" className="btn btn-line" onClick={() => onExpandedChange(false)}>
           CLOSE
         </button>
       </div>
-
-      {/* Screen + controls: a wide-screen front-panel layout (screen left,
-          controls in a column on the right — see the min-width breakpoint
-          in globals.css, the same one ExperimentWorkspace uses for its own
-          two-column split) that collapses to stacked on narrow screens,
-          where there's no width for a side column. */}
-      <div className="circuit-scope-body">
-        <div className="scope-screen">
-          <div className="scope-statusbar">
-            <span>{formatTimePerDiv(timePerDiv)}/div</span>
-            {hasCh1 && <span style={{ color: SCOPE_CH1_COLOR }}>CH1 {formatVoltsPerDiv(voltsPerDiv.ch1)}/div</span>}
-            {hasCh2 && <span style={{ color: SCOPE_CH2_COLOR }}>CH2 {formatVoltsPerDiv(voltsPerDiv.ch2)}/div</span>}
-            <span style={{ color: display.triggered ? undefined : SCOPE_CH2_COLOR }}>
-              {display.triggered ? "TRIG'D" : 'UNTRIG (free-run)'}
-            </span>
-            <span className="scope-status-run">{running ? 'RUN' : 'HOLD'}</span>
-          </div>
-          <div className="scope-canvas-wrap">
-            <canvas ref={canvasRef} className="scope-canvas" />
-          </div>
+      <div className="scope-screen">
+        <div className="scope-statusbar">
+          <span>{formatTimePerDiv(timePerDiv)}/div</span>
+          {hasCh1 && <span style={{ color: SCOPE_CH1_COLOR }}>CH1 {formatVoltsPerDiv(voltsPerDiv.ch1)}/div</span>}
+          {hasCh2 && <span style={{ color: SCOPE_CH2_COLOR }}>CH2 {formatVoltsPerDiv(voltsPerDiv.ch2)}/div</span>}
+          <span style={{ color: display.triggered ? undefined : SCOPE_CH2_COLOR }}>
+            {display.triggered ? "TRIG'D" : 'UNTRIG (free-run)'}
+          </span>
+          <span className="scope-status-run">{running ? 'RUN' : 'HOLD'}</span>
         </div>
+        <div className="scope-canvas-wrap">
+          <canvas ref={canvasRef} className="scope-canvas" />
+        </div>
+      </div>
+    </div>
+  );
 
+  return (
+    <div className="circuit-scope circuit-scope-expanded">
+      {pinnedSlot ? createPortal(screen, pinnedSlot) : screen}
+
+      {/* Controls only: the screen they used to sit beside is in the pinned
+          region above, so on wide screens they spread across the panel's
+          width (see globals.css) and stack on narrow ones. */}
+      <div className="circuit-scope-body">
         <div className="circuit-scope-controls">
           <section className="circuit-scope-section">
             <h5>HORIZONTAL</h5>

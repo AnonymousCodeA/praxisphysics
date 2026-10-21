@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import PendulumCanvas from './PendulumCanvas';
 import PendulumLens from './PendulumLens';
+import BenchHint from './BenchHint';
 import InstrumentMenu from './instruments/InstrumentMenu';
 import Stopwatch from './instruments/Stopwatch';
 import Photogate from './instruments/Photogate';
@@ -89,7 +90,7 @@ export default function PendulumLab() {
 
   return (
     <div className="pendulum-lab">
-      <div className="pendulum-frame">
+      <div className="pendulum-frame bench-pinned">
         <PendulumCanvas
           physicsRef={physicsRef}
           mode={mode}
@@ -124,12 +125,12 @@ export default function PendulumLab() {
             {swinging ? 'SWINGING' : 'RELEASE'}
           </button>
         </div>
-        <p className="hint">
+        <BenchHint id="pendulum">
           Drag the bob to set a release angle (capped at {DRAG_CAP_DEG}°), then press Release.
           Grab the bob again at any time to stop it and reposition it. Bring instruments onto
           the bench from the menu below, and press and hold on the scale or the angle plate to
           magnify that spot.
-        </p>
+        </BenchHint>
       </div>
 
       <InstrumentMenu items={INSTRUMENTS} open={open} onToggle={toggleInstrument} />

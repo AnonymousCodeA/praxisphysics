@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import CircuitCanvas from './CircuitCanvas';
 import CircuitInventory from './CircuitInventory';
+import BenchHint from './BenchHint';
 import Oscilloscope from './Oscilloscope';
 import { useCircuitPhysics } from '@/lib/circuits/useCircuitPhysics';
 import { useHeater } from '@/lib/circuits/useHeater';
@@ -310,48 +311,55 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7, dataTable,
   const placedProbes = useMemo(() => placed.filter((c) => c.type === 'probe1' || c.type === 'probe2'), [placed]);
 
   // Lifted here (not owned by Oscilloscope itself) because expanding the
-  // scope needs to hide the board-building UI below — see the render:
-  // canvas/toolbar/inventory disappear while expanded, but every info/
-  // control panel, Generators included, stays in normal flow underneath
-  // the now-much-taller scope panel, satisfying "generator controls stay
-  // visible below the expanded scope" for free, with no absolute-position
-  // overlay math needed.
+  // scope swaps what occupies the pinned region (.bench-pinned, which stays
+  // on screen while the panels below scroll): the board's frame leaves it
+  // and the scope's header and screen take its place, portaled into
+  // `scopeSlot` by Oscilloscope so its own state stays in one component.
+  // Toolbar and inventory are hidden while expanded; every info/control
+  // panel, the scope's controls and Generators included, stays in normal
+  // flow beneath, so a generator can be turned while the trace is in view.
   const [scopeExpanded, setScopeExpanded] = useState(false);
+  const [scopeSlot, setScopeSlot] = useState(null);
 
   return (
     <div className="circuit-bench">
-      {!scopeExpanded && (
-        <div className="circuit-frame">
-          <CircuitCanvas
-            rows={rows}
-            cols={cols}
-            placed={placed}
-            armed={armedItem}
-            voltages={voltages}
-            floatingNodes={floatingNodes}
-            onPlace={handlePlace}
-            onRemove={handleRemove}
-            onToggleSwitch={handleToggleSwitch}
-          />
-          <p className="hint">
-            Tap a component below to arm it, move over the board to preview it on the nearest
-            edge, then tap again to place it. Tap a placed component to remove it and return it
-            to stock. Tap a placed switch to toggle it — press and hold a switch to remove it. A
-            placed meter reads OL if the value is beyond its selected range — switch its range in
-            the Meters panel below.
-          </p>
-        </div>
-      )}
+      <div className="bench-pinned">
+        {!scopeExpanded && (
+          <div className="circuit-frame">
+            <CircuitCanvas
+              rows={rows}
+              cols={cols}
+              placed={placed}
+              armed={armedItem}
+              voltages={voltages}
+              floatingNodes={floatingNodes}
+              onPlace={handlePlace}
+              onRemove={handleRemove}
+              onToggleSwitch={handleToggleSwitch}
+            />
+            <BenchHint id="circuits">
+              Tap a component below to arm it, move over the board to preview it on the nearest
+              edge, then tap again to place it. Tap a placed component to remove it and return it
+              to stock. Tap a placed switch to toggle it — press and hold a switch to remove it. A
+              placed meter reads OL if the value is beyond its selected range — switch its range in
+              the Meters panel below.
+            </BenchHint>
+          </div>
+        )}
+        <div ref={setScopeSlot} />
+      </div>
 
+      {/* UNDO and the inventory share one row: the inventory is a tray that
+          scrolls sideways rather than wrapping, so stock costs one row of
+          height however many parts the problem provides. */}
       {!scopeExpanded && (
         <div className="circuit-toolbar">
           <button type="button" className="btn btn-line" onClick={handleUndo} disabled={history.length === 0}>
             UNDO
           </button>
+          <CircuitInventory items={inventory} remaining={remaining} armedId={armedId} onArm={handleArm} />
         </div>
       )}
-
-      {!scopeExpanded && <CircuitInventory items={inventory} remaining={remaining} armedId={armedId} onArm={handleArm} />}
 
       {!scopeExpanded && presets && presets.length > 0 && (
         <div className="circuit-presets">
@@ -445,6 +453,7 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7, dataTable,
           floatingNodes={floatingNodes}
           expanded={scopeExpanded}
           onExpandedChange={setScopeExpanded}
+          pinnedSlot={scopeSlot}
           dataTable={dataTable}
         />
       )}

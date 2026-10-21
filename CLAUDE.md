@@ -57,7 +57,27 @@ components/
                           and the plot, not with the problem. Also holds each part's
                           useCommittedAnswer, and a part's `startOver` clears its table,
                           plot and answer together (never the answer alone, never the
-                          other part's), re-keying that part's guide/table/plot
+                          other part's), re-keying that part's guide/table/plot.
+                          Layout: the experiment pages render it outside `.wrap` in a
+                          `.bench-wrap` (full viewport width less a small gutter — the
+                          1160px cap is for prose). On wide screens the bench column is
+                          its own sticky, viewport-high panel that scrolls internally;
+                          inside it (and under the header on narrow screens) the bench's
+                          `.bench-pinned` region — the apparatus frame — stays put while
+                          the bench's panels scroll beneath. The pin is sticky within the
+                          bench, so it lets go where the bench ends and the plot scrolls
+                          up into the whole column — nobody needs the apparatus while
+                          plotting; the plot canvas is capped so the whole plot block
+                          fits that column height. The workspace uses `overflow:clip`,
+                          not `hidden`, which would break that sticky. Canvases are 4:3
+                          from width but capped at 45vh (min 280px), the lab pane at 900px
+                          content; both canvases already fit their drawing to any box.
+                          The pages are `section.bench-page`: a compact title and no lede
+                          (each part's problem statement is the opening context), so the
+                          bench starts ~70px under the header and pins almost from load.
+                          Nothing permanent sits between the apparatus and the readings:
+                          the how-to note is a dismissible BenchHint, and stock/instrument
+                          pickers are one-row trays that scroll sideways, never wrap.
                           Holds one useDataTable/usePlotConfig instance per part (both
                           always mounted, so both parts' data stay live and independently
                           saved regardless of which is on screen — only two parts are
@@ -75,6 +95,9 @@ components/
                           contains it — coverage only, never closeness or praise
   StartOver.js            quiet "Start Part A over" text button with an inline confirm
                           naming what goes; a rare destructive action, not a control
+  BenchHint.js            a bench's how-to note as a strip under the apparatus until
+                          dismissed (praxis:bench-hint-<id>), then only a "?" laid over
+                          the pinned region's corner — no height once read
   DataTable.js            student-defined table (add/delete row & column, rename headers,
                           free-typed cells) — controlled by the table state in
                           ExperimentWorkspace, not owned here. A symbol bar above it (Δ θ λ
@@ -108,7 +131,7 @@ components/
                           error, reusable across experiments. Not every instrument is
                           digital: the vertical scale, angle plate, and photogate itself are drawn as
                           objects on the bench (lib/pendulum/scene.js), toggled on/off from
-                          the same instrument menu
+                          the same instrument menu (InstrumentMenu: one sideways-scrolling row)
   CircuitBench.js         the circuit-building bench: owns board state (placed components,
                           undo history, armed inventory item) and lib/circuits/
                           useCircuitPhysics's continuous solve loop; renders CircuitCanvas,
@@ -139,13 +162,18 @@ components/
                           paused off-screen, ResizeObserver, pointer events) — see the
                           "Circuit bench" note below for the placement gesture and why
                           nothing here is reduced-motion-gated
-  CircuitInventory.js     row of cards (schematic symbol via lib/circuits/scene.js, label,
-                          remaining count) — tap to arm for placement, disabled at zero stock
+  CircuitInventory.js     one-row tray of compact tiles beside UNDO, scrolling sideways
+                          (schematic symbol via lib/circuits/scene.js drawn at 64×34 and
+                          shown smaller, label, remaining count) — tap to arm for
+                          placement, disabled at zero stock
   Oscilloscope.js         two-channel scope panel rendered by CircuitBench when at least one
                           probe is placed: collapsed by default (OPEN SCOPE), expands into a
-                          large in-page front panel (screen left, HORIZONTAL/VERTICAL/TRIGGER
-                          controls in a column on the right at wide widths, stacked below on
-                          narrow ones). Captures live via lib/circuits/useOscilloscope.js
+                          large in-page panel. Expanded, its header and screen are portaled
+                          (`pinnedSlot`) into CircuitBench's pinned region in place of the
+                          board's frame — a swap of what's pinned, not a hide — with the
+                          screen capped at 45vh tall (square divisions kept), while the
+                          HORIZONTAL/VERTICAL/TRIGGER controls stay in the panel beneath,
+                          spread across its width on wide screens and stacked on narrow. Captures live via lib/circuits/useOscilloscope.js
                           (its own slow interval, independent of useCircuitPhysics's real-time
                           loop) and draws the trace itself here. Mirrors the active part's
                           `dataTable` (see CircuitBench.js) into a DATA TABLE section below the

@@ -4,14 +4,14 @@ export const metadata = { title: 'Pendulum — Praxis' };
 
 export default function PendulumPage() {
   return (
-    <section>
+    <section className="bench-page">
       <div className="wrap">
         <div className="head">
           <h2>Pendulum</h2>
         </div>
-        <p className="lede">
-          Work the problem, log your own data, and take readings from the bench below.
-        </p>
+      </div>
+      {/* Outside .wrap on purpose: the 1160px cap suits prose, not a bench. */}
+      <div className="bench-wrap">
         <PendulumExperiment />
       </div>
     </section>

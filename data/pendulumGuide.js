@@ -28,7 +28,7 @@ export const pendulumParts = [
     body: (
       <p>
         A simple pendulum is released from rest at a small angle and swings freely. Using
-        the bench and whichever instruments you bring in below, find a value for the local
+        whichever instruments you bring to the bench, find a value for the local
         gravitational acceleration <em>g</em> — and an honest estimate of its uncertainty.
       </p>
     ),
