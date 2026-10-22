@@ -61,7 +61,9 @@ const SPLIT_STEP = 2;
 // together — never the answer alone, which would let a student re-guess
 // against the same data — and never the other part's. Each part's reset
 // count keys its guide/DataTable/Plot so their ephemeral UI state (a plot
-// readout, half-typed answer fields) goes too.
+// readout, half-typed answer fields) goes too. Those keys carry a per-element
+// suffix (`:guide`, `:table`, …) because several of them are siblings in the
+// same container, and sibling keys must be unique even across element types.
 // `Bench` gets the active part's `dataTable` (the same useDataTable() return
 // value handed to the DataTable/Plot below) as its one prop — a plain prop
 // update, not a remount trigger, since `Bench`'s own identity never changes
@@ -172,7 +174,7 @@ export default function ExperimentWorkspace({ experimentId, parts, Bench, DataTo
           ))}
         </div>
         <div className="pendulum-pane" data-pane="problem">
-          <ExperimentGuide key={gen} def={activeDef} answer={answer} onStartOver={startOver} />
+          <ExperimentGuide key={`${gen}:guide`} def={activeDef} answer={answer} onStartOver={startOver} />
         </div>
       </div>
 
@@ -208,14 +210,14 @@ export default function ExperimentWorkspace({ experimentId, parts, Bench, DataTo
               plotConfig={plotConfig}
               part={part}
               def={activeDef}
-              key={gen}
+              key={`${gen}:tools`}
             />
           )}
-          <DataTable key={gen} {...dataTable} />
+          <DataTable key={`${gen}:table`} {...dataTable} />
           {dataTable.table && activeDef.notes?.plot && (
             <p className="bench-note bench-note-plot">{activeDef.notes.plot}</p>
           )}
-          {dataTable.table && <Plot key={gen} part={part} table={dataTable.table} {...plotConfig} />}
+          {dataTable.table && <Plot key={`${gen}:plot`} part={part} table={dataTable.table} {...plotConfig} />}
         </div>
       </div>
     </div>
