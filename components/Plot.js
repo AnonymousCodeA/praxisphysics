@@ -1,7 +1,14 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { parseBounds, lineStats, PLOT_ROLES, ERR_CONSTANT, MAX_LINES } from '@/lib/experiment/usePlotConfig';
+import {
+  parseBounds,
+  lineStats,
+  autoRange,
+  PLOT_ROLES,
+  ERR_CONSTANT,
+  MAX_LINES,
+} from '@/lib/experiment/usePlotConfig';
 
 const PAD_LEFT = 60;
 const PAD_RIGHT = 16;
@@ -125,6 +132,7 @@ export default function Plot({
   setCol,
   setErrConst,
   setBoundText,
+  setBounds,
   addLine,
   updateCurrentPoint,
   discardCurrent,
@@ -447,6 +455,13 @@ export default function Plot({
 
   const bounds = parseBounds(config.bounds);
   const canAddLine = !config.current && config.saved.length < MAX_LINES && !!bounds;
+  const auto = autoRange(table, config);
+
+  // Frame the points: pick the window, nothing else. The line is still the
+  // student's to draw and the gradient is still read off it by hand.
+  const applyAutoRange = () => {
+    if (auto) setBounds(auto);
+  };
 
   const roleSelect = (r) => (
     <label key={r.key} className="plot-col-select">
@@ -524,6 +539,9 @@ export default function Plot({
             onChange={(e) => setBoundText('yMax', e.target.value)}
           />
         </div>
+        <button type="button" onClick={applyAutoRange} disabled={!auto} title="Set the axis range to frame the plotted points">
+          AUTO RANGE
+        </button>
       </div>
 
       <div className="plot-canvas-wrap">

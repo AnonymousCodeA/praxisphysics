@@ -5,7 +5,7 @@ import { useLayoutEffect, useRef, useState } from 'react';
 // Characters a physics table header or reading needs that a phone keyboard
 // buries (or lacks). Purely an input convenience: each just types its
 // character into the focused cell/header, which stays free text.
-const SYMBOLS = ['Δ', 'θ', 'λ', 'ω', 'Ω', 'µ', '±', '°', '²', '³'];
+const SYMBOLS = ['Δ', 'θ', 'φ', 'λ', 'ω', 'Ω', 'µ', 'α', 'β', '±', '°', '²', '³', '₀'];
 
 // Deliberately structure-free: no computed columns, no built-in T² or
 // averaging. Cells are free text — students decide what's worth tabulating.

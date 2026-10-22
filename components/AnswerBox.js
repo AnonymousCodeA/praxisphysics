@@ -11,9 +11,10 @@ import { useState } from 'react';
 //
 // `spec` is { symbol, unit, trueValue } from the part's definition — see
 // data/pendulumGuide.js. The true value is copied into the committed record
-// so the reveal a student saw can't change under them later. `answer` and
-// `commit` come from the part's useCommittedAnswer, held by
-// ExperimentWorkspace so the part's "start over" can clear it.
+// so the reveal a student saw can't change under them later. `answer` is
+// that symbol's record from useCommittedAnswer (answerFor); `commit` writes
+// one record. ExperimentWorkspace holds the hook so the part's "start over"
+// can clear every symbol on that part together.
 
 const parse = (s) => {
   const t = s.trim();

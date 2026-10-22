@@ -4,19 +4,45 @@
 // itself. Deliberately thin: no method beyond what `def` supplies, since
 // deciding how to measure and what to tabulate is the skill each experiment
 // is teaching, not something this shell should encode. A `task` says what to
-// produce, never how; `answer` adds a commit-once answer box beneath it, and
-// `startOver` a confirmed reset of the whole part below that. The `answer`
-// and `onStartOver` props come from ExperimentWorkspace, which owns the
-// part's state. CSS classes keep the "pendulum-" prefix — see the matching
-// note on DataTable.
+// produce, never how; `answer` (on the part, or on a single task item) adds
+// a commit-once answer box, and `startOver` a confirmed reset of the whole
+// part below that. The `answer` and `onStartOver` props come from
+// ExperimentWorkspace, which owns the part's state. CSS classes keep the
+// "pendulum-" prefix — see the matching note on DataTable.
 import AnswerBox from './AnswerBox';
 import StartOver from './StartOver';
+import { answerFor } from '@/lib/experiment/useCommittedAnswer';
+
+function TaskList({ items, stored, commit }) {
+  return (
+    <ol className="pendulum-task">
+      {items.map((t) => (
+        <li key={t.id}>
+          <span>{t.id}</span>
+          <div>
+            <p>{t.text}</p>
+            {t.items && t.items.length > 0 && <TaskList items={t.items} stored={stored} commit={commit} />}
+            {t.answer && (
+              <AnswerBox
+                spec={t.answer}
+                answer={answerFor(stored, t.answer.symbol)}
+                commit={(record) => commit(t.answer.symbol, record)}
+              />
+            )}
+          </div>
+        </li>
+      ))}
+    </ol>
+  );
+}
 
 export default function ExperimentGuide({ def, answer, onStartOver }) {
   if (!def) return null;
   const hasFormulae = def.formulae && def.formulae.length > 0;
   const hasTask = def.task && def.task.length > 0;
   const hasHints = def.hints && def.hints.length > 0;
+  const stored = answer.answer;
+  const commit = answer.commit;
 
   return (
     <div className="pendulum-guide">
@@ -42,17 +68,16 @@ export default function ExperimentGuide({ def, answer, onStartOver }) {
       {hasTask && (
         <>
           <h4>Task</h4>
-          <ol className="pendulum-task">
-            {def.task.map((t) => (
-              <li key={t.id}>
-                <span>{t.id}</span>
-                <p>{t.text}</p>
-              </li>
-            ))}
-          </ol>
+          <TaskList items={def.task} stored={stored} commit={commit} />
         </>
       )}
-      {def.answer && <AnswerBox spec={def.answer} answer={answer.answer} commit={answer.commit} />}
+      {def.answer && (
+        <AnswerBox
+          spec={def.answer}
+          answer={answerFor(stored, def.answer.symbol)}
+          commit={(record) => commit(def.answer.symbol, record)}
+        />
+      )}
       {def.startOver && <StartOver {...def.startOver} onConfirm={onStartOver} />}
 
       {hasHints && (

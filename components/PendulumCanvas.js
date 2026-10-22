@@ -2,17 +2,22 @@
 
 import { useEffect, useRef } from 'react';
 import {
+  clampPhotogatePos,
   drawScene,
   isOnAnglePlate,
   isOnScale,
 } from '@/lib/pendulum/scene';
 
-const MAX_LENGTH_M = 0.55; // headroom for bob radius, sets the vertical draw-scale constraint
+const MAX_LENGTH_M = 0.55; // headroom for the bob, sets the vertical draw-scale constraint
 const FILL = 0.86; // fraction of the binding dimension the apparatus should occupy
-// The bench's horizontal framing: wide enough for a good part of the swing
-// either side of the pivot. (It was the old 50cm ruler's length, kept so
-// the bench is framed exactly as before.)
-const BENCH_MIN_WIDTH_M = 0.5;
+// The bench's horizontal framing: wide enough for the whole swing either
+// side of the pivot, so the bob never runs off the frame at a large
+// amplitude — the bob's reach is L·sin(85°), and L goes up to half a
+// metre. A wide canvas would otherwise leave the apparatus a sliver in
+// the middle of empty space (see CLAUDE.md), and a narrow one (the
+// instrument dock open) has to give the width back, which is exactly the
+// rescaling the dock is meant to cause.
+const BENCH_MIN_WIDTH_M = 1.0;
 const GRAB_PAD_PX = 30; // touch-friendly hit margin around the bob
 const BOB_DIRECT_PAD_PX = 4; // a press this close to the bob is unambiguously on it
 const BODY_GRAB_PAD_PX = 14;
@@ -31,7 +36,6 @@ export default function PendulumCanvas({
   bobRadius,
   dragCapRad,
   photogateRef,
-  printMarginRef,
   plateOffsetRef,
   visible, // { scale, anglePlate, photogate } — current toggle state
   lensRef, // written here on hold/move/release, read+drawn by PendulumLens
@@ -102,7 +106,6 @@ export default function PendulumCanvas({
         dragCapRad,
         maxLengthM: MAX_LENGTH_M,
         visible: visibleRef.current,
-        scalePrintMarginM: printMarginRef.current,
         anglePlateOffsetRad: plateOffsetRef.current,
         photogate: photogateRef.current,
       };
@@ -250,7 +253,7 @@ export default function PendulumCanvas({
 
       if (dragTarget === 'photogate') {
         const world = toWorld(px, py);
-        photogateRef.current = { xM: world.x + grabOffset.dx, yM: world.y + grabOffset.dy };
+        photogateRef.current = clampPhotogatePos(world.x + grabOffset.dx, world.y + grabOffset.dy);
       } else if (dragTarget === 'lens') {
         updateLens(px, py, e.clientX, e.clientY);
       } else if (dragTarget === 'bob') {
@@ -310,7 +313,6 @@ export default function PendulumCanvas({
     bobRadius,
     dragCapRad,
     photogateRef,
-    printMarginRef,
     plateOffsetRef,
     lensRef,
     sceneStateRef,

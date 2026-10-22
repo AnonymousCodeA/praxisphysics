@@ -23,6 +23,7 @@ export const guideSections = [
       { id: 'parallax', title: 'Parallax' },
       { id: 'digital-readouts', title: 'Digital readouts' },
       { id: 'timing-by-hand', title: 'Timing by hand' },
+      { id: 'photogates', title: 'Photogates' },
       { id: 'measuring-multiples', title: 'Measuring many to find one' },
     ],
   },
@@ -80,6 +81,19 @@ export const guideSections = [
       { id: 'best-fit-line', title: 'The line of best fit' },
       { id: 'worst-acceptable-line', title: 'The worst acceptable line' },
       { id: 'gradient-and-intercept', title: 'Gradient and intercept' },
+    ],
+  },
+  {
+    slug: 'analysis',
+    index: '05',
+    title: 'Data analysis',
+    blurb:
+      'A handout for the whole pipeline: readings to a table, table to a graph, graph to a number with an uncertainty.',
+    subsections: [
+      { id: 'the-pipeline', title: 'The pipeline' },
+      { id: 'worked-example', title: 'Worked example: a pendulum’s T² against L' },
+      { id: 'two-stage-fits', title: 'When one straight line is not enough' },
+      { id: 'reporting', title: 'Reporting the result' },
     ],
   },
 ];

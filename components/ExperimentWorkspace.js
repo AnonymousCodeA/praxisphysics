@@ -10,8 +10,8 @@ import { useCommittedAnswer } from '@/lib/experiment/useCommittedAnswer';
 
 const TABS = [
   { key: 'problem', label: 'PROBLEM' },
-  { key: 'table', label: 'TABLE' },
-  { key: 'lab', label: 'LAB' },
+  { key: 'sim', label: 'SIMULATION' },
+  { key: 'data', label: 'DATA' },
 ];
 
 const SPLIT_MIN = 28;
@@ -21,11 +21,19 @@ const SPLIT_STEP = 2;
 
 // Mobile-first shell, generalized from the pendulum lab so any experiment
 // with a problem statement, a student-defined table/plot, and a bench can
-// reuse it: three panes (problem, table, lab) that are tab-switched on
-// narrow screens, and become a two-column split with a draggable divider on
-// wide ones (see the min-width breakpoint in globals.css). Left column
-// groups the part switch, problem, and table; right column holds `Bench`
-// (shared, doesn't change with part) and the plot.
+// reuse it. It is organised as three sections, in the order a student
+// actually works through them:
+//
+//   PROBLEM    — what to do: the statement, the task, the answer box
+//   SIMULATION — the bench: the apparatus, and what each instrument is
+//   DATA       — the numbers: the table, and the graph drawn from it
+//
+// The three are tabs on a narrow screen and a two-column split on a wide
+// one: the problem statement takes the left column (prose, narrow is fine)
+// while the bench and the data take the right one — the bench needs width
+// to be usable and the graph needs width to be readable, and the two sit
+// one above the other so a student can read the problem and work the
+// apparatus without scrolling between columns.
 //
 // `experimentId` and each part's `key` pick the localStorage keys
 // (praxis:<experimentId>-<partId>-table / -plot, see lib/experiment/), so
@@ -41,12 +49,12 @@ const SPLIT_STEP = 2;
 // subcomponent instead of two named hook calls.
 //
 // `parts` is a two-element array of { key, label, tag, title, body,
-// formulae?, task?, answer?, hints?, credit?, notes? } — see
-// data/pendulumGuide.js for the shape. `notes.table` / `notes.plot` are the
-// bench's own one-line explanations of its controls, shown directly above
-// the table and the plot (not with the problem, which says only what to
-// produce) so they sit where they're needed, and so each still appears on
-// a phone where the table and lab are separate tabs.
+// formulae?, task?, answer?, hints?, credit?, notes?, simulation? } — see
+// data/pendulumGuide.js for the shape. `notes.table` / `notes.plot` (the
+// bench explaining its own controls) render directly above the table and
+// the plot, in the data section, not with the problem. `simulation` is
+// free-form content for the simulation section — the apparatus notes that
+// tell a student what the bench in front of them actually is.
 //
 // A part with `startOver` gets a confirmed "start this part over" under its
 // answer box. It clears that part's table, plot and committed answer
@@ -59,7 +67,11 @@ const SPLIT_STEP = 2;
 // update, not a remount trigger, since `Bench`'s own identity never changes
 // here; most consumers (e.g. PendulumLab) simply don't use it. CircuitBench
 // uses it to mirror the table into its oscilloscope panel — see that file.
-export default function ExperimentWorkspace({ experimentId, parts, Bench }) {
+// `DataTools`, if given, is rendered in the data section above the table
+// and receives the same table/plot state, so an experiment can offer its own
+// data-entry helpers (the pendulum's does) without the shell knowing what
+// they do.
+export default function ExperimentWorkspace({ experimentId, parts, Bench, DataTools }) {
   const [partA, partB] = parts;
   const [activeTab, setActiveTab] = useState('problem');
   const [part, setPart] = useState(partA.key);
@@ -162,17 +174,13 @@ export default function ExperimentWorkspace({ experimentId, parts, Bench }) {
         <div className="pendulum-pane" data-pane="problem">
           <ExperimentGuide key={gen} def={activeDef} answer={answer} onStartOver={startOver} />
         </div>
-        <div className="pendulum-pane" data-pane="table">
-          {activeDef.notes?.table && <p className="bench-note">{activeDef.notes.table}</p>}
-          <DataTable key={gen} {...dataTable} />
-        </div>
       </div>
 
       <div
         className="pendulum-divider"
         role="separator"
         aria-orientation="vertical"
-        aria-label="Resize problem/table and lab panels"
+        aria-label="Resize problem and lab panels"
         aria-valuemin={SPLIT_MIN}
         aria-valuemax={SPLIT_MAX}
         aria-valuenow={Math.round(splitPct)}
@@ -185,9 +193,28 @@ export default function ExperimentWorkspace({ experimentId, parts, Bench }) {
       />
 
       <div className="pendulum-col-right">
-        <div className="pendulum-pane" data-pane="lab">
+        <div className="pendulum-pane" data-pane="sim">
+          {activeDef.simulation && (
+            <div className="pendulum-sim-notes">{activeDef.simulation}</div>
+          )}
           <Bench dataTable={dataTable} />
-          {dataTable.table && activeDef.notes?.plot && <p className="bench-note bench-note-plot">{activeDef.notes.plot}</p>}
+        </div>
+
+        <div className="pendulum-pane" data-pane="data">
+          {activeDef.notes?.table && <p className="bench-note">{activeDef.notes.table}</p>}
+          {DataTools && (
+            <DataTools
+              dataTable={dataTable}
+              plotConfig={plotConfig}
+              part={part}
+              def={activeDef}
+              key={gen}
+            />
+          )}
+          <DataTable key={gen} {...dataTable} />
+          {dataTable.table && activeDef.notes?.plot && (
+            <p className="bench-note bench-note-plot">{activeDef.notes.plot}</p>
+          )}
           {dataTable.table && <Plot key={gen} part={part} table={dataTable.table} {...plotConfig} />}
         </div>
       </div>
