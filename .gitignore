@@ -5,3 +5,5 @@ out
 .vercel
 .DS_Store
 *.pdf
+docs/layout/
+docs/layout/
