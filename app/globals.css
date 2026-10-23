@@ -526,6 +526,7 @@ section.bench-page{padding-top:18px}
   max-height:min(420px,calc(100dvh - var(--head-h) - 250px));
   touch-action:none;cursor:crosshair;
 }
+.plot-canvas.over-handle{cursor:grab}
 .plot-canvas.dragging{cursor:grabbing}
 .plot-readout{
   position:absolute;left:10px;bottom:8px;font-family:var(--font-mono),monospace;font-size:11.5px;

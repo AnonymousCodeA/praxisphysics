@@ -16,7 +16,13 @@ const PAD_TOP = 14;
 const PAD_BOTTOM = 48;
 const TICKS = 5;
 const HANDLE_R = 7;
-const HANDLE_GRAB_PAD = 12;
+// A handle's grab radius, drawn as its dashed ring — one number for both, so
+// the ring is exactly the region that responds. A fingertip needs more
+// than a cursor.
+const GRAB_R_FINE = 14;
+const GRAB_R_COARSE = 22;
+const RING_ALPHA = 0.35; // faint: mustn't compete with the points and error bars
+const RING_ALPHA_ACTIVE = 0.95; // hovered or being dragged
 const CLICK_MOVE_CANCEL_PX = 6;
 const POINT_R = 3.5;
 const POINT_COLOR = '#4EC5FF';
@@ -183,7 +189,10 @@ export default function Plot({
       dpr = 1;
     let dragKey = null; // 'p1' | 'p2' | null
     let dragPreview = null; // { key, x, y } — live position while dragging, ahead of committed state
+    let hoverKey = null; // handle under a hovering (not dragging) pointer
     let downPx = { x: 0, y: 0 };
+    const coarse = window.matchMedia('(pointer: coarse)');
+    const grabRadius = () => (coarse.matches ? GRAB_R_COARSE : GRAB_R_FINE);
 
     function plotRect() {
       return { x: PAD_LEFT, y: PAD_TOP, w: Math.max(0, W - PAD_LEFT - PAD_RIGHT), h: Math.max(0, H - PAD_TOP - PAD_BOTTOM) };
@@ -340,7 +349,25 @@ export default function Plot({
         ctx.stroke();
       }
 
+      // Only the current line's handles are editable (a saved line being
+      // edited is moved back into `current`), so only they get rings —
+      // never the data points, which can't be dragged.
       if (cur) {
+        // Both rings before either dot, so neither ring crosses the other
+        // handle's dot when the endpoints are close.
+        const grabR = grabRadius();
+        for (const key of ['p1', 'p2']) {
+          const p = px(cur[key].x, cur[key].y);
+          ctx.save();
+          ctx.globalAlpha = key === dragKey || key === hoverKey ? RING_ALPHA_ACTIVE : RING_ALPHA;
+          ctx.strokeStyle = cur.color;
+          ctx.lineWidth = 1;
+          ctx.setLineDash([3, 3]);
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, grabR, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
         for (const key of ['p1', 'p2']) {
           const p = px(cur[key].x, cur[key].y);
           ctx.fillStyle = cur.color;
@@ -368,7 +395,7 @@ export default function Plot({
       const rect = plotRect();
       for (const key of ['p1', 'p2']) {
         const p = toPx(b, rect, cfg.current[key].x, cfg.current[key].y);
-        if (Math.hypot(pxv - p.x, pyv - p.y) <= HANDLE_R + HANDLE_GRAB_PAD) return key;
+        if (Math.hypot(pxv - p.x, pyv - p.y) <= grabRadius()) return key;
       }
       return null;
     }
@@ -380,14 +407,26 @@ export default function Plot({
         dragKey = hit;
         cvs.setPointerCapture(e.pointerId);
         cvs.classList.add('dragging');
+        draw();
       } else {
         dragKey = null;
         downPx = { x: pxv, y: pyv };
       }
     }
 
+    function setHover(key) {
+      if (key === hoverKey) return;
+      hoverKey = key;
+      cvs.classList.toggle('over-handle', !!key);
+      draw();
+    }
+
     function onMove(e) {
-      if (!dragKey) return;
+      if (!dragKey) {
+        const { px: pxv, py: pyv } = pointerXY(e);
+        setHover(hitHandle(pxv, pyv));
+        return;
+      }
       const cfg = configRef.current;
       const b = cfg && parseBounds(cfg.bounds);
       if (!b) return;
@@ -405,6 +444,11 @@ export default function Plot({
         dragKey = null;
         dragPreview = null;
         cvs.classList.remove('dragging');
+        // Still over the handle after a mouse drag; a lifted finger isn't.
+        const { px: pxv, py: pyv } = pointerXY(e);
+        hoverKey = null;
+        setHover(e.pointerType === 'mouse' ? hitHandle(pxv, pyv) : null);
+        draw();
         return;
       }
       const { px: pxv, py: pyv } = pointerXY(e);
@@ -420,6 +464,11 @@ export default function Plot({
     cvs.addEventListener('pointermove', onMove);
     cvs.addEventListener('pointerup', onUp);
     cvs.addEventListener('pointercancel', onUp);
+    const onLeave = () => setHover(null);
+    cvs.addEventListener('pointerleave', onLeave);
+    // A mouse plugged into (or unplugged from) a touch device changes the
+    // ring, so redraw it at the new radius.
+    coarse.addEventListener('change', draw);
 
     let ro = null;
     if ('ResizeObserver' in window) {
@@ -436,6 +485,8 @@ export default function Plot({
       cvs.removeEventListener('pointermove', onMove);
       cvs.removeEventListener('pointerup', onUp);
       cvs.removeEventListener('pointercancel', onUp);
+      cvs.removeEventListener('pointerleave', onLeave);
+      coarse.removeEventListener('change', draw);
       if (ro) ro.disconnect();
       else window.removeEventListener('resize', resize);
     };

@@ -109,6 +109,9 @@ components/
                           axis min/max (no auto-scaling), drags a line's two endpoints
                           freely to set gradient/intercept (never a fit), saves up to four
                           lines in distinct colours — see the palette exception above.
+                          Each editable endpoint shows a dashed ring that is exactly its
+                          grab radius (GRAB_R_FINE/GRAB_R_COARSE by `(pointer: coarse)`, one
+                          value for hit-test and drawing); data points get no ring.
                           Optional x/y error bars (capped, point colour, drawn under the
                           lines, clipped at the axes), each from a table column or one
                           typed constant. Drawn exactly as given — the plot never
