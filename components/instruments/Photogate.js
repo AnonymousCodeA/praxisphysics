@@ -1,7 +1,7 @@
 'use client';
 
 import { quantize } from '@/lib/instruments/reading';
-import { InstrumentNoteButton, InstrumentNoteCard, useInstrumentNote } from './InstrumentNote';
+import { InstrumentNoteButton, InstrumentNotePopover, useInstrumentNote } from './InstrumentNote';
 
 const RESOLUTION_MS = 1;
 
@@ -22,7 +22,7 @@ const RESOLUTION_MS = 1;
 export default function Photogate({ triggers, onClear }) {
   const note = useInstrumentNote('photogate');
   return (
-    <div className="instrument">
+    <div className="instrument" ref={note.panelRef}>
       <div className="instrument-head">
         <b>PHOTOGATE</b>
         <span className="instrument-head-end">
@@ -30,9 +30,9 @@ export default function Photogate({ triggers, onClear }) {
           <InstrumentNoteButton note={note} name="photogate" />
         </span>
       </div>
-      <InstrumentNoteCard note={note}>
+      <InstrumentNotePopover note={note} name="photogate">
         A beam between two posts. Each time something crosses it, a time is logged.
-      </InstrumentNoteCard>
+      </InstrumentNotePopover>
       <div className="photogate-log">
         {triggers.length === 0 ? (
           <p className="instrument-note">No triggers yet — nothing has crossed the beam.</p>

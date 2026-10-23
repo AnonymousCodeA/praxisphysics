@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { quantize } from '@/lib/instruments/reading';
-import { InstrumentNoteButton, InstrumentNoteCard, useInstrumentNote } from './InstrumentNote';
+import { InstrumentNoteButton, InstrumentNotePopover, useInstrumentNote } from './InstrumentNote';
 
 const RESOLUTION_S = 0.01;
 
@@ -76,7 +76,7 @@ export default function Stopwatch() {
   const seconds = quantize(elapsedMs / 1000, RESOLUTION_S);
 
   return (
-    <div className="instrument">
+    <div className="instrument" ref={note.panelRef}>
       <div className="instrument-head">
         <b>STOPWATCH</b>
         <span className="instrument-head-end">
@@ -84,9 +84,9 @@ export default function Stopwatch() {
           <InstrumentNoteButton note={note} name="stopwatch" />
         </span>
       </div>
-      <InstrumentNoteCard note={note}>
+      <InstrumentNotePopover note={note} name="stopwatch">
         START begins a fresh run from zero; STOP freezes the reading at the instant you press it.
-      </InstrumentNoteCard>
+      </InstrumentNotePopover>
       <div className="instrument-read">
         {seconds.toFixed(2)}
         <span className="unit">s</span>
