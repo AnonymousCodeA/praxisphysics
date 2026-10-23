@@ -131,7 +131,11 @@ components/
                           error, reusable across experiments. Not every instrument is
                           digital: the vertical scale, angle plate, and photogate itself are drawn as
                           objects on the bench (lib/pendulum/scene.js), toggled on/off from
-                          the same instrument menu (InstrumentMenu: one sideways-scrolling row)
+                          the same instrument menu (InstrumentMenu: one sideways-scrolling row).
+                          A panel's description of its device is an InstrumentNote first-use
+                          card (praxis:instrument-<id>-seen, per instrument, not per
+                          experiment), then a "?" in the panel header — it describes the
+                          device only, never the method (that's content/guide/measurement.js)
   CircuitBench.js         the circuit-building bench: owns board state (placed components,
                           undo history, armed inventory item) and lib/circuits/
                           useCircuitPhysics's continuous solve loop; renders CircuitCanvas,

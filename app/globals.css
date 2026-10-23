@@ -253,6 +253,23 @@ footer{border-top:1px solid var(--edge);padding:34px 0 46px}
 .instrument-read{font-family:var(--font-mono),monospace;font-size:28px;color:var(--trace);line-height:1}
 .instrument-read .unit{font-size:14px;color:var(--muted);margin-left:4px}
 .instrument-note{margin:8px 0 0;font-size:12.5px;color:var(--muted);line-height:1.5}
+/* The device's description (InstrumentNote): a first-use card under the
+   header until dismissed, then only a "?" beside the resolution, so a
+   known instrument's panel is just its reading and controls. */
+.instrument-head-end{display:inline-flex;align-items:center;gap:8px}
+.instrument-note-card{
+  display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px 12px;margin:0 0 12px;
+  padding:10px 12px;border:1px solid var(--edge);border-radius:3px;background:var(--panel);
+}
+.instrument-note-card .instrument-note{flex:1 1 160px;margin:0}
+.instrument-note-card button,.instrument-note-reopen{
+  font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:.08em;
+  color:var(--chalk);background:var(--panel);border:1px solid var(--edge);
+  border-radius:3px;cursor:pointer;transition:.16s;
+}
+.instrument-note-card button{padding:6px 12px}
+.instrument-note-card button:hover,.instrument-note-reopen:hover{color:var(--trace);border-color:var(--trace)}
+.instrument-note-reopen{width:22px;height:22px;padding:0;border-radius:50%;line-height:1}
 .instrument-controls{display:flex;gap:8px;margin-top:12px}
 .instrument-controls button{
   font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:.08em;
@@ -324,17 +341,16 @@ section.bench-page{padding-top:18px}
 
 .pendulum-pane{display:none;padding:22px}
 .pendulum-workspace[data-active-tab="problem"] .pendulum-pane[data-pane="problem"]{display:block}
-.pendulum-workspace[data-active-tab="table"] .pendulum-pane[data-pane="table"]{display:block}
-.pendulum-workspace[data-active-tab="lab"] .pendulum-pane[data-pane="lab"]{display:flex}
+.pendulum-workspace[data-active-tab="sim"] .pendulum-pane[data-pane="sim"]{display:flex}
+.pendulum-workspace[data-active-tab="data"] .pendulum-pane[data-pane="data"]{display:block}
 
-/* The lab pane is one flex column: the bench, then the plot's note and the
-   plot. The pinned region is sticky within the bench, so it holds while
+/* The sim pane is one flex column: the part's simulation notes, then the
+   bench. The pinned region is sticky within the bench, so it holds while
    any of the bench's own panels is being read and lets go where the bench
-   ends — the plot then scrolls up into the whole column (or screen), since
-   nobody needs the apparatus while plotting. */
-.pendulum-pane[data-pane="lab"]{flex-direction:column;gap:16px}
-.pendulum-pane[data-pane="lab"] .bench-note,
-.pendulum-pane[data-pane="lab"] .pendulum-plot{margin:0}
+   ends — the data pane's table and plot then scroll up into the whole
+   column, since nobody needs the apparatus while plotting. The data pane
+   is plain block flow; its notes, table and plot space themselves. */
+.pendulum-pane[data-pane="sim"]{flex-direction:column;gap:16px}
 
 /* The pinned region: the apparatus (or, while it's expanded, the scope
    screen that replaces it). Sticks under the site header when the page
@@ -363,7 +379,8 @@ section.bench-page{padding-top:18px}
     overflow-y:auto;
   }
   .pendulum-col-right .bench-pinned{top:0}
-  .pendulum-workspace .pendulum-pane[data-pane="lab"]{display:flex!important;max-width:952px;margin-inline:auto}
+  .pendulum-workspace .pendulum-pane[data-pane="sim"]{display:flex!important}
+  .pendulum-col-right .pendulum-pane{max-width:952px;margin-inline:auto}
   .pendulum-divider{
     display:block;grid-column:2;cursor:col-resize;background:var(--edge);
     touch-action:none;transition:background .16s;
