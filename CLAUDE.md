@@ -105,12 +105,13 @@ components/
                           header, through the same setCell/renameColumn a keystroke uses;
                           buttons preventDefault on pointerdown so the cell (and a phone's
                           keyboard) keeps focus. Pure input convenience — still free text
-  QuickEntry.js           phone-friendly row entry, passed as ExperimentWorkspace's
-                          `DataTools`: one stacked field per column of the student's own
-                          table, labelled with their heading; ADD ROW appends a row by
-                          column id. Knows nothing about any experiment — never names,
-                          creates or calculates a column or touches the plot; with no
-                          columns it says so and points at the table
+  QuickEntry.js           compact one-line strip above the table, passed as
+                          ExperimentWorkspace's `DataTools`: [column ▾][value] [column ▾]
+                          [value] [ENTER READING], the dropdowns listing the student's own
+                          columns; the button appends a row by column id (named so it isn't
+                          confused with the table's "+ ROW"). Knows nothing about any
+                          experiment — never names, creates or calculates a column or
+                          touches the plot; with no columns it says so and points at the table
   Plot.js                 plot for the table's data: student picks x/y columns and types
                           axis min/max (no auto-scaling), drags a line's two endpoints
                           freely to set gradient/intercept (never a fit), saves up to four
@@ -288,7 +289,7 @@ Routes are static/data-driven: `generateStaticParams` reads `data/*.js`, and `no
 ## Design constraints (non-negotiable)
 
 - **Palette**: near-black ink background (`--ink #060A0F`, panels `--panel #0B1219`) with a single light-blue accent (`--trace #4EC5FF`) used for interactive/live elements, highlights, and glow. Text is off-white (`--chalk`) or muted gray (`--muted`). No other hues — new UI must work within this two-tone system.
-  - **`--muted` is the floor for readable text**: 5.4:1 on `--panel`, 5.7:1 on `--ink`, still 4.7:1 on the faintly trace-tinted active backgrounds — WCAG AA (4.5:1) with little room to spare. Never dim text below it with `opacity` or an alpha colour (half-opacity `--muted` is 2.2:1); dim decoration instead. Every control needs an explicit style — an unstyled `<button>` falls back to the browser's bright default chrome and outshines everything beside it.
+  - **`--muted` is the floor for readable text**: 5.4:1 on `--panel`, 5.7:1 on `--ink`, still 4.7:1 on the faintly trace-tinted active backgrounds — WCAG AA (4.5:1) with little room to spare. Never dim text below it with `opacity` or an alpha colour (half-opacity `--muted` is 2.2:1); dim decoration instead. Every control needs an explicit style — an unstyled `<button>` falls back to the browser's bright default chrome and outshines everything beside it. Text a student works with — the plot's labels, notes, readout and buttons, the bench notes, the problem pane's guide links — is `--chalk`, not `--muted`; `--muted` is for secondary labelling only.
   - **Exception — plot line colours**: `components/Plot.js` needs up to four saved student-drawn lines to stay visually distinct from each other *and* from the data points/axes, which a single accent can't do. It uses a small fixed palette (`LINE_COLORS` in `lib/experiment/usePlotConfig.js`) of four hues at the same saturation/lightness as `--trace`, reserved for saved/current lines only — points, axes, and everything else on the plot still key off `--trace` alone. This is a deliberate, scoped exception; don't extend the palette to other UI or collapse it back to monochrome.
   - **Exception — oscilloscope screen**: `components/Oscilloscope.js`'s scope screen is green phosphor on black, not `--trace` on `--ink` — a scope is green because phosphor is green, and every real one looks like this. Colors (`SCOPE_BG`/`SCOPE_GRATICULE`/`SCOPE_CH1_COLOR`/`SCOPE_CH2_COLOR`) live in `lib/circuits/oscilloscopeControls.js`. The green also appears once outside the canvas itself: the `OSCILLOSCOPE` nameplate (`.circuit-scope-nameplate` in `globals.css`, hardcoded to match `SCOPE_CH1_COLOR` since CSS can't import the JS constant) — an instrument's case label reads as part of the instrument, not as UI chrome. Everything else in the scope's own panel (section headings, buttons, sliders, control labels) still keys off the normal palette. Channel 2 is a second, distinct hue (amber) rather than a second shade of green, so the two traces stay distinguishable at a glance. Same deliberate-and-scoped rule as the plot line colours above — don't spread the green any further than the screen and its nameplate.
 - **Type**: IBM Plex Sans for prose/headings, IBM Plex Mono for labels/eyebrows/data readouts/nav — the mono face is what signals "instrument panel" and should be used for anything numeric or tag-like, not for body copy.
@@ -331,13 +332,13 @@ The angle plate and vertical scale are the exception to all of that positioning:
 
 ### How much an experiment tells the student (three tiers)
 
-Every experiment part follows the pendulum's three tiers of help, each placed for the moment it helps without giving the answer away. All three are fields on the part's data definition (`data/pendulumGuide.js`), rendered by `ExperimentGuide`/`AnswerBox` — neither component owns any of the content.
+Every experiment part follows the pendulum's tiers of help. All of it is fields on the part's data definition (`data/pendulumGuide.js`), rendered by `ExperimentGuide`/`AnswerBox` — neither component owns any of the content.
 
-1. **Always visible — the task.** `body`/`formulae`/`task` say what to produce, never how: the governing relation unrearranged, no axes, no method. `taskNote` sits under it for a pointer to the guide's *method* (the pendulum links Error analysis), never to a solution.
+1. **Always visible — the task.** `body`/`formulae`/`task` say what to produce, never how: the governing relation unrearranged, no axes, no method, and no sentence in the prose that restates the hint (the pendulum's Part B body once said different linearisations were needed for different ranges — that's the hint, printed where nobody has to choose to read it). No "Before you start, consider" questions either (`hints`, still rendered for the circuits experiments): a Socratic question is a hint everyone reads whether they wanted one or not.
 2. **Opened deliberately — one hint.** `stuckHint`, collapsed in a native `<details>` whose summary ("Stuck? Show a hint") makes opening it a choice. Give one only where a part has a genuine stall point, and keep it to the *structure* of the solution: the pendulum's Part B hint says α and β need two ranges of release angle and two linearisations, and stops there — not which ranges, not what goes on either axis, not where T₀ comes from. Part A has none: T² against L is a single step with nothing to stall on. If a hint names an axis or a method, it has become the solution.
-3. **After the commit — the worked solution.** `answer.afterCommit`, shown by AnswerBox only beside the reveal (the pendulum links guide section 5, Worked examples). A solution link next to the task is the answer key next to the question; after the commit it's the obvious next thing to read.
+3. **The worked solution — linked, with a nudge to try first.** `footer` closes the problem pane at body-text size (not the bench notes' small muted size — these are meant to be found), the same on every part: "To see a worked solution, go to Worked examples. It is highly recommended to first try the experiment yourself.", then the Error analysis guide link. `answer.afterCommit` remains for anything that should appear only beside the reveal.
 
-Links in any tier use `guideHref` so they survive a slug change.
+Answers: a task item's `answer` may be one spec or several (Part B's B3 has α and β). A true value that depends on the bench — Part B's T₀ = 2π√(L/g) on the current length — is a function evaluated once at commit (`lib/pendulum/benchLength.js` carries the length out of PendulumLab), with a `trueNote` saying what it was taken at. Links in any tier use `guideHref` so they survive a slug change.
 
 ### Shared draw functions at different scales (bench + lens)
 

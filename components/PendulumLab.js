@@ -8,6 +8,7 @@ import InstrumentMenu from './instruments/InstrumentMenu';
 import Stopwatch from './instruments/Stopwatch';
 import Photogate from './instruments/Photogate';
 import { usePendulumPhysics } from '@/lib/pendulum/usePendulumPhysics';
+import { setBenchLength } from '@/lib/pendulum/benchLength';
 import { sessionRandom, sessionUniform } from '@/lib/instruments/rng';
 
 const DRAG_CAP_DEG = 85; // the taut-string model is invalid past 90°
@@ -64,6 +65,7 @@ export default function PendulumLab() {
   }, []);
 
   const effectiveLength = stringLength + BOB_RADIUS_M; // pivot to bob centre
+  useEffect(() => setBenchLength(effectiveLength), [effectiveLength]); // for Part B's T₀ reveal
   const { mode, physicsRef, triggers, clearTriggers, beginDrag, updateDrag, release } = usePendulumPhysics({
     length: effectiveLength,
     dragCapDeg: DRAG_CAP_DEG,

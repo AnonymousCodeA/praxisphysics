@@ -1,23 +1,24 @@
 'use client';
 
-// Quick entry: one field per column of the student's own table, labelled
-// with whatever they named it, stacked so a phone can fill a row without
-// scrolling the table sideways. ADD ROW appends those values as a row.
-// That is its whole job — it knows nothing about any experiment: it never
-// names, creates or renames a column, never calculates one, and never
-// touches the plot. What to measure, what to tabulate and what to plot
-// against what are the student's decisions; with no columns yet it says so
-// and points at the table rather than inventing any.
+// Quick entry: a compact strip for typing a reading into the student's own
+// table on a phone — [column ▾][value] [column ▾][value] [ENTER READING].
+// The dropdowns list the table's existing columns by the student's own
+// headings, and the button appends a row with the two values in those two
+// columns. That is its whole job: it knows nothing about any experiment,
+// never names, creates or calculates a column, and never touches the plot.
+// What to measure and tabulate is the student's decision; with no columns
+// yet it says so and points at the table rather than inventing any.
 //
 // Rendered as ExperimentWorkspace's `DataTools`, which hands it the active
-// part's dataTable (and other props it ignores). Fields are free text, like
-// the table's own cells. Enter moves to the next field and adds the row
-// from the last one.
+// part's dataTable (and other props it ignores). The button is deliberately
+// not called ADD ROW: the table's own "+ ROW" sits right below.
 import { useRef, useState } from 'react';
 
+const PAIRS = [0, 1];
+
 export default function QuickEntry({ dataTable }) {
-  const [values, setValues] = useState({}); // column id → text
-  const [added, setAdded] = useState(0);
+  const [cols, setCols] = useState([null, null]); // chosen column ids; null → default
+  const [values, setValues] = useState(['', '']);
   const inputs = useRef([]);
   const table = dataTable.table;
 
@@ -26,63 +27,64 @@ export default function QuickEntry({ dataTable }) {
   const columns = table.columns;
   if (columns.length === 0) {
     return (
-      <div className="quick-tools">
-        <h4>Quick entry</h4>
-        <p className="quick-empty">
-          Your table has no columns yet. Add one in the table below and a field for it will appear
-          here.
-        </p>
-      </div>
+      <p className="quick-empty">Quick entry needs a column — add one to the table below.</p>
     );
   }
 
-  const hasAny = columns.some((c) => (values[c.id] ?? '').trim() !== '');
+  // A chosen column that's since been deleted falls back to the default:
+  // the first column for the first pair, the second (if any) for the second.
+  const colFor = (i) =>
+    columns.some((c) => c.id === cols[i]) ? cols[i] : (columns[i] ?? columns[0]).id;
+  const chosen = PAIRS.map(colFor);
+  const filled = PAIRS.filter((i) => values[i].trim() !== '');
+  const clash = chosen[0] === chosen[1] && filled.length === 2;
+  const canEnter = filled.length > 0 && !clash;
 
-  const addRow = (e) => {
+  const enter = (e) => {
     e.preventDefault();
-    if (!hasAny) return;
+    if (!canEnter) return;
     const cells = {};
-    for (const c of columns) cells[c.id] = (values[c.id] ?? '').trim();
+    for (const i of filled) cells[chosen[i]] = values[i].trim();
     dataTable.appendRow(cells);
-    setValues({});
-    setAdded((n) => n + 1);
+    setValues(['', '']);
     inputs.current[0]?.focus();
   };
 
-  const onKeyDown = (i) => (e) => {
-    if (e.key !== 'Enter' || i === columns.length - 1) return; // the last field's Enter submits
-    e.preventDefault();
-    inputs.current[i + 1]?.focus();
-  };
-
   return (
-    <form className="quick-tools" onSubmit={addRow}>
-      <h4>Quick entry</h4>
-      <div className="quick-fields">
-        {columns.map((c, i) => (
-          <label className="quick-field" key={c.id}>
-            <span>{c.label.trim() || 'Untitled column'}</span>
-            <input
-              ref={(el) => (inputs.current[i] = el)}
-              type="text"
-              enterKeyHint={i === columns.length - 1 ? 'done' : 'next'}
-              value={values[c.id] ?? ''}
-              onChange={(e) => setValues((v) => ({ ...v, [c.id]: e.target.value }))}
-              onKeyDown={onKeyDown(i)}
-            />
-          </label>
-        ))}
-      </div>
-      <div className="quick-actions">
-        <button type="submit" disabled={!hasAny}>
-          ADD ROW
-        </button>
-        {added > 0 && (
-          <small role="status">
-            {added === 1 ? 'Row added' : `${added} rows added`} to the table below.
-          </small>
-        )}
-      </div>
+    <form className="quick-strip" onSubmit={enter} aria-label="Quick entry">
+      {PAIRS.map((i) => (
+        <span className="quick-pair" key={i}>
+          <select
+            aria-label={`Column for value ${i + 1}`}
+            value={chosen[i]}
+            onChange={(e) => setCols((c) => c.map((v, j) => (j === i ? e.target.value : v)))}
+          >
+            {columns.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.label.trim() || 'Untitled column'}
+              </option>
+            ))}
+          </select>
+          <input
+            ref={(el) => (inputs.current[i] = el)}
+            type="text"
+            inputMode="decimal"
+            enterKeyHint={i === 0 ? 'next' : 'enter'}
+            aria-label={`Value ${i + 1}`}
+            value={values[i]}
+            onChange={(e) => setValues((v) => v.map((x, j) => (j === i ? e.target.value : x)))}
+            onKeyDown={(e) => {
+              if (i === 0 && e.key === 'Enter') {
+                e.preventDefault(); // first value: on to the second, not a half-entered reading
+                inputs.current[1]?.focus();
+              }
+            }}
+          />
+        </span>
+      ))}
+      <button type="submit" disabled={!canEnter} title={clash ? 'Both values point at the same column' : undefined}>
+        ENTER READING
+      </button>
     </form>
   );
 }
