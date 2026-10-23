@@ -115,8 +115,9 @@ components/
                           Optional x/y error bars (capped, point colour, drawn under the
                           lines, clipped at the axes), each from a table column or one
                           typed constant. Drawn exactly as given — the plot never
-                          estimates, propagates or derives an uncertainty; a blank,
-                          non-numeric or negative value just means no bar for that point
+                          estimates, propagates or derives an uncertainty; a leading ± or +
+                          is stripped (the symbol bar offers ±), and a blank, non-numeric
+                          or negative value just means no bar for that point
   PendulumExperiment.js   the pendulum as a consumer of ExperimentWorkspace rather than
                           being the shell itself: wires data/pendulumGuide.js's part
                           definitions and PendulumLab together and renders the shell.

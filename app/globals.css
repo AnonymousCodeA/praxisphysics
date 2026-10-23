@@ -515,6 +515,7 @@ section.bench-page{padding-top:18px}
 }
 .plot-bound-group input:focus{outline:none}
 .plot-err{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.plot-err-note{flex-basis:100%;margin:-4px 0 0;font-size:12px;color:var(--muted);line-height:1.5}
 .plot-canvas-wrap{position:relative;border:1px solid var(--edge);border-radius:4px;background:var(--panel-t)}
 /* Sized to its container like the bench canvases: 3:2 from the width, but
    never taller than the bench column (the viewport less the header) leaves

@@ -42,11 +42,14 @@ function formatNum(v) {
 // row's cell for a column, or the one typed constant for every row. Anything
 // that isn't a positive number (blank, text, negative) means no bar on that
 // side for that point — never a substituted or corrected value, since
-// deciding the uncertainty is the student's job, not the plot's.
+// deciding the uncertainty is the student's job, not the plot's. A leading
+// ± or + (and surrounding whitespace) is tolerated, since the table's symbol
+// bar offers ± and "±0.05" means exactly 0.05 here; a leading minus is not.
 function errorFor(cfg, role, row) {
   const sel = cfg.cols[role];
   if (!sel) return 0;
-  const v = parseFloat(sel === ERR_CONSTANT ? cfg.errConst[role] : row.cells[sel]);
+  const raw = String((sel === ERR_CONSTANT ? cfg.errConst[role] : row.cells[sel]) ?? '');
+  const v = parseFloat(raw.trim().replace(/^[±+]\s*/, ''));
   return Number.isFinite(v) && v > 0 ? v : 0;
 }
 
@@ -551,6 +554,7 @@ export default function Plot({
             )}
           </div>
         ))}
+        <p className="plot-err-note">Error cells take a bare number: no ±, and the unit in the column heading.</p>
       </div>
 
       <div className="plot-row plot-bounds">
