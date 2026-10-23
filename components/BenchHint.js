@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { setBenchHintShowing } from '@/lib/experiment/benchHintState';
 
 // A bench's how-to-use note as a dismissible strip. Shown until the student
 // dismisses it (remembered per bench in localStorage), after which it holds
@@ -19,6 +20,13 @@ export default function BenchHint({ id, children }) {
     } catch {}
     setShown(!dismissed);
   }, [storageKey]);
+
+  // Let instruments know a first-use explanation is already on screen, so
+  // theirs waits (see lib/experiment/benchHintState.js).
+  useEffect(() => {
+    setBenchHintShowing(id, shown === true);
+    return () => setBenchHintShowing(id, false);
+  }, [id, shown]);
 
   const setDismissed = useCallback(
     (dismissed) => {

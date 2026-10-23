@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useBenchHintShowing } from '@/lib/experiment/benchHintState';
 
 // An instrument panel's description of the device, as a popover beside the
 // panel rather than text inside it: it opens the first time that
@@ -23,23 +24,41 @@ const MARGIN = 8; // from the viewport's edges
 const TAIL_INSET = 16; // the tail stays this far from the popover's corners
 const SIDES = ['right', 'left', 'below', 'above']; // beside first, then above/below
 
+// The automatic first-use open waits while a bench's how-to strip is up
+// (two first-use explanations shouldn't compete for a phone's screen) and
+// fires the moment it's dismissed, if this instrument is still placed and
+// its note still unseen. "Seen" is only ever set by dismissing a note that
+// actually showed. The "?" opens it at any time.
 export function useInstrumentNote(id) {
   const storageKey = `praxis:instrument-${id}-seen`;
-  const [shown, setShown] = useState(null); // null until localStorage is read
+  const [seen, setSeen] = useState(null); // null until localStorage is read
+  const [shown, setShown] = useState(false);
+  const autoOpened = useRef(false);
+  const benchHintUp = useBenchHintShowing();
   const panelRef = useRef(null);
   const anchorRef = useRef(null);
 
   useEffect(() => {
-    let seen = false;
+    let s = false;
     try {
-      seen = localStorage.getItem(storageKey) === '1';
+      s = localStorage.getItem(storageKey) === '1';
     } catch {}
-    setShown(!seen);
+    setSeen(s);
   }, [storageKey]);
 
-  const show = useCallback(() => setShown(true), []);
+  useEffect(() => {
+    if (seen !== false || benchHintUp || autoOpened.current) return;
+    autoOpened.current = true;
+    setShown(true);
+  }, [seen, benchHintUp]);
+
+  const show = useCallback(() => {
+    autoOpened.current = true; // opened by hand: nothing left to open automatically
+    setShown(true);
+  }, []);
   const dismiss = useCallback(() => {
     setShown(false);
+    setSeen(true);
     try {
       localStorage.setItem(storageKey, '1');
     } catch {}

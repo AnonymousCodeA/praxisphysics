@@ -139,7 +139,10 @@ components/
                           A panel's description of its device is an InstrumentNote popover
                           beside the panel (fixed, portaled to <body>, so the panel's height
                           is the same open or closed), opened on first placement and from
-                          a "?" in the panel header; dismissal is remembered per instrument,
+                          a "?" in the panel header. The automatic open waits while the
+                          bench's BenchHint strip is up (lib/experiment/benchHintState.js)
+                          and fires when it's dismissed, if still placed and unseen; only
+                          dismissing a note that showed sets the flag. Dismissal is remembered per instrument,
                           not per experiment (praxis:instrument-<id>-seen). It never covers
                           the bench's .bench-pinned apparatus or leaves the screen, and
                           describes the device only, never the method (that's
