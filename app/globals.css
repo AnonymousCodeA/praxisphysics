@@ -154,7 +154,10 @@ h2{font-size:clamp(26px,3.6vw,36px);letter-spacing:-.025em;font-weight:600;margi
   padding:20px;text-decoration:none;display:block;transition:.16s;
 }
 .sim:hover{border-color:var(--trace);transform:translateY(-2px)}
-.sim.soon{opacity:.5;pointer-events:none}
+/* Dims the drawing only: opacity on the whole card took its muted blurb to
+   2.2:1 against the panel, well under the 4.5:1 body text needs. */
+.sim.soon{pointer-events:none}
+.sim.soon svg{opacity:.5}
 .sim svg{width:100%;height:74px;color:var(--trace);margin-bottom:16px}
 .sim h3{margin:0 0 5px;font-size:17px;font-weight:600;letter-spacing:-.01em}
 .sim p{margin:0;font-size:13.5px;color:var(--muted);line-height:1.5}
@@ -447,6 +450,12 @@ section.bench-page{padding-top:18px}
 .answer-actions button:disabled{opacity:.4;cursor:default}
 .answer-actions small{font-size:11.5px;color:var(--muted)}
 .pendulum-guide .answer-committed p.answer-line{font-family:var(--font-mono),monospace;font-size:15px}
+/* Pointers into the guide: under the task (taskNote), and with the reveal
+   once committed (AnswerBox afterCommit). */
+.pendulum-guide p.pendulum-guide-note{margin-top:14px;font-size:13px;color:var(--muted)}
+.pendulum-guide .answer-committed p.answer-after{font-size:13px;color:var(--muted)}
+.pendulum-guide-note a,.answer-after a{color:var(--trace);text-decoration-color:var(--trace-soft);text-underline-offset:.2em}
+.pendulum-guide-note a:hover,.answer-after a:hover{text-decoration-color:var(--trace)}
 .start-over{margin-top:22px;display:grid;gap:10px;justify-items:start}
 .start-over button{
   background:none;border:0;padding:0;cursor:pointer;color:var(--muted);
@@ -458,8 +467,46 @@ section.bench-page{padding-top:18px}
 .start-over-actions{display:flex;flex-wrap:wrap;gap:18px}
 .start-over button.start-over-confirm{color:#FF8A80;text-decoration-color:currentColor}
 .bench-note{margin:0 0 12px;font-size:13px;color:var(--muted);line-height:1.6}
+/* Quick entry (QuickEntry.js): one stacked field per table column, labelled
+   with the student's own heading, so a phone can fill a row without
+   scrolling the table sideways. */
+.quick-tools{
+  margin:0 0 16px;border:1px solid var(--edge);border-radius:4px;background:var(--panel-t);
+  padding:14px;display:grid;gap:12px;
+}
+.quick-tools h4{
+  margin:0;font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:.12em;
+  color:var(--muted);font-weight:400;
+}
+.quick-empty{margin:0;font-size:13px;color:var(--muted);line-height:1.6}
+.quick-fields{display:grid;gap:10px}
+.quick-field{display:grid;gap:4px}
+.quick-field span{font-family:var(--font-mono),monospace;font-size:12px;color:var(--chalk);overflow-wrap:anywhere}
+.quick-field input{
+  width:100%;min-height:40px;background:var(--ink);border:1px solid var(--edge);border-radius:3px;
+  color:var(--chalk);font-family:var(--font-mono),monospace;font-size:16px;padding:8px 10px;
+}
+.quick-field input:focus{outline:none;border-color:var(--trace)}
+.quick-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.quick-actions button{
+  font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:.08em;
+  background:var(--trace);border:1px solid var(--trace);color:#04202F;
+  border-radius:3px;padding:10px 16px;cursor:pointer;transition:.16s;
+}
+.quick-actions button:hover:not(:disabled){background:#7FD6FF}
+.quick-actions button:disabled{opacity:.4;cursor:default}
+.quick-actions small{font-size:11.5px;color:var(--muted)}
 .bench-note-plot{margin:16px 0 0}
 .bench-note-plot+.pendulum-plot{margin-top:12px}
+/* A part's opt-in hint (ExperimentGuide's stuckHint): collapsed until the
+   student deliberately opens it. */
+.pendulum-stuck{margin-top:16px;border:1px solid var(--edge);border-radius:4px;background:var(--panel-t);padding:10px 14px}
+.pendulum-stuck summary{
+  cursor:pointer;font-family:var(--font-mono),monospace;font-size:11.5px;letter-spacing:.08em;
+  color:var(--muted);
+}
+.pendulum-stuck summary:hover,.pendulum-stuck[open] summary{color:var(--trace)}
+.pendulum-stuck p{margin:10px 0 2px}
 .pendulum-hints{margin:0;padding-left:18px;display:grid;gap:10px}
 .pendulum-hints li{font-size:13.5px;color:var(--muted);line-height:1.6}
 
@@ -550,13 +597,16 @@ section.bench-page{padding-top:18px}
   color:var(--muted);pointer-events:none;background:rgba(11,18,25,.7);padding:2px 6px;border-radius:3px;
 }
 .plot-line-actions{gap:8px}
-.plot-line-actions button{
+/* AUTO RANGE (.plot-bounds) shares the plot's button style. Left unstyled it
+   fell back to the browser's own button — a grey face and near-white text
+   — and read as far brighter than every label around it. */
+.plot-line-actions button,.plot-bounds button{
   font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:.08em;
   color:var(--muted);background:transparent;border:1px solid var(--edge);
   border-radius:3px;padding:8px 12px;cursor:pointer;transition:.16s;white-space:nowrap;
 }
-.plot-line-actions button:hover:not(:disabled){color:var(--trace);border-color:var(--trace)}
-.plot-line-actions button:disabled{opacity:.4;cursor:default}
+.plot-line-actions button:hover:not(:disabled),.plot-bounds button:hover:not(:disabled){color:var(--trace);border-color:var(--trace)}
+.plot-line-actions button:disabled,.plot-bounds button:disabled{opacity:.4;cursor:default}
 .plot-line-actions .plot-btn-fill{background:var(--trace);border-color:var(--trace);color:#04202F}
 .plot-line-actions .plot-btn-fill:hover{background:#7FD6FF;color:#04202F}
 .plot-lines-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}

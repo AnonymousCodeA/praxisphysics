@@ -305,4 +305,42 @@ export const bodies = {
       </p>
     </>
   ),
+
+  'reporting': (
+    <>
+      <p>
+        A result is a number with an uncertainty attached, quoted to a sensible number of
+        significant figures, and it is never quoted to more precision than the uncertainty
+        supports.
+      </p>
+      <ul>
+        <li>
+          The uncertainty is quoted to <b>one</b> significant figure (or two at most), and the value
+          is quoted to the same decimal place as the uncertainty. A result of 9.79 ± 0.04 is
+          honest; 9.7871 ± 0.04 pretends to a precision you do not have.
+        </li>
+        <li>
+          The uncertainty is rounded <b>up</b> if anything — it is better to state a slightly
+          larger uncertainty than a slightly smaller one.
+        </li>
+        <li>
+          Always give the unit. An error bar without a unit is a number on a graph.
+        </li>
+      </ul>
+      <p>
+        Alongside the number, a good write-up states how it was obtained: what was measured, how
+        many times, what the scatter was, what was plotted against what, and what limited the
+        result. If the honest answer is "the timing was the limit, not the length", say so — it is
+        a result about the experiment, and it is worth more than a number with no explanation.
+      </p>
+      <aside>
+        <p>
+          A tight interval is not a better answer than a wide one that brackets the truth. In
+          Olympiad marking, coverage is what counts: an honest, wide interval that contains the
+          right value scores the same as a narrow one, and scores better than a narrow one that
+          does not.
+        </p>
+      </aside>
+    </>
+  ),
 };

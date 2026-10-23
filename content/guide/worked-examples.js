@@ -1,13 +1,15 @@
-// Prose for the guide's "Data analysis" section — the handout. `bodies` is
-// keyed by the subsection ids in data/guide.js — those ids are what
-// experiment hints link to, so add text here rather than renaming them. A
-// subsection with no entry renders as a "Not written yet." stub; `intro`
-// sits above the first. See content/guide/README.md for the maths/figure/
-// table conventions.
+// Prose for the guide's "Worked examples" section. `bodies` is keyed by the
+// subsection ids in data/guide.js — those ids are what experiment hints
+// link to, so add text here rather than renaming them. A subsection with no
+// entry renders as a "Not written yet." stub; `intro` sits above the first.
+// See content/guide/README.md for the maths/figure/table conventions.
 //
-// This is the end-to-end write-up: readings to a table, table to a graph,
-// graph to a number with an uncertainty. It runs on the pendulum throughout
-// because that is the experiment the site ships, but every step is general.
+// Demonstration only: real readings taken from a table to a graph to a
+// number with an uncertainty. Explanation of each step belongs in the
+// section that teaches it (the pipeline overview in Graphing, reporting a
+// result in Error analysis) and is linked from here, not repeated. This is
+// also where an experiment's worked solution lives — the pendulum links
+// here only after an answer is committed (data/pendulumGuide.js).
 //
 // The worked example is written as questions rather than as narration: each
 // step asks what the reader would have to work out, and the answer sits
@@ -15,64 +17,30 @@
 // for the first time can follow the argument without knowing what to do
 // with it; a student meeting it for the first time *doing* the experiment
 // needs the question as much as the answer.
+import Link from 'next/link';
 import { M, Eq } from '@/components/Maths';
 import Fig from '@/components/Fig';
 import GuideQ from '@/components/GuideQ';
+import { guideHref } from '@/data/guide';
 
 export const intro = (
   <>
     <p>
-      Measuring is only the first half of an experiment. The second half is turning a pile of
-      numbers into a result you can defend — with an uncertainty attached, and a method you could
-      explain to somebody else. This is that half, written out end to end.
+      The sections before this one each explain a step. This one does them all, on real readings,
+      from the table to a result you can defend. If a step here is unfamiliar, the order they come
+      in is set out in <Link href={guideHref('graphing', 'the-pipeline')}>the pipeline</Link>, and
+      how to quote the final number is in{' '}
+      <Link href={guideHref('error-analysis', 'reporting')}>reporting the result</Link>.
     </p>
     <p>
-      The pendulum is used as the running example because it is the experiment on this site, and
-      because it exercises every step: a table, a linearisation, a gradient, an uncertainty, and a
-      result that has to be reported. Nothing here is specific to it.
+      Both examples use the pendulum because it is the experiment on this site, and because it
+      exercises every step: a table, a linearisation, a gradient, an uncertainty, and a result
+      that has to be reported. Nothing in the method is specific to it.
     </p>
   </>
 );
 
 export const bodies = {
-  'the-pipeline': (
-    <>
-      <p>There are five steps, and doing them out of order is the commonest way to go wrong.</p>
-      <ol className="guide-steps">
-        <li>
-          <b>Take the readings.</b> One number per measurement, with its uncertainty, and the
-          instrument that produced it written down beside it. Resist the urge to process anything
-          yet.
-        </li>
-        <li>
-          <b>Tabulate them.</b> One row per reading or per set of readings, one column per
-          quantity, units in the column headings. If a column is calculated rather than measured,
-          say so in its heading.
-        </li>
-        <li>
-          <b>Linearise.</b> If the relationship you want is not a straight line, change the
-          variables until it is. This is the step that turns a scatter of points into something a
-          gradient can be read from.
-        </li>
-        <li>
-          <b>Graph and fit.</b> Plot the points with their error bars, draw the best-fit line by
-          hand, and read the gradient off the line — not by joining points up.
-        </li>
-        <li>
-          <b>Propagate and report.</b> Carry the uncertainty in the gradient through to the
-          quantity you actually want, and report the result as a value with an uncertainty.
-        </li>
-      </ol>
-      <aside>
-        <p>
-          The order matters because each step constrains the next. A table that omits an
-          uncertainty cannot grow error bars later; a graph with the wrong axes cannot be rescued by
-          a better line; and a gradient read off a graph has to be read before it can be propagated.
-        </p>
-      </aside>
-    </>
-  ),
-
   'worked-example': (
     <>
       <p>
@@ -365,44 +333,6 @@ export const bodies = {
         amplitudes is this constant best determined, and what limits that range?</em> The answer is
         different for the two of them, and the reason is instructive.
       </p>
-    </>
-  ),
-
-  'reporting': (
-    <>
-      <p>
-        A result is a number with an uncertainty attached, quoted to a sensible number of
-        significant figures, and it is never quoted to more precision than the uncertainty
-        supports.
-      </p>
-      <ul>
-        <li>
-          The uncertainty is quoted to <b>one</b> significant figure (or two at most), and the value
-          is quoted to the same decimal place as the uncertainty. A result of 9.79 ± 0.04 is
-          honest; 9.7871 ± 0.04 pretends to a precision you do not have.
-        </li>
-        <li>
-          The uncertainty is rounded <b>up</b> if anything — it is better to state a slightly
-          larger uncertainty than a slightly smaller one.
-        </li>
-        <li>
-          Always give the unit. An error bar without a unit is a number on a graph.
-        </li>
-      </ul>
-      <p>
-        Alongside the number, a good write-up states how it was obtained: what was measured, how
-        many times, what the scatter was, what was plotted against what, and what limited the
-        result. If the honest answer is "the timing was the limit, not the length", say so — it is
-        a result about the experiment, and it is worth more than a number with no explanation.
-      </p>
-      <aside>
-        <p>
-          A tight interval is not a better answer than a wide one that brackets the truth. In
-          Olympiad marking, coverage is what counts: an honest, wide interval that contains the
-          right value scores the same as a narrow one, and scores better than a narrow one that
-          does not.
-        </p>
-      </aside>
     </>
   ),
 };

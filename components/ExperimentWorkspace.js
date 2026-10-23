@@ -70,9 +70,8 @@ const SPLIT_STEP = 2;
 // here; most consumers (e.g. PendulumLab) simply don't use it. CircuitBench
 // uses it to mirror the table into its oscilloscope panel — see that file.
 // `DataTools`, if given, is rendered in the data section above the table
-// and receives the same table/plot state, so an experiment can offer its own
-// data-entry helpers (the pendulum's does) without the shell knowing what
-// they do.
+// and receives the same table/plot state, without the shell knowing what it
+// does (the pendulum passes the generic QuickEntry).
 export default function ExperimentWorkspace({ experimentId, parts, Bench, DataTools }) {
   const [partA, partB] = parts;
   const [activeTab, setActiveTab] = useState('problem');

@@ -17,7 +17,21 @@
 // deciding what to linearise, and that no single linearisation covers the
 // whole amplitude range, is the exercise; its hints stay thin: questions to
 // weigh, never a named instrument or method.
+//
+// Two links into the guide, placed for when each helps: error analysis
+// under the task, always; the worked solution (section 5) only beside the
+// reveal, after the answer is committed — next to the task it would be the
+// answer key next to the question.
+import Link from 'next/link';
 import { G } from '@/lib/pendulum/usePendulumPhysics';
+import { guideHref, guideSections } from '@/data/guide';
+
+// A link to a guide section, labelled with its own title so a rename
+// doesn't leave stale text behind (guideHref already throws on a bad slug).
+function guideLink(slug) {
+  const href = guideHref(slug);
+  return <Link href={href}>{guideSections.find((s) => s.slug === slug).title}</Link>;
+}
 
 export const pendulumParts = [
   {
@@ -43,7 +57,13 @@ export const pendulumParts = [
       { id: 'A2', text: 'Plot a graph whose gradient gives g, with error bars on your points.' },
       { id: 'A3', text: 'Determine g, with its uncertainty.' },
     ],
-    answer: { symbol: 'g', unit: 'm s⁻²', trueValue: G },
+    answer: {
+      symbol: 'g',
+      unit: 'm s⁻²',
+      trueValue: G,
+      afterCommit: <>A worked solution for this experiment is in {guideLink('worked-examples')}.</>,
+    },
+    taskNote: <>For a guide on error analysis, see {guideLink('error-analysis')}.</>,
     startOver: {
       label: 'Start Part A over',
       confirm: 'This clears your table, your plot and your committed answer for Part A.',
@@ -72,6 +92,11 @@ export const pendulumParts = [
     formulae: [
       { expr: 'T = T₀(1 + α·sin²(φ₀/2) + β·sin⁴(φ₀/2) + …)', note: 'period vs. angular amplitude' },
     ],
+    // Opt-in, and only the structure of the solution: not which ranges,
+    // not the axes, not T₀ from an intercept, not the residual. Part A has
+    // none — T² against L is one step with no stall point.
+    stuckHint:
+      'It is not possible to obtain both α and β from a single linearisation. Plan on two separate ranges of release angle, and two linearisations — one for each coefficient.',
     hints: [
       'How large is the effect you’re trying to measure, compared with the precision of your timing? Estimate this before collecting a full data set.',
       'The α term dominates at small amplitudes and β only becomes visible once α’s contribution is large enough. What does that imply about where each is best measured?',

@@ -6,7 +6,12 @@
 // is teaching, not something this shell should encode. A `task` says what to
 // produce, never how; `answer` (on the part, or on a single task item) adds
 // a commit-once answer box, and `startOver` a confirmed reset of the whole
-// part below that. The `answer` and `onStartOver` props come from
+// part below that. `stuckHint` is a single hint under the task, collapsed
+// in a native <details> (as GuideQ does) so reading it is a deliberate act
+// — see CLAUDE.md on the three tiers. `taskNote` is a line under the task,
+// always shown (a pointer to the guide, say); anything that should only
+// appear after the commit goes on the answer spec instead (AnswerBox's
+// `afterCommit`). The `answer` and `onStartOver` props come from
 // ExperimentWorkspace, which owns the part's state. CSS classes keep the
 // "pendulum-" prefix — see the matching note on DataTable.
 import AnswerBox from './AnswerBox';
@@ -71,6 +76,12 @@ export default function ExperimentGuide({ def, answer, onStartOver }) {
           <TaskList items={def.task} stored={stored} commit={commit} />
         </>
       )}
+      {def.stuckHint && (
+        <details className="pendulum-stuck">
+          <summary>Stuck? Show a hint</summary>
+          <p>{def.stuckHint}</p>
+        </details>
+      )}
       {def.answer && (
         <AnswerBox
           spec={def.answer}
@@ -78,6 +89,7 @@ export default function ExperimentGuide({ def, answer, onStartOver }) {
           commit={(record) => commit(def.answer.symbol, record)}
         />
       )}
+      {def.taskNote && <p className="pendulum-guide-note">{def.taskNote}</p>}
       {def.startOver && <StartOver {...def.startOver} onConfirm={onStartOver} />}
 
       {hasHints && (

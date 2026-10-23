@@ -1,4 +1,4 @@
-// The guide's outline: its four sections and every subsection's anchor id.
+// The guide's outline: its sections and every subsection's anchor id.
 // This file is the deep-link contract — an experiment hint points at
 // `guideHref('graphing', 'error-bars')`, so renaming an id here breaks every
 // link to it (guideHref throws, which fails the build rather than shipping a
@@ -52,6 +52,7 @@ export const guideSections = [
         title: "Now let's get serious (formal) and generalize EVERYTHING",
         short: 'The general formula',
       },
+      { id: 'reporting', title: 'Reporting the result' },
     ],
   },
   {
@@ -73,6 +74,7 @@ export const guideSections = [
     title: 'Graphing',
     blurb: 'Choosing what to plot, linearising, error bars, and pulling a gradient and intercept out of a line.',
     subsections: [
+      { id: 'the-pipeline', title: 'The pipeline' },
       { id: 'choosing-axes', title: 'Choosing what to plot' },
       { id: 'linearisation', title: 'Linearising a relationship' },
       { id: 'scales', title: 'Choosing scales' },
@@ -84,16 +86,14 @@ export const guideSections = [
     ],
   },
   {
-    slug: 'analysis',
+    slug: 'worked-examples',
     index: '05',
-    title: 'Data analysis',
+    title: 'Worked examples',
     blurb:
-      'A handout for the whole pipeline: readings to a table, table to a graph, graph to a number with an uncertainty.',
+      'Real readings taken all the way through — table, graph, gradient, and a result with its uncertainty — using the methods of the sections before.',
     subsections: [
-      { id: 'the-pipeline', title: 'The pipeline' },
       { id: 'worked-example', title: 'Worked example: a pendulum’s T² against L' },
       { id: 'two-stage-fits', title: 'When one straight line is not enough' },
-      { id: 'reporting', title: 'Reporting the result' },
     ],
   },
 ];

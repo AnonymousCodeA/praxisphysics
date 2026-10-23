@@ -9,8 +9,10 @@ import { useState } from 'react';
 // value is the better answer, so nothing here rewards a small uncertainty
 // or scores the distance. The true value is not hidden; it's in the bundle.
 //
-// `spec` is { symbol, unit, trueValue } from the part's definition — see
-// data/pendulumGuide.js. The true value is copied into the committed record
+// `spec` is { symbol, unit, trueValue, afterCommit? } from the part's
+// definition — see data/pendulumGuide.js. `afterCommit` is shown with the
+// reveal and never before it: a link to a worked solution, say, which next
+// to the question would be the answer key. The true value is copied into the committed record
 // so the reveal a student saw can't change under them later. `answer` is
 // that symbol's record from useCommittedAnswer (answerFor); `commit` writes
 // one record. ExperimentWorkspace holds the hook so the part's "start over"
@@ -47,6 +49,7 @@ export default function AnswerBox({ spec, answer, commit }) {
           interval, {(v - u).toFixed(d)} to {(v + u).toFixed(d)} {spec.unit},{' '}
           {contains ? 'contains it.' : 'does not contain it.'}
         </p>
+        {spec.afterCommit && <p className="answer-after">{spec.afterCommit}</p>}
       </div>
     );
   }

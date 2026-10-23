@@ -105,6 +105,12 @@ components/
                           header, through the same setCell/renameColumn a keystroke uses;
                           buttons preventDefault on pointerdown so the cell (and a phone's
                           keyboard) keeps focus. Pure input convenience — still free text
+  QuickEntry.js           phone-friendly row entry, passed as ExperimentWorkspace's
+                          `DataTools`: one stacked field per column of the student's own
+                          table, labelled with their heading; ADD ROW appends a row by
+                          column id. Knows nothing about any experiment — never names,
+                          creates or calculates a column or touches the plot; with no
+                          columns it says so and points at the table
   Plot.js                 plot for the table's data: student picks x/y columns and types
                           axis min/max (no auto-scaling), drags a line's two endpoints
                           freely to set gradient/intercept (never a fit), saves up to four
@@ -200,7 +206,7 @@ data/
                           waves-optics, modern-physics, mixed-bag) + simulations{} keyed by
                           category slug — add a sim by pushing into the right array
   papers.js               collections[] for past-paper archives
-  guide.js                guideSections[] — the guide's four sections and every subsection's
+  guide.js                guideSections[] — the guide's sections and every subsection's
                           anchor id, plus guideHref(slug, id), which throws on an unknown id.
                           These ids are the deep-link contract experiment hints point at —
                           don't rename one without updating its links. Kept free of prose so
@@ -282,6 +288,7 @@ Routes are static/data-driven: `generateStaticParams` reads `data/*.js`, and `no
 ## Design constraints (non-negotiable)
 
 - **Palette**: near-black ink background (`--ink #060A0F`, panels `--panel #0B1219`) with a single light-blue accent (`--trace #4EC5FF`) used for interactive/live elements, highlights, and glow. Text is off-white (`--chalk`) or muted gray (`--muted`). No other hues — new UI must work within this two-tone system.
+  - **`--muted` is the floor for readable text**: 5.4:1 on `--panel`, 5.7:1 on `--ink`, still 4.7:1 on the faintly trace-tinted active backgrounds — WCAG AA (4.5:1) with little room to spare. Never dim text below it with `opacity` or an alpha colour (half-opacity `--muted` is 2.2:1); dim decoration instead. Every control needs an explicit style — an unstyled `<button>` falls back to the browser's bright default chrome and outshines everything beside it.
   - **Exception — plot line colours**: `components/Plot.js` needs up to four saved student-drawn lines to stay visually distinct from each other *and* from the data points/axes, which a single accent can't do. It uses a small fixed palette (`LINE_COLORS` in `lib/experiment/usePlotConfig.js`) of four hues at the same saturation/lightness as `--trace`, reserved for saved/current lines only — points, axes, and everything else on the plot still key off `--trace` alone. This is a deliberate, scoped exception; don't extend the palette to other UI or collapse it back to monochrome.
   - **Exception — oscilloscope screen**: `components/Oscilloscope.js`'s scope screen is green phosphor on black, not `--trace` on `--ink` — a scope is green because phosphor is green, and every real one looks like this. Colors (`SCOPE_BG`/`SCOPE_GRATICULE`/`SCOPE_CH1_COLOR`/`SCOPE_CH2_COLOR`) live in `lib/circuits/oscilloscopeControls.js`. The green also appears once outside the canvas itself: the `OSCILLOSCOPE` nameplate (`.circuit-scope-nameplate` in `globals.css`, hardcoded to match `SCOPE_CH1_COLOR` since CSS can't import the JS constant) — an instrument's case label reads as part of the instrument, not as UI chrome. Everything else in the scope's own panel (section headings, buttons, sliders, control labels) still keys off the normal palette. Channel 2 is a second, distinct hue (amber) rather than a second shade of green, so the two traces stay distinguishable at a glance. Same deliberate-and-scoped rule as the plot line colours above — don't spread the green any further than the screen and its nameplate.
 - **Type**: IBM Plex Sans for prose/headings, IBM Plex Mono for labels/eyebrows/data readouts/nav — the mono face is what signals "instrument panel" and should be used for anything numeric or tag-like, not for body copy.
@@ -321,6 +328,16 @@ Not every instrument is a digital readout. Physical ones (vertical scale, angle 
 All bench-object tools start off — `open` in `PendulumLab.js` is `{}`, so the bench is empty until the student brings something in from the instrument menu. Bringing the photogate onto the bench (toggling it on) resets it to a fixed sensible pose near the pendulum, not wherever it was left before being toggled off — see the `toggleInstrument` callback.
 
 The angle plate and vertical scale are the exception to all of that positioning: they're part of the apparatus, and the student toggles whether each is mounted, never where it sits — neither has a ref, a pose, a handle, or anything to drag. The angle plate follows the APhO 2023 apparatus, a large semicircular scale mounted behind the pendulum and centred on the pivot (`ANGLE_PLATE_RADIUS_M`, sized so its graduated arc crosses the string above the bob at every length). It reads the displacement angle directly (0° straight down, 90° at the horizontal each side, 1°/5°/10° graduations, numerals every 10°), with no numeric readout anywhere. The vertical scale is fixed beside the hanging string (`SCALE_EDGE_X_M`, graduated edge facing the string just clear of the bob at rest), physical top level with the pivot, running down past the bob's lowest point at full length; 1/5/10 mm graduations, centimetre numerals, and "cm" printed after every tenth numeral so the unit is in view wherever the lens is. Where a length runs to — string end or bob centre — is left entirely to the student. Both are drawn before the pendulum so the string swings in front (the scale in front of the plate, hiding the plate's ~8°–14° graduations on the right; the left half stays fully readable), and the stretch of string over either is redrawn as dark thread (`drawStringOverBackdrops`) since the light bench string would vanish against them. Pressing on either only ever raises the lens: moving before the hold delay cancels rather than dragging. Because the scale sits inside the bob's generous touch margin, `onDown` checks a press directly on the bob first, then the scale, and only then the bob's margin — so holding the scale at the bob's height reads it instead of grabbing the bob.
+
+### How much an experiment tells the student (three tiers)
+
+Every experiment part follows the pendulum's three tiers of help, each placed for the moment it helps without giving the answer away. All three are fields on the part's data definition (`data/pendulumGuide.js`), rendered by `ExperimentGuide`/`AnswerBox` — neither component owns any of the content.
+
+1. **Always visible — the task.** `body`/`formulae`/`task` say what to produce, never how: the governing relation unrearranged, no axes, no method. `taskNote` sits under it for a pointer to the guide's *method* (the pendulum links Error analysis), never to a solution.
+2. **Opened deliberately — one hint.** `stuckHint`, collapsed in a native `<details>` whose summary ("Stuck? Show a hint") makes opening it a choice. Give one only where a part has a genuine stall point, and keep it to the *structure* of the solution: the pendulum's Part B hint says α and β need two ranges of release angle and two linearisations, and stops there — not which ranges, not what goes on either axis, not where T₀ comes from. Part A has none: T² against L is a single step with nothing to stall on. If a hint names an axis or a method, it has become the solution.
+3. **After the commit — the worked solution.** `answer.afterCommit`, shown by AnswerBox only beside the reveal (the pendulum links guide section 5, Worked examples). A solution link next to the task is the answer key next to the question; after the commit it's the obvious next thing to read.
+
+Links in any tier use `guideHref` so they survive a slug change.
 
 ### Shared draw functions at different scales (bench + lens)
 
