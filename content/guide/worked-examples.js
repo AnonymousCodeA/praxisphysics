@@ -21,6 +21,8 @@ import Link from 'next/link';
 import { M, Eq } from '@/components/Maths';
 import Fig from '@/components/Fig';
 import GuideQ from '@/components/GuideQ';
+import PartBStageOne from './figures/PartBStageOne';
+import PartBStageTwo from './figures/PartBStageTwo';
 import { guideHref } from '@/data/guide';
 
 export const intro = (
@@ -41,95 +43,20 @@ export const intro = (
 );
 
 export const bodies = {
+  // Every number in this example comes from scripts/worked-example-parta.mjs:
+  // the simulation's exact period at a 5° release, timed by a modelled hand
+  // whose reaction time varies from press to press, then carried through with
+  // best, steepest and shallowest lines — no regression. Rerun it before
+  // changing any figure here. The seed was fixed before the first run and not
+  // chosen for the result; the result misses, and the example says why.
   'worked-example': (
     <>
       <p>
         Here is a complete set of readings from the pendulum bench, and the whole analysis worked
-        through. Six lengths; at each one, the time for twenty complete oscillations, measured with
-        the stopwatch and repeated three times.
-      </p>
-
-      <div className="guide-table">
-        <table>
-          <thead>
-            <tr>
-              <th>
-                <M>{String.raw`L`}</M> (m)
-              </th>
-              <th>
-                <M>{String.raw`\Delta L`}</M> (m)
-              </th>
-              <th>
-                <M>{String.raw`t_{20}`}</M> (s)
-              </th>
-              <th>
-                <M>{String.raw`T_0`}</M> (s)
-              </th>
-              <th>
-                <M>{String.raw`\Delta T_0`}</M> (s)
-              </th>
-              <th>
-                <M>{String.raw`T_0^2`}</M> (s²)
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>0.200</td>
-              <td>0.0005</td>
-              <td>17.96</td>
-              <td>0.898</td>
-              <td>0.010</td>
-              <td>0.806</td>
-            </tr>
-            <tr>
-              <td>0.250</td>
-              <td>0.0005</td>
-              <td>20.10</td>
-              <td>1.005</td>
-              <td>0.010</td>
-              <td>1.010</td>
-            </tr>
-            <tr>
-              <td>0.300</td>
-              <td>0.0005</td>
-              <td>22.01</td>
-              <td>1.101</td>
-              <td>0.010</td>
-              <td>1.212</td>
-            </tr>
-            <tr>
-              <td>0.350</td>
-              <td>0.0005</td>
-              <td>23.77</td>
-              <td>1.189</td>
-              <td>0.010</td>
-              <td>1.414</td>
-            </tr>
-            <tr>
-              <td>0.400</td>
-              <td>0.0005</td>
-              <td>25.41</td>
-              <td>1.271</td>
-              <td>0.010</td>
-              <td>1.615</td>
-            </tr>
-            <tr>
-              <td>0.450</td>
-              <td>0.0005</td>
-              <td>26.93</td>
-              <td>1.347</td>
-              <td>0.010</td>
-              <td>1.814</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <p>
-        Four columns of that table were calculated, not measured: the period is the time divided by
-        twenty, the last column is the period squared, and the two uncertainty columns come from
-        the instruments. The rest of the analysis is a question about each of those in turn.
+        through. Six lengths, from 0.250 m to 0.500 m between the pivot and the centre of the bob,
+        each read off the vertical scale. At each length the stopwatch times twenty complete
+        oscillations of a pendulum released at about 5°. At one length, 0.350 m, that timing is
+        repeated five times.
       </p>
 
       <GuideQ q="The pendulum obeys T₀ = 2π√(L/g). What do you plot against what, and what should the resulting line look like?">
@@ -146,29 +73,120 @@ export const bodies = {
         </p>
       </GuideQ>
 
-      <GuideQ q="Where does each uncertainty in that table come from?">
+      <h3>The uncertainty in the timing</h3>
+      <p>
+        <M>{String.raw`\Delta L = 0.0005\ \text{m}`}</M> for every row: the scale reads to the
+        nearest millimetre, so a reading is good to half of that. The timing needs more care. The
+        stopwatch displays hundredths of a second, but its real error is the person pressing it, and
+        the only way to find out how large that error is is to measure it.
+      </p>
+      <GuideQ q="Time twenty oscillations five times at one length. What is the uncertainty in one timing?">
+        <p>At <M>{String.raw`L = 0.350\ \text{m}`}</M>:</p>
+        <div className="guide-table">
+          <table>
+            <thead>
+              <tr>
+                <th>repeat</th>
+                <th>1</th>
+                <th>2</th>
+                <th>3</th>
+                <th>4</th>
+                <th>5</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <M>{String.raw`t_{20}`}</M> (s)
+                </td>
+                <td>23.82</td>
+                <td>23.83</td>
+                <td>23.72</td>
+                <td>23.82</td>
+                <td>23.73</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <p>
-          <M>{String.raw`\Delta L = 0.0005\ \text{m}`}</M> for every row: the length gauge reads
-          to the nearest millimetre, so a reading is worth half of that. It is the same for every
-          row, because it comes from the instrument rather than from the particular reading.
+          The mean is 23.784 s and the readings range over 0.11 s. Half the range is the
+          uncertainty in one timing, as in the tabulation section:
+        </p>
+        <Eq>{String.raw`\Delta t_{20} = \frac{23.83 - 23.72}{2} = 0.055\ \text{s}, \qquad \Delta T_0 = \frac{\Delta t_{20}}{20} = 0.0028\ \text{s}`}</Eq>
+      </GuideQ>
+      <GuideQ q="A common estimate is 0.2 s of reaction time at the two ends of the interval. How does that compare with the spread you measured?">
+        <p>
+          The 0.2 s estimate gives <M>{String.raw`\Delta T_0 = 0.2/20 = 0.010\ \text{s}`}</M>. The
+          spread gives 0.0028 s, smaller by a factor of 3.6.
         </p>
         <p>
-          <M>{String.raw`\Delta T_0 = 0.010\ \text{s}`}</M> comes from the stopwatch, and it is
-          worth being careful about where. The stopwatch's display reads to 0.01 s, but its real
-          error is your reaction time at the two ends of the interval — say 0.2 s in all. That
-          0.2 s is spread over twenty oscillations, so the period carries
+          The two numbers measure different things. Each press of the stopwatch comes some time
+          after the bob passes the point you are watching. If that delay were the same at the start
+          and at the stop, it would cancel out of the interval entirely. What does not cancel is how
+          much the delay changes from one press to the next, and that is what the spread of the
+          repeats measures: 0.055 s for the interval, which is about 0.04 s per press. The 0.2 s
+          figure counts the whole delay at both ends, including the part that cancels.
         </p>
-        <Eq>{String.raw`\Delta T_0 = \frac{\Delta t_{20}}{20} = \frac{0.2}{20} = 0.01\ \text{s}`}</Eq>
         <p>
-          which is a hundredth of a second. The last column, <M>{String.raw`T_0^2`}</M>, is
-          squared, so it inherits twice the <em>relative</em> uncertainty:
-        </p>
-        <Eq>{String.raw`\Delta(T_0^2) = 2T_0\,\Delta T_0`}</Eq>
-        <p>
-          — about 0.018 s² at the short end of the range and 0.027 s² at the long end. Those are
-          the numbers the error bars are drawn from.
+          This example uses <M>{String.raw`\Delta T_0 = 0.0028\ \text{s}`}</M>, the value from the
+          spread, because it was measured rather than assumed.
         </p>
       </GuideQ>
+      <GuideQ q="Do you repeat the timing five times at every length?">
+        <p>
+          Not here. The other five lengths are each timed once, and each single timing is given the
+          same <M>{String.raw`\Delta T_0 = 0.0028\ \text{s}`}</M>. This is a trade of accuracy for
+          time: five repeats at six lengths is thirty timings, and this way it is ten.
+        </p>
+        <p>
+          The trade is reasonable because the source of the error does not change between lengths.
+          It is the same person pressing the same stopwatch at the same point in the swing, and the
+          periods differ by less than a factor of 1.5, so there is no reason for one single timing to
+          scatter more or less than another. What it assumes is that the spread of five repeats is a
+          good measure of that scatter. The end of this example shows what that assumption costs.
+        </p>
+      </GuideQ>
+
+      <h3>The table</h3>
+      <div className="guide-table">
+        <table>
+          <thead>
+            <tr>
+              <th>
+                <M>{String.raw`L`}</M> (m)
+              </th>
+              <th>
+                <M>{String.raw`t_{20}`}</M> (s)
+              </th>
+              <th>
+                <M>{String.raw`T_0`}</M> (s)
+              </th>
+              <th>
+                <M>{String.raw`T_0^2`}</M> (s²)
+              </th>
+              <th>
+                <M>{String.raw`\Delta(T_0^2)`}</M> (s²)
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>0.250</td><td>19.99</td><td>0.9995</td><td>0.9990</td><td>0.0055</td></tr>
+            <tr><td>0.300</td><td>21.98</td><td>1.0990</td><td>1.2078</td><td>0.0060</td></tr>
+            <tr><td>0.350</td><td>23.784</td><td>1.1892</td><td>1.4142</td><td>0.0065</td></tr>
+            <tr><td>0.400</td><td>25.47</td><td>1.2735</td><td>1.6218</td><td>0.0070</td></tr>
+            <tr><td>0.450</td><td>27.03</td><td>1.3515</td><td>1.8266</td><td>0.0074</td></tr>
+            <tr><td>0.500</td><td>28.44</td><td>1.4220</td><td>2.0221</td><td>0.0078</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        The 0.350 m row is the mean of the five repeats. Every row has{' '}
+        <M>{String.raw`\Delta L = 0.0005\ \text{m}`}</M> and{' '}
+        <M>{String.raw`\Delta T_0 = 0.0028\ \text{s}`}</M>. The last column follows from the
+        squaring, which doubles the relative uncertainty:
+      </p>
+      <Eq>{String.raw`\Delta(T_0^2) = 2T_0\,\Delta T_0`}</Eq>
+      <p>Those are the numbers the error bars are drawn from.</p>
 
       <GuideQ q="You have drawn the line. How do you get a number out of it, and how do you get an uncertainty for that number?">
         <p>
@@ -186,52 +204,74 @@ export const bodies = {
         </p>
         <Eq>{String.raw`\Delta m = \frac{m_{\text{steep}} - m_{\text{shallow}}}{2}`}</Eq>
         <p>
-          Here the two extreme lines come out at about 4.07 and 4.00 s² m⁻¹, so the best-fit
-          gradient is
+          Here the best line is <M>{String.raw`T_0^2 = -0.025 + 4.107\,L`}</M>, and the steepest
+          and shallowest are <M>{String.raw`-0.049 + 4.162\,L`}</M> and{' '}
+          <M>{String.raw`-0.007 + 4.053\,L`}</M>, so
         </p>
-        <Eq>{String.raw`m = 4.03 \pm 0.04\ \text{s}^2\text{m}^{-1}`}</Eq>
+        <Eq>{String.raw`m = 4.11 \pm 0.05\ \text{s}^2\text{m}^{-1}`}</Eq>
       </GuideQ>
 
       <GuideQ q="How does the uncertainty in the gradient reach g, and what is the final answer?">
         <p>
-          From the gradient alone, <M>{String.raw`g = 4\pi^2/m`}</M>, and the fractional
-          uncertainty in <M>{String.raw`g`}</M> is the fractional uncertainty in{' '}
-          <M>{String.raw`m`}</M>:
+          From the gradient, <M>{String.raw`g = 4\pi^2/m`}</M>, and the fractional uncertainty in{' '}
+          <M>{String.raw`g`}</M> is the fractional uncertainty in <M>{String.raw`m`}</M>:
         </p>
-        <Eq>{String.raw`\frac{\Delta g}{g} = \frac{\Delta m}{m}`}</Eq>
+        <Eq>{String.raw`\frac{\Delta g}{g} = \frac{\Delta m}{m} = \frac{0.054}{4.107} = 1.3\%, \qquad g = 9.61 \pm 0.13\ \text{m s}^{-2}`}</Eq>
         <p>
-          With <M>{String.raw`m = 4.03`}</M> and <M>{String.raw`\Delta m = 0.04`}</M> that is about
-          1%, and the result is
-        </p>
-        <Eq>{String.raw`g = 9.80 \pm 0.10\ \text{m s}^{-2}`}</Eq>
-        <p>
-          The other route should give the same thing. From{' '}
-          <M>{String.raw`g = 4\pi^2 L/T_0^2`}</M>, adding the relative uncertainties in quadrature:
+          The other route is a single length. From <M>{String.raw`g = 4\pi^2 L/T_0^2`}</M> at{' '}
+          <M>{String.raw`L = 0.350\ \text{m}`}</M>, the length with the repeats, adding the
+          relative uncertainties in quadrature:
         </p>
         <Eq>
           {String.raw`\left(\frac{\Delta g}{g}\right)^2 = \left(\frac{\Delta L}{L}\right)^2 + 4\left(\frac{\Delta T_0}{T_0}\right)^2`}
         </Eq>
         <p>
-          At <M>{String.raw`L = 0.35\ \text{m}`}</M> the length contributes 0.1% and the timing
-          about 1.7%, so the timing dominates — and the timing is where the effort should go. If the
-          two routes do not agree to within a factor of order one, the graph is not measuring what
-          you think it is: most often an error bar is missing, or the one point left out of the fit
-          is the one that matters.
+          The length contributes 0.14% and the timing 0.46%, so the timing dominates, and{' '}
+          <M>{String.raw`g = 9.77 \pm 0.05\ \text{m s}^{-2}`}</M>.
         </p>
       </GuideQ>
 
-      <GuideQ q="Your best-fit line does not pass exactly through the origin. What should you do about it?">
+      <h3>Checking the result</h3>
+      <p>
+        The simulation uses <M>{String.raw`g = 9.787\ \text{m s}^{-2}`}</M>. The single-length
+        result, <M>{String.raw`9.77 \pm 0.05`}</M>, contains it. The graph result,{' '}
+        <M>{String.raw`9.61 \pm 0.13`}</M>, does not: its upper end is 9.74.
+      </p>
+      <GuideQ q="Your best-fit line does not pass through the origin. What should you do about it?">
         <p>
-          Find out what it means before you trust the gradient. A constant offset in the horizontal
-          variable shifts every point by the same amount and shows up as an intercept rather than
-          as a slope — and the commonest cause is a length measured to the end of the string
-          instead of to the centre of the bob. That is a fixed error, not a random one, so it does
-          not average away over six rows: it biases the gradient.
+          The intercept here is <M>{String.raw`-0.025 \pm 0.021\ \text{s}^2`}</M>, and the
+          physics says it must be zero. That is the sign in the data, visible without knowing the
+          true value, that the line is tilted. Find out what it means before you trust the
+          gradient.
         </p>
         <p>
-          A small intercept is not always a disaster — an intercept that should be zero and is not
-          is one of the most useful things a graph can tell you, and it is only a problem if you
-          ignore it. Say what it is, and say what you did about it.
+          One cause is a fixed error, such as every length measured to the end of the string
+          instead of to the centre of the bob. That shifts every point by the same amount, so it
+          shows up as an intercept, and it does not average away over six rows. That is not what
+          happened here. The cause here is one timing: the single reading at 0.250 m came out about
+          0.1 s short, roughly twice the spread of the repeats. That is not unusual for one timing
+          in five, but its error bar is drawn from the spread of five repeats and does not reach
+          the true line, and a low point at the short end tilts the line steeper.
+        </p>
+      </GuideQ>
+      <GuideQ q="So was carrying ΔT₀ across to the other lengths a mistake?">
+        <p>
+          It was a trade, and this is its cost. Half the range of five repeats is close to one
+          standard deviation of a single timing, so each single timing has a fair chance of falling
+          outside its error bar, and with five single timings at least one does in about three runs
+          out of four. Repeat this whole
+          procedure many times on the simulation and the interval for{' '}
+          <M>{String.raw`g`}</M> misses the true value about two times in five.
+        </p>
+        <p>
+          The way to remove the cost is to repeat the timing at every length and use each length's
+          mean and its own spread. That is five times the timing, and it is what an experiment with
+          the time to spare should do. When you make the trade, say that you made it, and treat a
+          non-zero intercept as a sign that it has cost you.
+        </p>
+        <p>
+          A tight answer that misses is worse than a wider one that contains the true value. Here
+          the more careful result is the single length with five repeats.
         </p>
       </GuideQ>
 
@@ -388,6 +428,14 @@ export const bodies = {
         </p>
       </GuideQ>
 
+      <Fig
+        num="5.1"
+        id="fig-partb-stage-one"
+        caption="Stage one. T against x for set 1. The best line, and the steepest and shallowest lines that still pass through every error bar, all drawn through the five points below 22°. The intercept is T₀, the gradient is T₀α. The hollow points sit above the line — that is the curvature, visible from the data alone."
+      >
+        <PartBStageOne />
+      </Fig>
+
       <h3>Stage two: β</h3>
       <p>
         With <M>{String.raw`T_0`}</M> in hand, divide it out and divide by <M>{String.raw`x`}</M>:
@@ -467,6 +515,14 @@ export const bodies = {
         </p>
         <Eq>{String.raw`\beta = 0.210 \pm 0.052, \qquad \text{intercept: } \alpha = 0.248 \pm 0.015`}</Eq>
       </GuideQ>
+
+      <Fig
+        num="5.2"
+        id="fig-partb-stage-two"
+        caption="Stage two. The same readings as y = (T/T₀ − 1)/x. The intercept is α and the gradient is β. The 70° and 77° points, hollow, climb above the fan."
+      >
+        <PartBStageTwo />
+      </Fig>
 
       <h3>Are the lines straight?</h3>
       <p>

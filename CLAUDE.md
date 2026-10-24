@@ -215,10 +215,17 @@ data/
 content/guide/            the guide's prose, one file per section: `intro` + `bodies` keyed by
                           data/guide.js's subsection ids (missing key → "Not written yet."
                           stub). Authoring conventions in content/guide/README.md.
-                          The Part B worked example's readings and every number carried
-                          through them come from scripts/worked-example-partb.mjs (exact AGM
-                          period at L = 0.500 m, photogate-quantised, best/steepest/
-                          shallowest lines — no regression); rerun it before editing them
+                          Both worked examples' readings and every number carried through
+                          them are generated, never hand-written: Part A by
+                          scripts/worked-example-parta.mjs (stopwatch timings with real
+                          press-to-press reaction jitter, five repeats at one length, half
+                          the range carried to single timings elsewhere — fixed seed, and
+                          its result misses g, which the example explains), Part B and its
+                          Figs. 5.1–5.2 (content/guide/figures/PartBStageOne/Two.js) by
+                          scripts/worked-example-partb.mjs (exact AGM period at L = 0.500 m,
+                          photogate-quantised). Both use scripts/lib/lines.mjs — best/
+                          steepest/shallowest lines through every error bar, no regression.
+                          Regenerate from them, never hand-edit
   pendulumGuide.js        pendulumParts[] — the pendulum's own problem statement/formulae/
                           hints, in the shape ExperimentGuide/ExperimentWorkspace expect.
                           `body`/`credit` are JSX, since this is content, not serializable
