@@ -247,91 +247,329 @@ export const bodies = {
     </>
   ),
 
+  // Every number in this example comes from scripts/worked-example-partb.mjs:
+  // the simulation's own exact period at L = 0.500 m, quantised by the
+  // photogate's 1 ms resolution, then carried through with best, steepest
+  // and shallowest lines — no regression. Rerun it before changing any
+  // figure here. The readings are ours, not APhO's.
   'two-stage-fits': (
     <>
       <p>
-        Sometimes the relationship is a straight line plus a correction, and one line cannot
-        describe it. The pendulum at large amplitude is the standard example: the period is no
-        longer <M>{String.raw`T_0 = 2\pi\sqrt{L/g}`}</M>, but
+        Part B of the pendulum asks for the small-amplitude period <M>{String.raw`T_0`}</M> and the
+        constants <M>{String.raw`\alpha`}</M> and <M>{String.raw`\beta`}</M> in
       </p>
       <Eq>
         {String.raw`T = T_0\bigl(1 + \alpha\sin^2(\varphi_0/2) + \beta\sin^4(\varphi_0/2) + \cdots\bigr)`}
       </Eq>
       <p>
-        Here <M>{String.raw`\varphi_0`}</M> is the release angle and{' '}
-        <M>{String.raw`\alpha,\ \beta`}</M> are dimensionless constants to be found. The trick is
-        that the series can be taken apart one term at a time.
+        Writing <M>{String.raw`x = \sin^2(\varphi_0/2)`}</M> turns the series into powers of{' '}
+        <M>{String.raw`x`}</M>, and everything below works in <M>{String.raw`x`}</M>. One straight
+        line cannot give both constants, so this is done in two stages over two ranges of release
+        angle — and, as it turns out, done twice.
       </p>
 
-      <h3>Stage one: the first correction</h3>
+      <h3>The readings</h3>
       <p>
-        Write <M>{String.raw`x = \sin^2(\varphi_0/2)`}</M>. Then
+        The bench: the pendulum at <M>{String.raw`L = 0.500\ \text{m}`}</M> from pivot to the centre
+        of the bob (0.48 m of string and a 0.02 m bob). The photogate sits at the lowest point of the
+        swing and logs each crossing to the nearest millisecond. Each reading is the time for{' '}
+        <b>five periods</b>: crossing 1 to crossing 11 in the log. The release angle is read off the
+        angle plate to the nearest degree.
       </p>
-      <Eq>{String.raw`\frac{T}{T_0} - 1 = \alpha x + \beta x^2 + \cdots`}</Eq>
       <p>
-        To a first approximation that is a straight line through the origin: plot{' '}
-        <M>{String.raw`T/T_0 - 1`}</M> against <M>{String.raw`x`}</M>, and the gradient is{' '}
-        <M>{String.raw`\alpha`}</M>. Use only the small-amplitude points for this stage, where the{' '}
-        <M>{String.raw`\beta`}</M> term is still too small to notice — otherwise the line is bent
-        by it and the gradient you read is not <M>{String.raw`\alpha`}</M> alone.
+        Both uncertainties come straight from the instruments. Five periods are the difference of
+        two trigger times, each rounded to the nearest millisecond, so they are uncertain by up to
+        1 ms — 0.2 ms per period. The angle is good to <M>{String.raw`\pm 0.5^\circ`}</M>, and{' '}
+        <M>{String.raw`x`}</M> inherits
+      </p>
+      <Eq>{String.raw`\Delta x = \tfrac{1}{2}\sin\varphi_0\,\Delta\varphi_0 \qquad (\Delta\varphi_0 \text{ in radians})`}</Eq>
+      <p>
+        Set 1 covers small amplitudes, for <M>{String.raw`T_0`}</M> and <M>{String.raw`\alpha`}</M>:
+      </p>
+      <div className="guide-table">
+        <table>
+          <thead>
+            <tr>
+              <th>
+                <M>{String.raw`\varphi_0`}</M> (°)
+              </th>
+              <th>
+                <M>{String.raw`t_5`}</M> (ms)
+              </th>
+              <th>
+                <M>{String.raw`T`}</M> (s)
+              </th>
+              <th>
+                <M>{String.raw`x`}</M>
+              </th>
+              <th>
+                <M>{String.raw`\Delta x`}</M>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>7</td><td>7108</td><td>1.4216</td><td>0.00373</td><td>0.00053</td></tr>
+            <tr><td>10</td><td>7114</td><td>1.4228</td><td>0.00760</td><td>0.00076</td></tr>
+            <tr><td>14</td><td>7128</td><td>1.4256</td><td>0.01485</td><td>0.00106</td></tr>
+            <tr><td>18</td><td>7145</td><td>1.4290</td><td>0.02447</td><td>0.00135</td></tr>
+            <tr><td>22</td><td>7167</td><td>1.4334</td><td>0.03641</td><td>0.00163</td></tr>
+            <tr><td>26</td><td>7193</td><td>1.4386</td><td>0.05060</td><td>0.00191</td></tr>
+            <tr><td>30</td><td>7225</td><td>1.4450</td><td>0.06699</td><td>0.00218</td></tr>
+            <tr><td>35</td><td>7270</td><td>1.4540</td><td>0.09042</td><td>0.00250</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Set 2 covers the whole range, for <M>{String.raw`\beta`}</M>:
+      </p>
+      <div className="guide-table">
+        <table>
+          <thead>
+            <tr>
+              <th>
+                <M>{String.raw`\varphi_0`}</M> (°)
+              </th>
+              <th>
+                <M>{String.raw`t_5`}</M> (ms)
+              </th>
+              <th>
+                <M>{String.raw`T`}</M> (s)
+              </th>
+              <th>
+                <M>{String.raw`x`}</M>
+              </th>
+              <th>
+                <M>{String.raw`\Delta x`}</M>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>10</td><td>7114</td><td>1.4228</td><td>0.00760</td><td>0.00076</td></tr>
+            <tr><td>20</td><td>7155</td><td>1.4310</td><td>0.03015</td><td>0.00149</td></tr>
+            <tr><td>30</td><td>7225</td><td>1.4450</td><td>0.06699</td><td>0.00218</td></tr>
+            <tr><td>40</td><td>7324</td><td>1.4648</td><td>0.11698</td><td>0.00280</td></tr>
+            <tr><td>50</td><td>7454</td><td>1.4908</td><td>0.17861</td><td>0.00334</td></tr>
+            <tr><td>60</td><td>7621</td><td>1.5242</td><td>0.25000</td><td>0.00378</td></tr>
+            <tr><td>70</td><td>7826</td><td>1.5652</td><td>0.32899</td><td>0.00410</td></tr>
+            <tr><td>77</td><td>7997</td><td>1.5994</td><td>0.38752</td><td>0.00425</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Look at the top of set 1. Between 7° and 10° five periods change by only 6 ms, and every{' '}
+        <M>{String.raw`T`}</M> moves in steps of 0.2 ms — the gate’s millisecond, shared over five
+        periods. That is the scatter these graphs have to live with.
       </p>
 
-      <GuideQ q="Why does the stage-one line have to pass through the origin?">
+      <h3>Stage one: T₀ and α</h3>
+      <p>At small amplitudes the β term is negligible, and</p>
+      <Eq>{String.raw`T = T_0 + T_0\alpha\,x`}</Eq>
+      <p>
+        is a straight line: <M>{String.raw`T`}</M> against <M>{String.raw`x`}</M>, with intercept{' '}
+        <M>{String.raw`T_0`}</M> and gradient <M>{String.raw`T_0\alpha`}</M>.
+      </p>
+      <GuideQ q="Plot T against x for all of set 1, with ±0.2 ms and ±Δx error bars. What do the lines give for T₀ and α?">
         <p>
-          Because at <M>{String.raw`x = 0`}</M> — a release angle of zero — the correction is zero
-          and the period is exactly <M>{String.raw`T_0`}</M>, so{' '}
-          <M>{String.raw`T/T_0 - 1 = 0`}</M>. Any non-zero intercept is telling you that the
-          points and the model disagree, which is worth knowing before you read a gradient.
+          The best line, through the middle of the points, is{' '}
+          <M>{String.raw`T = 1.41993 + 0.3747\,x`}</M>. The steepest and shallowest lines that still
+          pass through every error bar are
+        </p>
+        <Eq>{String.raw`T = 1.41973 + 0.3916\,x \qquad T = 1.42055 + 0.3578\,x`}</Eq>
+        <p>
+          so the gradient is <M>{String.raw`0.375 \pm 0.017\ \text{s}`}</M> (half the difference of
+          the extremes) and the intercept is{' '}
+          <M>{String.raw`T_0 = 1.4199 \pm 0.0004\ \text{s}`}</M>. Then <M>{String.raw`\alpha`}</M> is
+          gradient over intercept, and its relative uncertainty is the two relative uncertainties
+          added:
+        </p>
+        <Eq>{String.raw`\alpha = \frac{0.3747}{1.41993} = 0.264, \qquad \frac{\Delta\alpha}{\alpha} = \frac{0.017}{0.375} + \frac{0.0004}{1.420} = 4.5\%`}</Eq>
+        <p>
+          so <M>{String.raw`\alpha = 0.264 \pm 0.012`}</M>.
         </p>
       </GuideQ>
 
-      <h3>Stage two: what is left over</h3>
+      <h3>Stage two: β</h3>
       <p>
-        Now take the first correction off and look at the remainder:
+        With <M>{String.raw`T_0`}</M> in hand, divide it out and divide by <M>{String.raw`x`}</M>:
       </p>
-      <Eq>{String.raw`R = \frac{T}{T_0} - 1 - \alpha x = \beta x^2 + \cdots`}</Eq>
+      <Eq>{String.raw`y = \frac{T/T_0 - 1}{x} = \alpha + \beta x + \cdots`}</Eq>
       <p>
-        Plotting the residual <M>{String.raw`R`}</M> against <M>{String.raw`x^2`}</M> turns the
-        second stage into an ordinary straight line through the origin, and its gradient is{' '}
-        <M>{String.raw`\beta`}</M>.
+        Another straight line: <M>{String.raw`y`}</M> against <M>{String.raw`x`}</M> has gradient{' '}
+        <M>{String.raw`\beta`}</M>, and its intercept is <M>{String.raw`\alpha`}</M> again — a check
+        on stage one for free.
       </p>
-
-      <GuideQ q="Why not just fit one line to all the points and read a single slope?">
+      <GuideQ q="Where do the error bars on y come from, and why are they so big at small angles?">
         <p>
-          Because the slope of a bent line depends on where you read it, and the answer would be a
-          mixture of <M>{String.raw`\alpha`}</M> and <M>{String.raw`\beta`}</M> in an amount that
-          depends on your choice of amplitude range. Splitting the fit means each constant is
-          measured in a range where it dominates: <M>{String.raw`\alpha`}</M> where the second
-          term is negligible, <M>{String.raw`\beta`}</M> where the first has been taken off and
-          the second is still bigger than the noise.
+          Three places: the timing (0.2 ms in <M>{String.raw`T`}</M>), the angle (through{' '}
+          <M>{String.raw`\Delta x`}</M>), and <M>{String.raw`T_0`}</M> itself, which is only known to
+          0.4 ms. All three are divided by <M>{String.raw`x`}</M>, and at 10°{' '}
+          <M>{String.raw`x`}</M> is 0.0076 — so a 0.4 ms doubt in <M>{String.raw`T_0`}</M> becomes
+          0.038 in <M>{String.raw`y`}</M>, bigger than the whole rise of the line. Adding the three,
+          for set 2 with <M>{String.raw`T_0 = 1.41993\ \text{s}`}</M>:
+        </p>
+        <div className="guide-table">
+          <table>
+            <thead>
+              <tr>
+                <th>
+                  <M>{String.raw`\varphi_0`}</M> (°)
+                </th>
+                <th>10</th>
+                <th>20</th>
+                <th>30</th>
+                <th>40</th>
+                <th>50</th>
+                <th>60</th>
+                <th>70</th>
+                <th>77</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <M>{String.raw`y`}</M>
+                </td>
+                <td>0.266</td>
+                <td>0.259</td>
+                <td>0.264</td>
+                <td>0.270</td>
+                <td>0.279</td>
+                <td>0.294</td>
+                <td>0.311</td>
+                <td>0.326</td>
+              </tr>
+              <tr>
+                <td>
+                  <M>{String.raw`\Delta y`}</M>
+                </td>
+                <td>0.083</td>
+                <td>0.027</td>
+                <td>0.015</td>
+                <td>0.010</td>
+                <td>0.008</td>
+                <td>0.006</td>
+                <td>0.005</td>
+                <td>0.005</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          The low points are almost uninformative, and the error bars say so. That is what they are
+          for: the lines get pinned by the points that can pin them.
+        </p>
+      </GuideQ>
+      <GuideQ q="Draw the lines through all of set 2. What is β?">
+        <p>
+          Best <M>{String.raw`y = 0.248 + 0.210\,x`}</M>; steepest{' '}
+          <M>{String.raw`y = 0.230 + 0.263\,x`}</M>; shallowest{' '}
+          <M>{String.raw`y = 0.260 + 0.158\,x`}</M>. So
+        </p>
+        <Eq>{String.raw`\beta = 0.210 \pm 0.052, \qquad \text{intercept: } \alpha = 0.248 \pm 0.015`}</Eq>
+      </GuideQ>
+
+      <h3>Are the lines straight?</h3>
+      <p>
+        The true values are <M>{String.raw`\alpha = 1/4`}</M> and{' '}
+        <M>{String.raw`\beta = 9/64 = 0.141`}</M>, the real coefficients of the pendulum’s period.
+        Neither interval above contains its true value: <M>{String.raw`0.264 \pm 0.012`}</M> stops
+        short of 0.25, and <M>{String.raw`0.210 \pm 0.052`}</M> stops short of 0.141. Nothing was
+        mismeasured. Both lines are bent, and a student without the answer can see it in their own
+        data.
+      </p>
+      <GuideQ q="Stage one assumed that (T/T₀ − 1)/x is a constant, α. Is it, across set 1?">
+        <p>
+          Work it out for the top of set 1: at 35°, <M>{String.raw`y = 0.265`}</M>. Stage two’s
+          intercept says that as <M>{String.raw`x \to 0`}</M> it is 0.248. So by 35° the{' '}
+          <M>{String.raw`\beta x`}</M> term is already 7% of <M>{String.raw`\alpha`}</M> — more than
+          the 4.5% uncertainty stage one claimed. Stage one’s straight line is really a gentle curve,
+          and its gradient has absorbed part of <M>{String.raw`\beta`}</M>.
         </p>
         <p>
-          It also gives you two different amplitude ranges to report, which is itself a result: the
-          range in which a constant is best determined is set by how big it is and by how well the
-          next term up has died away.
+          The cure is to keep only the points where the neglected term is small next to the
+          uncertainty. With <M>{String.raw`\beta \approx 0.2`}</M>, keeping{' '}
+          <M>{String.raw`\beta x/\alpha`}</M> under about 3% means <M>{String.raw`x < 0.037`}</M> —
+          release angles up to 22°.
+        </p>
+      </GuideQ>
+      <GuideQ q="Is the stage-two graph a straight line?">
+        <p>Take the slope between each pair of neighbouring points:</p>
+        <div className="guide-table">
+          <table>
+            <thead>
+              <tr>
+                <th>between</th>
+                <th>20–30°</th>
+                <th>30–40°</th>
+                <th>40–50°</th>
+                <th>50–60°</th>
+                <th>60–70°</th>
+                <th>70–77°</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>slope</td>
+                <td>0.14</td>
+                <td>0.13</td>
+                <td>0.15</td>
+                <td>0.20</td>
+                <td>0.22</td>
+                <td>0.26</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          (10–20° comes out negative, but those two bars are wide enough to allow almost anything.)
+          From 50° up the slope climbs steadily: the points curve upwards. That is the{' '}
+          <M>{String.raw`\cdots`}</M> in the formula — the next term of the series — and a straight
+          line drawn through it reads too steep. Drop 70° and 77°. Stopping at 50° instead would
+          remove more of the curve, but it also throws away the points that pin the gradient, and the
+          uncertainty in <M>{String.raw`\beta`}</M> nearly doubles. 60° is the compromise.
         </p>
       </GuideQ>
 
+      <h3>The second pass</h3>
       <p>
-        The residual is small, so this stage needs data with real precision, and it needs the
-        amplitudes where the second term is genuinely bigger than the noise. There is a window:
-        below about 30° the residual is too small to measure, and above about 50° the next term in
-        the series starts to bend the line. Find that window from your own data rather than taking
-        it on trust — plot the residual, and look at where it stops being a straight line through
-        the origin.
+        Stage one again, set 1 up to 22° only: best <M>{String.raw`T = 1.42015 + 0.3635\,x`}</M>,
+        steepest <M>{String.raw`T = 1.41970 + 0.3998\,x`}</M>, shallowest{' '}
+        <M>{String.raw`T = 1.42075 + 0.3271\,x`}</M>, so
+      </p>
+      <Eq>{String.raw`T_0 = 1.4202 \pm 0.0005\ \text{s}, \qquad \alpha = \frac{0.3635}{1.42015} = 0.256 \pm 0.026`}</Eq>
+      <p>
+        The uncertainty in <M>{String.raw`\alpha`}</M> has doubled — five points over a short range
+        pin a gradient less well than eight over a long one — and that is the honest price of a line
+        that is actually straight.
+      </p>
+      <p>
+        Stage two again, set 2 up to 60°, with the new <M>{String.raw`T_0`}</M>: best{' '}
+        <M>{String.raw`y = 0.247 + 0.179\,x`}</M>, steepest{' '}
+        <M>{String.raw`y = 0.224 + 0.309\,x`}</M>, shallowest{' '}
+        <M>{String.raw`y = 0.274 + 0.049\,x`}</M>, so <M>{String.raw`\beta = 0.18 \pm 0.13`}</M>.
+      </p>
+      <p>Reported to the precision the uncertainties support:</p>
+      <Eq>{String.raw`T_0 = 1.4202 \pm 0.0005\ \text{s}, \qquad \alpha = 0.26 \pm 0.03, \qquad \beta = 0.18 \pm 0.13`}</Eq>
+      <p>
+        The simulation’s true values are{' '}
+        <M>{String.raw`T_0 = 2\pi\sqrt{L/g} = 1.4202\ \text{s}`}</M>, <M>{String.raw`\alpha = 0.25`}</M>{' '}
+        and <M>{String.raw`\beta = 0.141`}</M>, and all three intervals contain them. The first pass
+        gave narrower intervals that did not. A tight answer that misses is worse than a wide one
+        that brackets the truth.
       </p>
 
-      <h3>The point of doing it in two stages</h3>
+      <h3>What limited β</h3>
       <p>
-        One straight line through all the data would give a slope that is a mixture of both
-        corrections, and a curvature that says nothing cleanly. Splitting it means each constant
-        is measured in a range where it dominates, which is both more accurate and much easier to
-        reason about.
+        Not the timing. At 60° the bar on <M>{String.raw`y`}</M> is 0.0066, and 0.0044 of it comes
+        from the angle — a half-degree doubt in <M>{String.raw`\varphi_0`}</M>. Timing ten periods
+        instead of five would shrink the smallest part of the bar; reading the angle more finely,
+        through the lens, would shrink the biggest.
       </p>
       <p>
-        It also shows up as a question worth asking in the write-up: <em>over what range of
-        amplitudes is this constant best determined, and what limits that range?</em> The answer is
-        different for the two of them, and the reason is instructive.
+        And there is a window. Below about 30° the <M>{String.raw`\beta x`}</M> term is too small
+        next to the bars to measure; above about 60° the next term bends the line. Finding that
+        window from your own data, rather than taking it on trust, is most of what this part of the
+        experiment is for.
       </p>
     </>
   ),

@@ -214,7 +214,11 @@ data/
                           a client component can import guideHref cheaply
 content/guide/            the guide's prose, one file per section: `intro` + `bodies` keyed by
                           data/guide.js's subsection ids (missing key → "Not written yet."
-                          stub). Authoring conventions in content/guide/README.md
+                          stub). Authoring conventions in content/guide/README.md.
+                          The Part B worked example's readings and every number carried
+                          through them come from scripts/worked-example-partb.mjs (exact AGM
+                          period at L = 0.500 m, photogate-quantised, best/steepest/
+                          shallowest lines — no regression); rerun it before editing them
   pendulumGuide.js        pendulumParts[] — the pendulum's own problem statement/formulae/
                           hints, in the shape ExperimentGuide/ExperimentWorkspace expect.
                           `body`/`credit` are JSX, since this is content, not serializable
