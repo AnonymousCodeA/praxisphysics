@@ -5,16 +5,31 @@
 // header comment for why Bench is a module-level function.
 import ExperimentWorkspace from './ExperimentWorkspace';
 import CircuitBench from './CircuitBench';
-import { circuitsNonlinearParts } from '@/data/circuitsNonlinearGuide';
+import { circuitsNonlinearParts, circuitsNonlinearSymbols } from '@/data/circuitsNonlinearGuide';
 import { circuitsNonlinearInventory } from '@/data/circuitsNonlinearInventory';
 
 const ROWS = 6;
 const COLS = 9;
 
 function Bench({ dataTable }) {
-  return <CircuitBench inventory={circuitsNonlinearInventory} rows={ROWS} cols={COLS} dataTable={dataTable} />;
+  return (
+    <CircuitBench
+      inventory={circuitsNonlinearInventory}
+      rows={ROWS}
+      cols={COLS}
+      dataTable={dataTable}
+      tableSymbols={circuitsNonlinearSymbols}
+    />
+  );
 }
 
 export default function CircuitsNonlinearExperiment() {
-  return <ExperimentWorkspace experimentId="circuits-nonlinear" parts={circuitsNonlinearParts} Bench={Bench} />;
+  return (
+    <ExperimentWorkspace
+      experimentId="circuits-nonlinear"
+      parts={circuitsNonlinearParts}
+      symbols={circuitsNonlinearSymbols}
+      Bench={Bench}
+    />
+  );
 }

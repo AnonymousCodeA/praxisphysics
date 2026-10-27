@@ -5,7 +5,7 @@
 // circuits guide content, the shared inventory, and the bench into it.
 import ExperimentWorkspace from './ExperimentWorkspace';
 import CircuitBench from './CircuitBench';
-import { circuitsParts } from '@/data/circuitsGuide';
+import { circuitsParts, circuitsSymbols } from '@/data/circuitsGuide';
 import { circuitsInventory } from '@/data/circuitsInventory';
 
 const ROWS = 6;
@@ -19,9 +19,19 @@ const COLS = 9;
 // update, which doesn't trigger that — forwarded straight through so
 // CircuitBench can mirror it into the oscilloscope's own panel.
 function Bench({ dataTable }) {
-  return <CircuitBench inventory={circuitsInventory} rows={ROWS} cols={COLS} dataTable={dataTable} />;
+  return (
+    <CircuitBench
+      inventory={circuitsInventory}
+      rows={ROWS}
+      cols={COLS}
+      dataTable={dataTable}
+      tableSymbols={circuitsSymbols}
+    />
+  );
 }
 
 export default function CircuitsExperiment() {
-  return <ExperimentWorkspace experimentId="circuits" parts={circuitsParts} Bench={Bench} />;
+  return (
+    <ExperimentWorkspace experimentId="circuits" parts={circuitsParts} symbols={circuitsSymbols} Bench={Bench} />
+  );
 }

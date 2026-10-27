@@ -534,6 +534,20 @@ section.bench-page{padding-top:18px}
   font-family:var(--font-mono),monospace;font-size:12.5px;padding:9px 10px;
 }
 .pendulum-table td input:focus{outline:none;background:rgba(78,197,255,.06)}
+/* A header or cell's rendered view (DataTable's Field) sits over its input
+   until the input is focused; the input's own text goes transparent under
+   it. Padding and type match the input beneath, so nothing shifts. */
+.pendulum-table .field{position:relative;display:block;flex:1;min-width:0}
+.pendulum-table .col-label{width:100%}
+.pendulum-table input.has-view:not(:focus){color:transparent}
+.pendulum-table input:focus+.field-view{display:none}
+.field-view{
+  position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;
+  white-space:nowrap;overflow:hidden;color:var(--chalk);
+  font-family:var(--font-mono),monospace;font-size:12.5px;padding:0 10px;
+}
+.col-head-in .field-view{font-size:11px;letter-spacing:.06em;padding:0 6px 0 10px}
+.field-view sub,.field-view sup{font-size:.75em;line-height:0}
 .pendulum-table .rowhead{position:sticky;left:0;background:var(--panel);z-index:1;width:44px}
 .rowhead-in{display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 6px;color:var(--muted)}
 .cell-del{

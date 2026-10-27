@@ -1,5 +1,5 @@
 import PendulumExperiment from '@/components/PendulumExperiment';
-import { pendulumParts } from '@/data/pendulumGuide';
+import { pendulumParts, pendulumSymbols } from '@/data/pendulumGuide';
 
 export const metadata = { title: 'Pendulum — Praxis' };
 
@@ -15,7 +15,7 @@ export default function PendulumPage() {
       <div className="bench-wrap">
         {/* Imported here, not in the client tree, so its maths is rendered
             on the server — see data/pendulumGuide.js. */}
-        <PendulumExperiment parts={pendulumParts} />
+        <PendulumExperiment parts={pendulumParts} symbols={pendulumSymbols} />
       </div>
     </section>
   );

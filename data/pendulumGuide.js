@@ -50,6 +50,9 @@ const footer = (
   </>
 );
 
+// The data table's symbol bar, after its shared base (Δ ± ° ² ³ ₀).
+export const pendulumSymbols = ['φ', 'θ', 'α', 'β'];
+
 export const pendulumParts = [
   {
     key: 'parta',

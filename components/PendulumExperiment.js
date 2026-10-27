@@ -44,7 +44,7 @@ function resolveTask(items) {
   return items?.map((t) => ({ ...t, answer: resolveAnswer(t.answer), items: resolveTask(t.items) }));
 }
 
-export default function PendulumExperiment({ parts }) {
+export default function PendulumExperiment({ parts, symbols }) {
   const resolved = useMemo(
     () => parts.map((p) => ({ ...p, answer: resolveAnswer(p.answer), task: resolveTask(p.task) })),
     [parts]
@@ -53,6 +53,7 @@ export default function PendulumExperiment({ parts }) {
     <ExperimentWorkspace
       experimentId="pendulum"
       parts={resolved}
+      symbols={symbols}
       Bench={PendulumLab}
       DataTools={QuickEntry}
     />

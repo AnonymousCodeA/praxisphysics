@@ -12,7 +12,11 @@
 // Rendered as ExperimentWorkspace's `DataTools`, which hands it the active
 // part's dataTable (and other props it ignores). The button is deliberately
 // not called ADD ROW: the table's own "+ ROW" sits right below.
+//
+// An <option> can't hold markup, so the dropdowns show each heading as
+// plain Unicode (foldLabel: T_0^2 → T₀²), matching the rendered header.
 import { useRef, useState } from 'react';
+import { foldLabel } from '@/lib/experiment/tableText';
 
 const PAIRS = [0, 1];
 
@@ -61,7 +65,7 @@ export default function QuickEntry({ dataTable }) {
           >
             {columns.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.label.trim() || 'Untitled column'}
+                {foldLabel(c.label.trim()) || 'Untitled column'}
               </option>
             ))}
           </select>

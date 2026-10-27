@@ -9,6 +9,7 @@ import {
   ERR_CONSTANT,
   MAX_LINES,
 } from '@/lib/experiment/usePlotConfig';
+import { drawLabel, foldLabel } from '@/lib/experiment/tableText';
 
 const PAD_LEFT = 60;
 const PAD_RIGHT = 16;
@@ -280,22 +281,18 @@ export default function Plot({
         ctx.fillText(formatNum(yv), rect.x - 8, yp);
       }
 
+      // Axis titles are the column headers rendered (sub/superscripts,
+      // Greek), as in the table — lib/experiment/tableText.js.
       ctx.fillStyle = '#E6EDF3';
-      ctx.font = `11px ${AXIS_FONT}`;
+      ctx.textBaseline = 'alphabetic';
       const xLabel = colLabel(tbl, cfg.cols.x);
-      if (xLabel) {
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'alphabetic';
-        ctx.fillText(xLabel, rect.x + rect.w / 2, H - 8);
-      }
+      if (xLabel) drawLabel(ctx, xLabel, rect.x + rect.w / 2, H - 8, 11, AXIS_FONT);
       const yLabel = colLabel(tbl, cfg.cols.y);
       if (yLabel) {
         ctx.save();
         ctx.translate(14, rect.y + rect.h / 2);
         ctx.rotate(-Math.PI / 2);
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'alphabetic';
-        ctx.fillText(yLabel, 0, 0);
+        drawLabel(ctx, yLabel, 0, 0, 11, AXIS_FONT);
         ctx.restore();
       }
 
@@ -525,7 +522,7 @@ export default function Plot({
         {r.error && <option value={ERR_CONSTANT}>CONSTANT</option>}
         {table.columns.map((c) => (
           <option key={c.id} value={c.id}>
-            {c.label}
+            {foldLabel(c.label)}
           </option>
         ))}
       </select>

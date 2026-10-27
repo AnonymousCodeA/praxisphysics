@@ -3,6 +3,10 @@
 // via ExperimentWorkspace. No accompanying method, same philosophy as
 // data/pendulumGuide.js: deciding how to measure and what to tabulate is
 // the skill being taught, so hints stay questions, never instructions.
+
+// The data table's symbol bar, after its shared base (Δ ± ° ² ³ ₀).
+export const circuitsSymbols = ['Ω', 'µ', 'τ', 'ω'];
+
 export const circuitsParts = [
   {
     key: 'parta',

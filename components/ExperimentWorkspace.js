@@ -71,8 +71,10 @@ const SPLIT_STEP = 2;
 // uses it to mirror the table into its oscilloscope panel — see that file.
 // `DataTools`, if given, is rendered in the data section above the table
 // and receives the same table/plot state, without the shell knowing what it
-// does (the pendulum passes the generic QuickEntry).
-export default function ExperimentWorkspace({ experimentId, parts, Bench, DataTools }) {
+// does (the pendulum passes the generic QuickEntry). `symbols` is the
+// experiment's own letters for the table's symbol bar (from its data file),
+// added after DataTable's shared base.
+export default function ExperimentWorkspace({ experimentId, parts, symbols, Bench, DataTools }) {
   const [partA, partB] = parts;
   const [activeTab, setActiveTab] = useState('problem');
   const [part, setPart] = useState(partA.key);
@@ -212,7 +214,7 @@ export default function ExperimentWorkspace({ experimentId, parts, Bench, DataTo
               key={`${gen}:tools`}
             />
           )}
-          <DataTable key={`${gen}:table`} {...dataTable} />
+          <DataTable key={`${gen}:table`} {...dataTable} symbols={symbols} />
           {dataTable.table && activeDef.notes?.plot && (
             <p className="bench-note bench-note-plot">{activeDef.notes.plot}</p>
           )}
