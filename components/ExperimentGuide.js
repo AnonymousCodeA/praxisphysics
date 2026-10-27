@@ -10,7 +10,10 @@
 // in a native <details> (as GuideQ does) so reading it is a deliberate act
 // — see CLAUDE.md on the three tiers. A task item's `answer` may be one
 // spec or an array (B3's α and β). `footer` closes the pane at body-text
-// size (the guide links). The `answer` and `onStartOver` props come from
+// size (the guide links). A formula's `expr`, a task item's `text` and the
+// `stuckHint` may be strings or JSX (the pendulum's are server-rendered
+// KaTeX); they're rendered as children either way. The `answer` and
+// `onStartOver` props come from
 // ExperimentWorkspace, which owns the part's state. CSS classes keep the
 // "pendulum-" prefix — see the matching note on DataTable.
 import AnswerBox from './AnswerBox';

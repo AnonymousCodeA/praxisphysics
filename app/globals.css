@@ -425,6 +425,11 @@ section.bench-page{padding-top:18px}
   border:1px solid var(--edge);border-radius:4px;padding:10px 14px;background:var(--panel-t);
 }
 .pendulum-formulae span{font-family:var(--font-mono),monospace;font-size:15px;color:var(--trace)}
+/* KaTeX formulae: chalk, with the quantities to find \textcolor'd to --trace
+   in the TeX itself (data/pendulumGuide.js). The trace span above stays for
+   the circuits' plain-string formulae. */
+.pendulum-guide .katex{font-size:1.08em}
+.pendulum-formulae .katex{font-size:1.15em;color:var(--chalk)}
 .pendulum-formulae small{font-size:11.5px;color:var(--muted)}
 .pendulum-task{list-style:none;margin:0;padding:0;display:grid;gap:10px}
 .pendulum-task li{display:grid;grid-template-columns:2.6em minmax(0,1fr);gap:8px;align-items:baseline}

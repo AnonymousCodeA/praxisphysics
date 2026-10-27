@@ -26,7 +26,7 @@
 import { exactPeriod } from '../lib/pendulum/model.mjs';
 import { analyse } from './lib/lines.mjs';
 
-const G = 9.787; // lib/pendulum/usePendulumPhysics.js — the simulation's g
+const G = 9.787; // lib/pendulum/model.mjs — the simulation's g
 const L = 0.5;
 const N = Number(process.argv[2] ?? 5); // periods timed per reading (crossing 1 to 2N + 1)
 const DPHI_DEG = 0.5;

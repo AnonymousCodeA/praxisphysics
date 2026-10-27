@@ -36,7 +36,7 @@
 import { exactPeriod } from '../lib/pendulum/model.mjs';
 import { analyse } from './lib/lines.mjs';
 
-const G = 9.787; // lib/pendulum/usePendulumPhysics.js — the simulation's g
+const G = 9.787; // lib/pendulum/model.mjs — the simulation's g
 const DEG = Math.PI / 180;
 const RELEASE_DEG = 5;
 const OSC = 20;
