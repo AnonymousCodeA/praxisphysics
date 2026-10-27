@@ -224,6 +224,7 @@ footer{border-top:1px solid var(--edge);padding:34px 0 46px}
 }
 .length-control{display:flex;align-items:center;gap:10px;font-family:var(--font-mono),monospace;font-size:11.5px;color:var(--muted);letter-spacing:.08em}
 .length-control input[type=range]{accent-color:var(--trace)}
+.pendulum-actions{display:flex;flex-wrap:wrap;gap:10px}
 
 .pendulum-lens{
   display:none;position:fixed;top:0;left:0; /* size set inline from PendulumLens.js's LENS_SIZE_PX */

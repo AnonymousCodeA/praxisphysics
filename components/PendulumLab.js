@@ -66,7 +66,7 @@ export default function PendulumLab() {
 
   const effectiveLength = stringLength + BOB_RADIUS_M; // pivot to bob centre
   useEffect(() => setBenchLength(effectiveLength), [effectiveLength]); // for Part B's T₀ reveal
-  const { mode, physicsRef, triggers, clearTriggers, beginDrag, updateDrag, release } = usePendulumPhysics({
+  const { mode, physicsRef, triggers, clearTriggers, beginDrag, updateDrag, release, stop, hangRest } = usePendulumPhysics({
     length: effectiveLength,
     dragCapDeg: DRAG_CAP_DEG,
     photogateRef,
@@ -89,6 +89,13 @@ export default function PendulumLab() {
   );
 
   const swinging = mode === 'swinging';
+
+  // A new length mid-swing stops the bob first (where it is) rather than
+  // resizing a moving pendulum.
+  const changeLength = (e) => {
+    if (swinging) stop();
+    setStringLength(Number(e.target.value));
+  };
 
   return (
     <div className="pendulum-lab">
@@ -118,20 +125,26 @@ export default function PendulumLab() {
               max={MAX_LENGTH_M}
               step={0.01}
               value={stringLength}
-              disabled={swinging}
-              onChange={(e) => setStringLength(Number(e.target.value))}
+              onChange={changeLength}
               aria-label="String length"
             />
           </label>
-          <button type="button" className="btn btn-fill" onClick={release} disabled={swinging}>
-            {swinging ? 'SWINGING' : 'RELEASE'}
-          </button>
+          <div className="pendulum-actions">
+            <button type="button" className="btn btn-line" onClick={hangRest}>
+              HANG STRAIGHT
+            </button>
+            {/* One button, two jobs, so stopping costs the row no height. */}
+            <button type="button" className="btn btn-fill" onClick={swinging ? stop : release}>
+              {swinging ? 'STOP' : 'RELEASE'}
+            </button>
+          </div>
         </div>
         <BenchHint id="pendulum">
           Drag the bob to set a release angle (capped at {DRAG_CAP_DEG}°), then press Release.
-          Grab the bob again at any time to stop it and reposition it. Bring instruments onto
-          the bench from the menu below, and press and hold on the scale or the angle plate to
-          magnify that spot.
+          Stop halts it where it is, so you can reposition it; Hang straight brings it to rest
+          on the vertical, for reading a length or the angle plate&rsquo;s zero. Bring instruments
+          onto the bench from the menu below, and press and hold on the scale or the angle plate
+          to magnify that spot.
         </BenchHint>
       </div>
 
