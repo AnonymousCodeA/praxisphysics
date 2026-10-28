@@ -27,7 +27,7 @@ const HOLD_DELAY_MS = 380; // press-and-hold threshold before the lens raises
 const HOLD_MOVE_CANCEL_PX = 6; // moving more than this before the delay elapses means "drag", not "hold"
 
 const LENS_ZOOM_MULT = 1.5; // multiple of the bench's own pxPerM, when that's already large enough
-const LENS_MIN_PX_PER_M = 3500; // floor: ~3.5 px/mm, the minimum for adjacent mm ticks to be distinguishable
+const LENS_MIN_PX_PER_M = 5000; // floor: higher zoom for clearer mm ticks
 
 export default function PendulumCanvas({
   physicsRef,
@@ -201,7 +201,8 @@ export default function PendulumCanvas({
       }
 
       // 3. vertical scale — fixed apparatus: press and hold raises the lens
-      if (v.scale && isOnScale(world.x, world.y, 0)) {
+      // Allow magnifier anywhere on bench near scale/bob for easier access
+      if (v.scale && (isOnScale(world.x, world.y, 0.015) || bobDist < 120 || Math.abs(world.x - SCALE_EDGE_X_M) < 0.08)) {
         beginHold(px, py, e.pointerId, e.clientX, e.clientY);
         return;
       }
@@ -214,7 +215,7 @@ export default function PendulumCanvas({
       }
 
       // 5. angle plate — same press-and-hold as the scale
-      if (v.anglePlate && isOnAnglePlate(world.x, world.y, BODY_GRAB_PAD_PX / pxPerM)) {
+      if (v.anglePlate && (isOnAnglePlate(world.x, world.y, BODY_GRAB_PAD_PX / pxPerM + 0.015) || bobDist < 120 || Math.sqrt((world.x - anglePlatePos.x) ** 2 + (world.y - anglePlatePos.y) ** 2) < 0.15)) {
         beginHold(px, py, e.pointerId, e.clientX, e.clientY);
       }
     }

@@ -49,8 +49,8 @@ export const pendulumParts = [
       confirm: 'This clears your table, your plot and your committed answer for Part A.',
     },
     notes: {
-      table: 'Record your readings in the table; add a column for the uncertainty in any quantity.',
-      plot: 'On the plot, choose which columns are the axes and which hold the error bars, and set the axis range. Drag across the plot to draw a line.',
+      table: 'Record your readings in the table; add a column for the uncertainty in any quantity. Use the symbol bar for Δ, θ, T² etc., or type in KaTeX-like syntax (e.g. 2e2, T^2).',
+      plot: 'On the plot, choose which columns are the axes and which hold the error bars, and set the axis range. Drag the endpoints to draw your own line and read m,c yourself.',
     },
   },
   {

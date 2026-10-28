@@ -1,0 +1,67 @@
+.coach-mark {
+  max-width: 320px;
+  pointer-events: auto;
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+.coach-mark-body {
+  background: rgba(11, 18, 25, 0.95);
+  border: 1px solid var(--trace);
+  border-radius: 4px;
+  padding: 12px 14px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6);
+  color: var(--chalk);
+}
+
+.coach-mark-body p {
+  margin: 0 0 10px 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.coach-mark-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.coach-mark-arrow {
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.coach-mark-arrow-bottom {
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid var(--trace);
+}
+
+.coach-mark-arrow-top {
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid var(--trace);
+}
+
+.coach-mark-arrow-right {
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 8px solid var(--trace);
+}
+
+.coach-mark-arrow-left {
+  right: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 8px solid var(--trace);
+}

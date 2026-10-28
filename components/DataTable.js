@@ -5,7 +5,7 @@ import { useLayoutEffect, useRef, useState } from 'react';
 // Characters a physics table header or reading needs that a phone keyboard
 // buries (or lacks). Purely an input convenience: each just types its
 // character into the focused cell/header, which stays free text.
-const SYMBOLS = ['Δ', 'θ', 'φ', 'λ', 'ω', 'Ω', 'µ', 'α', 'β', '±', '°', '²', '³', '₀'];
+const SYMBOLS = ['Δ', 'θ', 'φ', 'λ', 'ω', 'Ω', 'µ', 'α', 'β', 'γ', '±', '°', '²', '³', '⁰', '¹', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹', '₀', '₁', '₂'];
 
 // Deliberately structure-free: no computed columns, no built-in T² or
 // averaging. Cells are free text — students decide what's worth tabulating.
@@ -14,7 +14,7 @@ const SYMBOLS = ['Δ', 'θ', 'φ', 'λ', 'ω', 'Ω', 'µ', 'α', 'β', '±', '°
 // renders/edits it. CSS classes keep the "pendulum-" prefix: they're shared
 // presentational styles, not experiment-specific, and renaming them is a
 // separate cosmetic change from generalizing the component itself.
-export default function DataTable({ table, addColumn, deleteColumn, renameColumn, addRow, deleteRow, setCell }) {
+export default function DataTable({ table, addColumn, deleteColumn, renameColumn, addRow, deleteRow, setCell, onTableChange }) {
   // The last cell/header input focused, remembered past blur so a keyboard
   // user who tabs onto a symbol button still inserts into it. An input keeps
   // its own selectionStart/End after losing focus, so nothing else needs
@@ -89,13 +89,19 @@ export default function DataTable({ table, addColumn, deleteColumn, renameColumn
                       className="col-label"
                       data-col={c.id}
                       value={c.label}
-                      onChange={(e) => renameColumn(c.id, e.target.value)}
+                      onChange={(e) => {
+                    renameColumn(c.id, e.target.value);
+                    if (onTableChange) onTableChange({ type: 'renameColumn', columnId: c.id, label: e.target.value });
+                  }}
                       aria-label="Column name"
                     />
                     <button
                       type="button"
                       className="cell-del"
-                      onClick={() => deleteColumn(c.id)}
+                      onClick={() => {
+                  deleteColumn(c.id);
+                  if (onTableChange) onTableChange({ type: 'deleteColumn', columnId: c.id });
+                }}
                       aria-label={`Delete column ${c.label}`}
                     >
                       ×
@@ -104,7 +110,7 @@ export default function DataTable({ table, addColumn, deleteColumn, renameColumn
                 </th>
               ))}
               <th className="add-col-head">
-                <button type="button" onClick={addColumn}>
+                <button type="button" onClick={() => { addColumn(); if (onTableChange) onTableChange({ type: 'addColumn' }); }}>
                   + COL
                 </button>
               </th>
@@ -119,7 +125,10 @@ export default function DataTable({ table, addColumn, deleteColumn, renameColumn
                     <button
                       type="button"
                       className="cell-del"
-                      onClick={() => deleteRow(r.id)}
+                      onClick={() => {
+                      deleteRow(r.id);
+                      if (onTableChange) onTableChange({ type: 'deleteRow', rowId: r.id });
+                    }}
                       aria-label={`Delete row ${i + 1}`}
                     >
                       ×
@@ -132,7 +141,23 @@ export default function DataTable({ table, addColumn, deleteColumn, renameColumn
                       data-row={r.id}
                       data-col={c.id}
                       value={r.cells[c.id] ?? ''}
-                      onChange={(e) => setCell(r.id, c.id, e.target.value)}
+                      onChange={(e) => {
+                        setCell(r.id, c.id, e.target.value);
+                        if (onTableChange) onTableChange({ type: 'setCell', rowId: r.id, colId: c.id, value: e.target.value });
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          const inputs = Array.from(document.querySelectorAll('.pendulum-table td input'));
+                          const idx = inputs.indexOf(e.target);
+                          const cols = table.columns.length;
+                          if (idx >= 0 && inputs[idx + cols + 1]) { // move down to same column next row
+                            inputs[idx + cols + 1].focus();
+                          } else if (idx >= 0 && inputs[idx + cols + 1] === undefined && table.addRow) {
+                            table.addRow();
+                          }
+                        }
+                      }}
                       aria-label={`Row ${i + 1}, ${c.label}`}
                     />
                   </td>
@@ -143,7 +168,7 @@ export default function DataTable({ table, addColumn, deleteColumn, renameColumn
           </tbody>
         </table>
       </div>
-      <button type="button" className="pendulum-add-row" onClick={addRow}>
+      <button type="button" className="pendulum-add-row" onClick={() => { addRow(); if (onTableChange) onTableChange({ type: 'addRow' }); }}>
         + ROW
       </button>
     </div>

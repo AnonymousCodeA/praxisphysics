@@ -141,7 +141,7 @@ export default function ExperimentWorkspace({ experimentId, parts, Bench, DataTo
       className="pendulum-workspace"
       ref={wrapRef}
       data-active-tab={activeTab}
-      style={{ '--pendulum-split': `${splitPct}%` }}
+      style={{ '--pendulum-split': `${Math.max(35, splitPct)}%` }}
     >
       <div className="pendulum-tabs" role="tablist" aria-label="Lab sections">
         {TABS.map((t) => (
@@ -213,7 +213,9 @@ export default function ExperimentWorkspace({ experimentId, parts, Bench, DataTo
               key={`${gen}:tools`}
             />
           )}
-          <DataTable key={`${gen}:table`} {...dataTable} />
+          <div ref={(el) => { if (el) el.id = 'pendulum-data-table'; }}>
+            <DataTable key={`${gen}:table`} {...dataTable} />
+          </div>
           {dataTable.table && activeDef.notes?.plot && (
             <p className="bench-note bench-note-plot">{activeDef.notes.plot}</p>
           )}
