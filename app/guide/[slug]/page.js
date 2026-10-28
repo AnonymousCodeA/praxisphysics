@@ -5,14 +5,14 @@ import * as measurement from '@/content/guide/measurement';
 import * as errorAnalysis from '@/content/guide/error-analysis';
 import * as tabulation from '@/content/guide/tabulation';
 import * as graphing from '@/content/guide/graphing';
-import * as analysis from '@/content/guide/analysis';
+import * as workedExamples from '@/content/guide/worked-examples';
 
 const content = {
   measurement,
   'error-analysis': errorAnalysis,
   tabulation,
   graphing,
-  analysis,
+  'worked-examples': workedExamples,
 };
 
 export function generateStaticParams() {

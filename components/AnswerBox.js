@@ -9,8 +9,14 @@ import { useState } from 'react';
 // value is the better answer, so nothing here rewards a small uncertainty
 // or scores the distance. The true value is not hidden; it's in the bundle.
 //
-// `spec` is { symbol, unit, trueValue } from the part's definition — see
-// data/pendulumGuide.js. The true value is copied into the committed record
+// `spec` is { symbol, unit, trueValue, trueNote?, afterCommit?, label?,
+// unitLabel? } from the part's definition — see data/pendulumGuide.js.
+// `unit` is '' for a dimensionless answer. `symbol` and `unit` are plain
+// strings (the stored answer's key, aria labels); `label`/`unitLabel`, when
+// given, are what's displayed in their place (server-rendered KaTeX). `trueValue` may be a function, evaluated once at the
+// moment of commit, for a value that depends on the bench (Part B's T₀ on
+// the current length); `trueNote` then says what it was taken at.
+// `afterCommit` is shown with the reveal and never before it. The true value is copied into the committed record
 // so the reveal a student saw can't change under them later. `answer` is
 // that symbol's record from useCommittedAnswer (answerFor); `commit` writes
 // one record. ExperimentWorkspace holds the hook so the part's "start over"
@@ -32,21 +38,29 @@ export default function AnswerBox({ spec, answer, commit }) {
 
   if (answer === undefined) return null; // still loading — don't flash the form over a committed answer
 
+  const symbol = spec.label ?? spec.symbol;
+  const unitShown = spec.unitLabel ?? spec.unit;
+
   if (answer) {
     const v = parse(answer.value);
     const u = parse(answer.uncertainty);
     const d = Math.max(decimalsOf(answer.value), decimalsOf(answer.uncertainty));
     const contains = Math.abs(v - answer.trueValue) <= u;
+    const unit = spec.unit ? <> {unitShown}</> : '';
     return (
       <div className="answer-box answer-committed">
         <p className="answer-line">
-          <em>{spec.symbol}</em> = {answer.value} ± {answer.uncertainty} {spec.unit}
+          <em>{symbol}</em> = {answer.value} ± {answer.uncertainty}
+          {unit}
         </p>
         <p>
-          The simulation uses <em>{spec.symbol}</em> = {answer.trueValue} {spec.unit}. Your
-          interval, {(v - u).toFixed(d)} to {(v + u).toFixed(d)} {spec.unit},{' '}
-          {contains ? 'contains it.' : 'does not contain it.'}
+          The simulation uses <em>{symbol}</em> = {answer.trueValue}
+          {unit}
+          {spec.trueNote ? ` (${spec.trueNote})` : ''}. Your interval, {(v - u).toFixed(d)} to{' '}
+          {(v + u).toFixed(d)}
+          {unit}, {contains ? 'contains it.' : 'does not contain it.'}
         </p>
+        {spec.afterCommit && <p className="answer-after">{spec.afterCommit}</p>}
       </div>
     );
   }
@@ -61,7 +75,7 @@ export default function AnswerBox({ spec, answer, commit }) {
     commit({
       value: value.trim(),
       uncertainty: uncertainty.trim(),
-      trueValue: spec.trueValue,
+      trueValue: typeof spec.trueValue === 'function' ? spec.trueValue() : spec.trueValue,
       committedAt: new Date().toISOString(),
     });
   };
@@ -69,7 +83,7 @@ export default function AnswerBox({ spec, answer, commit }) {
   return (
     <form className="answer-box" onSubmit={onSubmit}>
       <div className="answer-fields">
-        <em>{spec.symbol}</em>
+        <em>{symbol}</em>
         <span>=</span>
         <input
           type="text"
@@ -86,7 +100,7 @@ export default function AnswerBox({ spec, answer, commit }) {
           value={uncertainty}
           onChange={(e) => setUncertainty(e.target.value)}
         />
-        <span>{spec.unit}</span>
+        {spec.unit && <span>{unitShown}</span>}
       </div>
       <div className="answer-actions">
         <button type="submit" disabled={!valid}>

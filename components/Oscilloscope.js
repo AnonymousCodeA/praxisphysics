@@ -147,6 +147,7 @@ export default function Oscilloscope({
   expanded,
   onExpandedChange,
   dataTable,
+  tableSymbols,
   pinnedSlot,
 }) {
   const [running, setRunning] = useState(true);
@@ -519,7 +520,7 @@ export default function Oscilloscope({
       {dataTable && dataTable.table && (
         <div className="circuit-scope-section circuit-scope-table">
           <h5>DATA TABLE</h5>
-          <DataTable {...dataTable} />
+          <DataTable {...dataTable} symbols={tableSymbols} />
         </div>
       )}
     </div>

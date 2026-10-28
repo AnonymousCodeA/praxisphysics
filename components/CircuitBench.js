@@ -99,10 +99,11 @@ function expandInventory(inventory) {
 // Bench wrapper; undefined on the circuit-builder sandbox page, which
 // renders CircuitBench directly with no ExperimentWorkspace/table at all.
 // Passed straight through to Oscilloscope, which mirrors it into its own
-// panel when expanded. `presets` is likewise optional — see
+// panel when expanded, along with `tableSymbols` (the experiment's symbol
+// bar letters for that table). `presets` is likewise optional — see
 // handleLoadPreset below and data/circuitsSandboxPresets.js — and only the
 // circuit-builder sandbox page supplies it.
-export default function CircuitBench({ inventory, rows = 5, cols = 7, dataTable, presets }) {
+export default function CircuitBench({ inventory, rows = 5, cols = 7, dataTable, tableSymbols, presets }) {
   const instances = useMemo(() => expandInventory(inventory), [inventory]);
   const heater = useHeater();
 
@@ -455,6 +456,7 @@ export default function CircuitBench({ inventory, rows = 5, cols = 7, dataTable,
           onExpandedChange={setScopeExpanded}
           pinnedSlot={scopeSlot}
           dataTable={dataTable}
+          tableSymbols={tableSymbols}
         />
       )}
 

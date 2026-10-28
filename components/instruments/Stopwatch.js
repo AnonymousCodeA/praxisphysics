@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { quantize } from '@/lib/instruments/reading';
+import { InstrumentNoteButton, InstrumentNotePopover, useInstrumentNote } from './InstrumentNote';
 
 const RESOLUTION_S = 0.01;
 
@@ -32,6 +33,7 @@ export default function Stopwatch() {
   // the click and the re-render, and a reading frozen at the click must not
   // be overwritten by it.
   const runningRef = useRef(false);
+  const note = useInstrumentNote('stopwatch');
   const startRef = useRef(0);
   const baseRef = useRef(0);
 
@@ -74,20 +76,21 @@ export default function Stopwatch() {
   const seconds = quantize(elapsedMs / 1000, RESOLUTION_S);
 
   return (
-    <div className="instrument">
+    <div className="instrument" ref={note.panelRef}>
       <div className="instrument-head">
         <b>STOPWATCH</b>
-        <span className="instrument-res">{RESOLUTION_S.toFixed(2)}s</span>
+        <span className="instrument-head-end">
+          <span className="instrument-res">{RESOLUTION_S.toFixed(2)}s</span>
+          <InstrumentNoteButton note={note} name="stopwatch" />
+        </span>
       </div>
+      <InstrumentNotePopover note={note} name="stopwatch">
+        START begins a fresh run from zero; STOP freezes the reading at the instant you press it.
+      </InstrumentNotePopover>
       <div className="instrument-read">
         {seconds.toFixed(2)}
         <span className="unit">s</span>
       </div>
-      <p className="instrument-note">
-        START begins a fresh run from zero; STOP freezes the reading at the instant you press it.
-        Start and stop at the same point of the swing and the two reaction errors partly cancel —
-        the watch cannot know when the pendulum passed that point.
-      </p>
       <div className="instrument-controls">
         <button type="button" onClick={handleStartStop}>
           {running ? 'STOP' : 'START'}

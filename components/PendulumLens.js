@@ -75,7 +75,12 @@ export default function PendulumLens({ lensRef, sceneStateRef }) {
   }, [lensRef, sceneStateRef]);
 
   return (
-    <div ref={wrapRef} className="pendulum-lens" aria-hidden="true">
+    <div
+      ref={wrapRef}
+      className="pendulum-lens"
+      aria-hidden="true"
+      style={{ width: LENS_SIZE_PX, height: LENS_SIZE_PX }}
+    >
       <canvas ref={canvasRef} />
     </div>
   );

@@ -9,6 +9,7 @@ import {
   ERR_CONSTANT,
   MAX_LINES,
 } from '@/lib/experiment/usePlotConfig';
+import { drawLabel, foldLabel } from '@/lib/experiment/tableText';
 
 const PAD_LEFT = 60;
 const PAD_RIGHT = 16;
@@ -16,7 +17,13 @@ const PAD_TOP = 14;
 const PAD_BOTTOM = 48;
 const TICKS = 5;
 const HANDLE_R = 7;
-const HANDLE_GRAB_PAD = 12;
+// A handle's grab radius, drawn as its dashed ring — one number for both, so
+// the ring is exactly the region that responds. A fingertip needs more
+// than a cursor.
+const GRAB_R_FINE = 14;
+const GRAB_R_COARSE = 22;
+const RING_ALPHA = 0.35; // faint: mustn't compete with the points and error bars
+const RING_ALPHA_ACTIVE = 0.95; // hovered or being dragged
 const CLICK_MOVE_CANCEL_PX = 6;
 const POINT_R = 3.5;
 const POINT_COLOR = '#4EC5FF';
@@ -36,11 +43,14 @@ function formatNum(v) {
 // row's cell for a column, or the one typed constant for every row. Anything
 // that isn't a positive number (blank, text, negative) means no bar on that
 // side for that point — never a substituted or corrected value, since
-// deciding the uncertainty is the student's job, not the plot's.
+// deciding the uncertainty is the student's job, not the plot's. A leading
+// ± or + (and surrounding whitespace) is tolerated, since the table's symbol
+// bar offers ± and "±0.05" means exactly 0.05 here; a leading minus is not.
 function errorFor(cfg, role, row) {
   const sel = cfg.cols[role];
   if (!sel) return 0;
-  const v = parseFloat(sel === ERR_CONSTANT ? cfg.errConst[role] : row.cells[sel]);
+  const raw = String((sel === ERR_CONSTANT ? cfg.errConst[role] : row.cells[sel]) ?? '');
+  const v = parseFloat(raw.trim().replace(/^[±+]\s*/, ''));
   return Number.isFinite(v) && v > 0 ? v : 0;
 }
 
@@ -183,7 +193,10 @@ export default function Plot({
       dpr = 1;
     let dragKey = null; // 'p1' | 'p2' | null
     let dragPreview = null; // { key, x, y } — live position while dragging, ahead of committed state
+    let hoverKey = null; // handle under a hovering (not dragging) pointer
     let downPx = { x: 0, y: 0 };
+    const coarse = window.matchMedia('(pointer: coarse)');
+    const grabRadius = () => (coarse.matches ? GRAB_R_COARSE : GRAB_R_FINE);
 
     function plotRect() {
       return { x: PAD_LEFT, y: PAD_TOP, w: Math.max(0, W - PAD_LEFT - PAD_RIGHT), h: Math.max(0, H - PAD_TOP - PAD_BOTTOM) };
@@ -268,22 +281,18 @@ export default function Plot({
         ctx.fillText(formatNum(yv), rect.x - 8, yp);
       }
 
+      // Axis titles are the column headers rendered (sub/superscripts,
+      // Greek), as in the table — lib/experiment/tableText.js.
       ctx.fillStyle = '#E6EDF3';
-      ctx.font = `11px ${AXIS_FONT}`;
+      ctx.textBaseline = 'alphabetic';
       const xLabel = colLabel(tbl, cfg.cols.x);
-      if (xLabel) {
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'alphabetic';
-        ctx.fillText(xLabel, rect.x + rect.w / 2, H - 8);
-      }
+      if (xLabel) drawLabel(ctx, xLabel, rect.x + rect.w / 2, H - 8, 11, AXIS_FONT);
       const yLabel = colLabel(tbl, cfg.cols.y);
       if (yLabel) {
         ctx.save();
         ctx.translate(14, rect.y + rect.h / 2);
         ctx.rotate(-Math.PI / 2);
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'alphabetic';
-        ctx.fillText(yLabel, 0, 0);
+        drawLabel(ctx, yLabel, 0, 0, 11, AXIS_FONT);
         ctx.restore();
       }
 
@@ -340,7 +349,25 @@ export default function Plot({
         ctx.stroke();
       }
 
+      // Only the current line's handles are editable (a saved line being
+      // edited is moved back into `current`), so only they get rings —
+      // never the data points, which can't be dragged.
       if (cur) {
+        // Both rings before either dot, so neither ring crosses the other
+        // handle's dot when the endpoints are close.
+        const grabR = grabRadius();
+        for (const key of ['p1', 'p2']) {
+          const p = px(cur[key].x, cur[key].y);
+          ctx.save();
+          ctx.globalAlpha = key === dragKey || key === hoverKey ? RING_ALPHA_ACTIVE : RING_ALPHA;
+          ctx.strokeStyle = cur.color;
+          ctx.lineWidth = 1;
+          ctx.setLineDash([3, 3]);
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, grabR, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
         for (const key of ['p1', 'p2']) {
           const p = px(cur[key].x, cur[key].y);
           ctx.fillStyle = cur.color;
@@ -368,7 +395,7 @@ export default function Plot({
       const rect = plotRect();
       for (const key of ['p1', 'p2']) {
         const p = toPx(b, rect, cfg.current[key].x, cfg.current[key].y);
-        if (Math.hypot(pxv - p.x, pyv - p.y) <= HANDLE_R + HANDLE_GRAB_PAD) return key;
+        if (Math.hypot(pxv - p.x, pyv - p.y) <= grabRadius()) return key;
       }
       return null;
     }
@@ -380,14 +407,26 @@ export default function Plot({
         dragKey = hit;
         cvs.setPointerCapture(e.pointerId);
         cvs.classList.add('dragging');
+        draw();
       } else {
         dragKey = null;
         downPx = { x: pxv, y: pyv };
       }
     }
 
+    function setHover(key) {
+      if (key === hoverKey) return;
+      hoverKey = key;
+      cvs.classList.toggle('over-handle', !!key);
+      draw();
+    }
+
     function onMove(e) {
-      if (!dragKey) return;
+      if (!dragKey) {
+        const { px: pxv, py: pyv } = pointerXY(e);
+        setHover(hitHandle(pxv, pyv));
+        return;
+      }
       const cfg = configRef.current;
       const b = cfg && parseBounds(cfg.bounds);
       if (!b) return;
@@ -405,6 +444,11 @@ export default function Plot({
         dragKey = null;
         dragPreview = null;
         cvs.classList.remove('dragging');
+        // Still over the handle after a mouse drag; a lifted finger isn't.
+        const { px: pxv, py: pyv } = pointerXY(e);
+        hoverKey = null;
+        setHover(e.pointerType === 'mouse' ? hitHandle(pxv, pyv) : null);
+        draw();
         return;
       }
       const { px: pxv, py: pyv } = pointerXY(e);
@@ -420,6 +464,11 @@ export default function Plot({
     cvs.addEventListener('pointermove', onMove);
     cvs.addEventListener('pointerup', onUp);
     cvs.addEventListener('pointercancel', onUp);
+    const onLeave = () => setHover(null);
+    cvs.addEventListener('pointerleave', onLeave);
+    // A mouse plugged into (or unplugged from) a touch device changes the
+    // ring, so redraw it at the new radius.
+    coarse.addEventListener('change', draw);
 
     let ro = null;
     if ('ResizeObserver' in window) {
@@ -436,6 +485,8 @@ export default function Plot({
       cvs.removeEventListener('pointermove', onMove);
       cvs.removeEventListener('pointerup', onUp);
       cvs.removeEventListener('pointercancel', onUp);
+      cvs.removeEventListener('pointerleave', onLeave);
+      coarse.removeEventListener('change', draw);
       if (ro) ro.disconnect();
       else window.removeEventListener('resize', resize);
     };
@@ -471,7 +522,7 @@ export default function Plot({
         {r.error && <option value={ERR_CONSTANT}>CONSTANT</option>}
         {table.columns.map((c) => (
           <option key={c.id} value={c.id}>
-            {c.label}
+            {foldLabel(c.label)}
           </option>
         ))}
       </select>
@@ -500,6 +551,7 @@ export default function Plot({
             )}
           </div>
         ))}
+        <p className="plot-err-note">Error cells take a bare number: no ±, and the unit in the column heading.</p>
       </div>
 
       <div className="plot-row plot-bounds">

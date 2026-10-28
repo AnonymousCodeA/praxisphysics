@@ -3,8 +3,10 @@
 // link to, so add text here rather than renaming them. A subsection with no
 // entry renders as a "Not written yet." stub; `intro` sits above the first.
 // See content/guide/README.md for the maths/figure/table conventions.
+import Link from 'next/link';
 import { M, Eq } from '@/components/Maths';
 import Fig from '@/components/Fig';
+import { guideHref } from '@/data/guide';
 
 export const intro = (
   <>
@@ -22,6 +24,45 @@ export const intro = (
 );
 
 export const bodies = {
+  'the-pipeline': (
+    <>
+      <p>There are five steps, and doing them out of order is the commonest way to go wrong.</p>
+      <ol className="guide-steps">
+        <li>
+          <b>Take the readings.</b> One number per measurement, with its uncertainty, and the
+          instrument that produced it written down beside it. Resist the urge to process anything
+          yet.
+        </li>
+        <li>
+          <b>Tabulate them.</b> One row per reading or per set of readings, one column per
+          quantity, units in the column headings. If a column is calculated rather than measured,
+          say so in its heading.
+        </li>
+        <li>
+          <b>Linearise.</b> If the relationship you want is not a straight line, change the
+          variables until it is. This is the step that turns a scatter of points into something a
+          gradient can be read from.
+        </li>
+        <li>
+          <b>Graph and fit.</b> Plot the points with their error bars, draw the best-fit line by
+          hand, and read the gradient off the line — not by joining points up.
+        </li>
+        <li>
+          <b>Propagate and report.</b> Carry the uncertainty in the gradient through to the
+          quantity you actually want, and report the result as a value with an uncertainty (see{' '}
+          <Link href={guideHref('error-analysis', 'reporting')}>reporting the result</Link>).
+        </li>
+      </ol>
+      <aside>
+        <p>
+          The order matters because each step constrains the next. A table that omits an
+          uncertainty cannot grow error bars later; a graph with the wrong axes cannot be rescued by
+          a better line; and a gradient read off a graph has to be read before it can be propagated.
+        </p>
+      </aside>
+    </>
+  ),
+
   'choosing-axes': (
     <>
       <p>

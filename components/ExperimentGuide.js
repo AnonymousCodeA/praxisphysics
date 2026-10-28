@@ -6,7 +6,14 @@
 // is teaching, not something this shell should encode. A `task` says what to
 // produce, never how; `answer` (on the part, or on a single task item) adds
 // a commit-once answer box, and `startOver` a confirmed reset of the whole
-// part below that. The `answer` and `onStartOver` props come from
+// part below that. `stuckHint` is a single hint under the task, collapsed
+// in a native <details> (as GuideQ does) so reading it is a deliberate act
+// — see CLAUDE.md on the three tiers. A task item's `answer` may be one
+// spec or an array (B3's α and β). `footer` closes the pane at body-text
+// size (the guide links). A formula's `expr`, a task item's `text` and the
+// `stuckHint` may be strings or JSX (the pendulum's are server-rendered
+// KaTeX); they're rendered as children either way. The `answer` and
+// `onStartOver` props come from
 // ExperimentWorkspace, which owns the part's state. CSS classes keep the
 // "pendulum-" prefix — see the matching note on DataTable.
 import AnswerBox from './AnswerBox';
@@ -22,13 +29,15 @@ function TaskList({ items, stored, commit }) {
           <div>
             <p>{t.text}</p>
             {t.items && t.items.length > 0 && <TaskList items={t.items} stored={stored} commit={commit} />}
-            {t.answer && (
-              <AnswerBox
-                spec={t.answer}
-                answer={answerFor(stored, t.answer.symbol)}
-                commit={(record) => commit(t.answer.symbol, record)}
-              />
-            )}
+            {t.answer &&
+              [].concat(t.answer).map((spec) => (
+                <AnswerBox
+                  key={spec.symbol}
+                  spec={spec}
+                  answer={answerFor(stored, spec.symbol)}
+                  commit={(record) => commit(spec.symbol, record)}
+                />
+              ))}
           </div>
         </li>
       ))}
@@ -71,6 +80,12 @@ export default function ExperimentGuide({ def, answer, onStartOver }) {
           <TaskList items={def.task} stored={stored} commit={commit} />
         </>
       )}
+      {def.stuckHint && (
+        <details className="pendulum-stuck">
+          <summary>Stuck? Show a hint</summary>
+          <p>{def.stuckHint}</p>
+        </details>
+      )}
       {def.answer && (
         <AnswerBox
           spec={def.answer}
@@ -90,6 +105,8 @@ export default function ExperimentGuide({ def, answer, onStartOver }) {
           </ul>
         </>
       )}
+
+      {def.footer && <div className="pendulum-guide-footer">{def.footer}</div>}
     </div>
   );
 }

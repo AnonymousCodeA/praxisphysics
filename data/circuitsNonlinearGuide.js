@@ -1,6 +1,11 @@
 // Static problem statement, formulae, and thin prompts for problem 2 (non-
 // linear elements) — same philosophy as data/circuitsGuide.js: no method,
 // hints stay questions.
+
+// The data table's symbol bar, after its shared base (Δ ± ° ² ³ ₀) — the
+// same circuit letters as problem 1.
+export const circuitsNonlinearSymbols = ['Ω', 'µ', 'τ', 'ω'];
+
 export const circuitsNonlinearParts = [
   {
     key: 'parta',

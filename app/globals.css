@@ -154,7 +154,10 @@ h2{font-size:clamp(26px,3.6vw,36px);letter-spacing:-.025em;font-weight:600;margi
   padding:20px;text-decoration:none;display:block;transition:.16s;
 }
 .sim:hover{border-color:var(--trace);transform:translateY(-2px)}
-.sim.soon{opacity:.5;pointer-events:none}
+/* Dims the drawing only: opacity on the whole card took its muted blurb to
+   2.2:1 against the panel, well under the 4.5:1 body text needs. */
+.sim.soon{pointer-events:none}
+.sim.soon svg{opacity:.5}
 .sim svg{width:100%;height:74px;color:var(--trace);margin-bottom:16px}
 .sim h3{margin:0 0 5px;font-size:17px;font-weight:600;letter-spacing:-.01em}
 .sim p{margin:0;font-size:13.5px;color:var(--muted);line-height:1.5}
@@ -221,6 +224,7 @@ footer{border-top:1px solid var(--edge);padding:34px 0 46px}
 }
 .length-control{display:flex;align-items:center;gap:10px;font-family:var(--font-mono),monospace;font-size:11.5px;color:var(--muted);letter-spacing:.08em}
 .length-control input[type=range]{accent-color:var(--trace)}
+.pendulum-actions{display:flex;flex-wrap:wrap;gap:10px}
 
 .pendulum-lens{
   display:none;position:fixed;top:0;left:0;width:240px;height:240px;
@@ -253,6 +257,39 @@ footer{border-top:1px solid var(--edge);padding:34px 0 46px}
 .instrument-read{font-family:var(--font-mono),monospace;font-size:28px;color:var(--trace);line-height:1}
 .instrument-read .unit{font-size:14px;color:var(--muted);margin-left:4px}
 .instrument-note{margin:8px 0 0;font-size:12.5px;color:var(--muted);line-height:1.5}
+/* The device's description (InstrumentNote): a popover beside the panel,
+   opened on first use and from the "?" beside the resolution. Fixed and
+   portaled to <body>, so it takes no height in the panel. data-side is
+   where it sits relative to the panel; the tail (--tail along its facing
+   edge) points back at the "?". */
+.instrument-head-end{display:inline-flex;align-items:center;gap:8px}
+.instrument-popover{
+  position:fixed;z-index:15;width:min(280px,calc(100vw - 16px)); /* over main (1), under the header (20) */
+  display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:12px 14px;
+  background:var(--panel);border:1px solid rgba(78,197,255,.45);border-radius:4px;
+  box-shadow:0 10px 28px rgba(0,0,0,.55);
+}
+.instrument-popover .instrument-note{margin:0}
+.instrument-popover::before{
+  content:'';position:absolute;width:10px;height:10px;background:var(--panel);
+  border:1px solid rgba(78,197,255,.45);transform:rotate(45deg);
+}
+/* Rotated 45° clockwise, a square's top border becomes its upper-right
+   edge, right → lower-right, bottom → lower-left, left → upper-left; each
+   side keeps the two borders that face out of the popover. */
+.instrument-popover[data-side="right"]::before{left:-6px;top:calc(var(--tail) - 5px);border-top-color:transparent;border-right-color:transparent}
+.instrument-popover[data-side="left"]::before{right:-6px;top:calc(var(--tail) - 5px);border-bottom-color:transparent;border-left-color:transparent}
+.instrument-popover[data-side="below"]::before{top:-6px;left:calc(var(--tail) - 5px);border-right-color:transparent;border-bottom-color:transparent}
+.instrument-popover[data-side="above"]::before{bottom:-6px;left:calc(var(--tail) - 5px);border-top-color:transparent;border-left-color:transparent}
+.instrument-popover button,.instrument-note-reopen{
+  font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:.08em;
+  color:var(--chalk);background:var(--panel);border:1px solid var(--edge);
+  border-radius:3px;cursor:pointer;transition:.16s;
+}
+.instrument-popover button{padding:6px 12px}
+.instrument-popover button:hover,.instrument-note-reopen:hover,
+.instrument-note-reopen[aria-expanded="true"]{color:var(--trace);border-color:var(--trace)}
+.instrument-note-reopen{width:22px;height:22px;padding:0;border-radius:50%;line-height:1}
 .instrument-controls{display:flex;gap:8px;margin-top:12px}
 .instrument-controls button{
   font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:.08em;
@@ -324,17 +361,16 @@ section.bench-page{padding-top:18px}
 
 .pendulum-pane{display:none;padding:22px}
 .pendulum-workspace[data-active-tab="problem"] .pendulum-pane[data-pane="problem"]{display:block}
-.pendulum-workspace[data-active-tab="table"] .pendulum-pane[data-pane="table"]{display:block}
-.pendulum-workspace[data-active-tab="lab"] .pendulum-pane[data-pane="lab"]{display:flex}
+.pendulum-workspace[data-active-tab="sim"] .pendulum-pane[data-pane="sim"]{display:flex}
+.pendulum-workspace[data-active-tab="data"] .pendulum-pane[data-pane="data"]{display:block}
 
-/* The lab pane is one flex column: the bench, then the plot's note and the
-   plot. The pinned region is sticky within the bench, so it holds while
+/* The sim pane is one flex column: the part's simulation notes, then the
+   bench. The pinned region is sticky within the bench, so it holds while
    any of the bench's own panels is being read and lets go where the bench
-   ends — the plot then scrolls up into the whole column (or screen), since
-   nobody needs the apparatus while plotting. */
-.pendulum-pane[data-pane="lab"]{flex-direction:column;gap:16px}
-.pendulum-pane[data-pane="lab"] .bench-note,
-.pendulum-pane[data-pane="lab"] .pendulum-plot{margin:0}
+   ends — the data pane's table and plot then scroll up into the whole
+   column, since nobody needs the apparatus while plotting. The data pane
+   is plain block flow; its notes, table and plot space themselves. */
+.pendulum-pane[data-pane="sim"]{flex-direction:column;gap:16px}
 
 /* The pinned region: the apparatus (or, while it's expanded, the scope
    screen that replaces it). Sticks under the site header when the page
@@ -363,7 +399,8 @@ section.bench-page{padding-top:18px}
     overflow-y:auto;
   }
   .pendulum-col-right .bench-pinned{top:0}
-  .pendulum-workspace .pendulum-pane[data-pane="lab"]{display:flex!important;max-width:952px;margin-inline:auto}
+  .pendulum-workspace .pendulum-pane[data-pane="sim"]{display:flex!important}
+  .pendulum-col-right .pendulum-pane{max-width:952px;margin-inline:auto}
   .pendulum-divider{
     display:block;grid-column:2;cursor:col-resize;background:var(--edge);
     touch-action:none;transition:background .16s;
@@ -389,6 +426,11 @@ section.bench-page{padding-top:18px}
   border:1px solid var(--edge);border-radius:4px;padding:10px 14px;background:var(--panel-t);
 }
 .pendulum-formulae span{font-family:var(--font-mono),monospace;font-size:15px;color:var(--trace)}
+/* KaTeX formulae: chalk, with the quantities to find \textcolor'd to --trace
+   in the TeX itself (data/pendulumGuide.js). The trace span above stays for
+   the circuits' plain-string formulae. */
+.pendulum-guide .katex{font-size:1.08em}
+.pendulum-formulae .katex{font-size:1.15em;color:var(--chalk)}
 .pendulum-formulae small{font-size:11.5px;color:var(--muted)}
 .pendulum-task{list-style:none;margin:0;padding:0;display:grid;gap:10px}
 .pendulum-task li{display:grid;grid-template-columns:2.6em minmax(0,1fr);gap:8px;align-items:baseline}
@@ -414,6 +456,13 @@ section.bench-page{padding-top:18px}
 .answer-actions button:disabled{opacity:.4;cursor:default}
 .answer-actions small{font-size:11.5px;color:var(--muted)}
 .pendulum-guide .answer-committed p.answer-line{font-family:var(--font-mono),monospace;font-size:15px}
+/* Guide links closing the problem pane (a part's `footer`), at body-text
+   size and colour so they're found, not the bench notes' small muted size.
+   .answer-after is anything a part shows with its reveal (afterCommit). */
+.pendulum-guide-footer{margin-top:26px;padding-top:18px;border-top:1px solid var(--edge);display:grid;gap:10px}
+.pendulum-guide .answer-committed p.answer-after{font-size:13px;color:var(--chalk)}
+.pendulum-guide-footer a,.answer-after a{color:var(--trace);text-decoration-color:var(--trace-soft);text-underline-offset:.2em}
+.pendulum-guide-footer a:hover,.answer-after a:hover{text-decoration-color:var(--trace)}
 .start-over{margin-top:22px;display:grid;gap:10px;justify-items:start}
 .start-over button{
   background:none;border:0;padding:0;cursor:pointer;color:var(--muted);
@@ -424,9 +473,40 @@ section.bench-page{padding-top:18px}
 .pendulum-guide .start-over p{font-size:13px}
 .start-over-actions{display:flex;flex-wrap:wrap;gap:18px}
 .start-over button.start-over-confirm{color:#FF8A80;text-decoration-color:currentColor}
-.bench-note{margin:0 0 12px;font-size:13px;color:var(--muted);line-height:1.6}
+.bench-note{margin:0 0 12px;font-size:13px;color:var(--chalk);line-height:1.6}
+/* Quick entry (QuickEntry.js): one compact line above the table —
+   [column ▾][value] [column ▾][value] [ENTER READING] — grey and white and
+   out of the way. Each column/value pair stays together, so on a phone too
+   narrow for one line the pairs wrap as units. The button is a quiet grey
+   fill so it reads as different from the table's outlined "+ ROW". */
+.quick-strip{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 14px}
+.quick-pair{display:inline-flex;align-items:center;gap:4px}
+.quick-strip select,.quick-strip input{
+  height:34px;background:var(--ink);border:1px solid var(--edge);border-radius:3px;color:var(--chalk);
+  font-family:var(--font-mono),monospace;
+}
+.quick-strip select{max-width:9.5em;font-size:12px;padding:0 6px;text-overflow:ellipsis}
+@media (pointer:coarse){.quick-strip select{max-width:7.5em;font-size:16px}}
+.quick-strip input{width:5.5em;font-size:16px;padding:0 8px} /* 16px: no zoom on focus on phones */
+.quick-strip select:focus,.quick-strip input:focus{outline:none;border-color:var(--trace)}
+.quick-strip button{
+  height:34px;font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:.08em;
+  color:var(--chalk);background:rgba(230,237,243,.1);border:0;border-radius:3px;
+  padding:0 12px;cursor:pointer;transition:.16s;white-space:nowrap;
+}
+.quick-strip button:hover:not(:disabled){background:rgba(230,237,243,.18)}
+.quick-empty{margin:0 0 14px;font-size:13px;color:var(--chalk);line-height:1.6}
 .bench-note-plot{margin:16px 0 0}
 .bench-note-plot+.pendulum-plot{margin-top:12px}
+/* A part's opt-in hint (ExperimentGuide's stuckHint): collapsed until the
+   student deliberately opens it. */
+.pendulum-stuck{margin-top:16px;border:1px solid var(--edge);border-radius:4px;background:var(--panel-t);padding:10px 14px}
+.pendulum-stuck summary{
+  cursor:pointer;font-family:var(--font-mono),monospace;font-size:11.5px;letter-spacing:.08em;
+  color:var(--muted);
+}
+.pendulum-stuck summary:hover,.pendulum-stuck[open] summary{color:var(--trace)}
+.pendulum-stuck p{margin:10px 0 2px}
 .pendulum-hints{margin:0;padding-left:18px;display:grid;gap:10px}
 .pendulum-hints li{font-size:13.5px;color:var(--muted);line-height:1.6}
 
@@ -455,6 +535,20 @@ section.bench-page{padding-top:18px}
   font-family:var(--font-mono),monospace;font-size:12.5px;padding:9px 10px;
 }
 .pendulum-table td input:focus{outline:none;background:rgba(78,197,255,.06)}
+/* A header or cell's rendered view (DataTable's Field) sits over its input
+   until the input is focused; the input's own text goes transparent under
+   it. Padding and type match the input beneath, so nothing shifts. */
+.pendulum-table .field{position:relative;display:block;flex:1;min-width:0}
+.pendulum-table .col-label{width:100%}
+.pendulum-table input.has-view:not(:focus){color:transparent}
+.pendulum-table input:focus+.field-view{display:none}
+.field-view{
+  position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;
+  white-space:nowrap;overflow:hidden;color:var(--chalk);
+  font-family:var(--font-mono),monospace;font-size:12.5px;padding:0 10px;
+}
+.col-head-in .field-view{font-size:11px;letter-spacing:.06em;padding:0 6px 0 10px}
+.field-view sub,.field-view sup{font-size:.75em;line-height:0}
 .pendulum-table .rowhead{position:sticky;left:0;background:var(--panel);z-index:1;width:44px}
 .rowhead-in{display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 6px;color:var(--muted)}
 .cell-del{
@@ -480,7 +574,7 @@ section.bench-page{padding-top:18px}
 .plot-row{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
 .plot-col-select{
   display:flex;align-items:center;gap:8px;
-  font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:.08em;color:var(--muted);
+  font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:.08em;color:var(--chalk);
 }
 .plot-col-select select{
   background:var(--panel-t);border:1px solid var(--edge);border-radius:3px;color:var(--chalk);
@@ -498,6 +592,7 @@ section.bench-page{padding-top:18px}
 }
 .plot-bound-group input:focus{outline:none}
 .plot-err{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.plot-err-note{flex-basis:100%;margin:-4px 0 0;font-size:12px;color:var(--chalk);line-height:1.5}
 .plot-canvas-wrap{position:relative;border:1px solid var(--edge);border-radius:4px;background:var(--panel-t)}
 /* Sized to its container like the bench canvases: 3:2 from the width, but
    never taller than the bench column (the viewport less the header) leaves
@@ -509,19 +604,26 @@ section.bench-page{padding-top:18px}
   max-height:min(420px,calc(100dvh - var(--head-h) - 250px));
   touch-action:none;cursor:crosshair;
 }
+.plot-canvas.over-handle{cursor:grab}
 .plot-canvas.dragging{cursor:grabbing}
 .plot-readout{
   position:absolute;left:10px;bottom:8px;font-family:var(--font-mono),monospace;font-size:11.5px;
-  color:var(--muted);pointer-events:none;background:rgba(11,18,25,.7);padding:2px 6px;border-radius:3px;
+  color:var(--chalk);pointer-events:none;background:rgba(11,18,25,.85);padding:2px 6px;border-radius:3px;
 }
 .plot-line-actions{gap:8px}
-.plot-line-actions button{
+/* The plot's controls and the text around them (.plot-col-select labels,
+   notes, readout, AUTO RANGE, + LINE, the saved-line list) are --chalk,
+   not --muted: they're read and clicked while working, so they sit at the
+   near-white of a native button rather than the muted tier. AUTO RANGE
+   needs this explicit style — unstyled, it fell back to the browser's own
+   button chrome. */
+.plot-line-actions button,.plot-bounds button{
   font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:.08em;
-  color:var(--muted);background:transparent;border:1px solid var(--edge);
+  color:var(--chalk);background:transparent;border:1px solid var(--edge);
   border-radius:3px;padding:8px 12px;cursor:pointer;transition:.16s;white-space:nowrap;
 }
-.plot-line-actions button:hover:not(:disabled){color:var(--trace);border-color:var(--trace)}
-.plot-line-actions button:disabled{opacity:.4;cursor:default}
+.plot-line-actions button:hover:not(:disabled),.plot-bounds button:hover:not(:disabled){color:var(--trace);border-color:var(--trace)}
+.plot-line-actions button:disabled,.plot-bounds button:disabled{opacity:.4;cursor:default}
 .plot-line-actions .plot-btn-fill{background:var(--trace);border-color:var(--trace);color:#04202F}
 .plot-line-actions .plot-btn-fill:hover{background:#7FD6FF;color:#04202F}
 .plot-lines-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
@@ -533,7 +635,7 @@ section.bench-page{padding-top:18px}
 .plot-line-eq{flex:1;font-family:var(--font-mono),monospace;font-size:12px;color:var(--chalk)}
 .plot-lines-list button{
   font-family:var(--font-mono),monospace;font-size:10.5px;letter-spacing:.06em;
-  color:var(--muted);background:transparent;border:1px solid var(--edge);
+  color:var(--chalk);background:transparent;border:1px solid var(--edge);
   border-radius:3px;padding:5px 9px;cursor:pointer;transition:.16s;white-space:nowrap;
 }
 .plot-lines-list button:hover:not(:disabled){color:var(--trace);border-color:var(--trace)}

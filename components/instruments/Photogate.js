@@ -1,6 +1,7 @@
 'use client';
 
 import { quantize } from '@/lib/instruments/reading';
+import { InstrumentNoteButton, InstrumentNotePopover, useInstrumentNote } from './InstrumentNote';
 
 const RESOLUTION_MS = 1;
 
@@ -19,20 +20,22 @@ const RESOLUTION_MS = 1;
 // two crossings to use, and dividing by the right number of periods, is the
 // exercise.
 export default function Photogate({ triggers, onClear }) {
+  const note = useInstrumentNote('photogate');
   return (
-    <div className="instrument">
+    <div className="instrument" ref={note.panelRef}>
       <div className="instrument-head">
         <b>PHOTOGATE</b>
-        <span className="instrument-res">{RESOLUTION_MS}ms</span>
+        <span className="instrument-head-end">
+          <span className="instrument-res">{RESOLUTION_MS}ms</span>
+          <InstrumentNoteButton note={note} name="photogate" />
+        </span>
       </div>
-      <p className="instrument-note">
-        A beam between two posts. Each time the string crosses it, a time is logged.
-        Place it inside the swing and you get two triggers per period — one each way.
-        The interval from crossing 1 to crossing 3 is one period; from 1 to 21 is ten.
-      </p>
+      <InstrumentNotePopover note={note} name="photogate">
+        A beam between two posts. Each time something crosses it, a time is logged.
+      </InstrumentNotePopover>
       <div className="photogate-log">
         {triggers.length === 0 ? (
-          <p className="instrument-note">No triggers yet — release the pendulum.</p>
+          <p className="instrument-note">No triggers yet — nothing has crossed the beam.</p>
         ) : (
           <table className="photogate-log-table">
             <thead>

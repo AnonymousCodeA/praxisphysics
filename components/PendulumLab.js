@@ -9,6 +9,7 @@ import Stopwatch from './instruments/Stopwatch';
 import Photogate from './instruments/Photogate';
 import CoachMark from './CoachMark';
 import { usePendulumPhysics } from '@/lib/pendulum/usePendulumPhysics';
+import { setBenchLength } from '@/lib/pendulum/benchLength';
 import { sessionRandom, sessionUniform } from '@/lib/instruments/rng';
 
 const DRAG_CAP_DEG = 85; // the taut-string model is invalid past 90°
@@ -201,9 +202,10 @@ export default function PendulumLab() {
         </div>
         <BenchHint id="pendulum">
           Drag the bob to set a release angle (capped at {DRAG_CAP_DEG}°), then press Release.
-          Grab the bob again at any time to stop it and reposition it. Bring instruments onto
-          the bench from the menu below, and press and hold on the scale or the angle plate to
-          magnify that spot.
+          Stop halts it where it is, so you can reposition it; Hang straight brings it to rest
+          on the vertical, for reading a length or the angle plate&rsquo;s zero. Bring instruments
+          onto the bench from the menu below, and press and hold on the scale or the angle plate
+          to magnify that spot.
         </BenchHint>
       </div>
 
