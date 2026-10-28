@@ -12,7 +12,7 @@
 // the only way back is the part's "start over", which clears the table and
 // plot too. The formulae give the governing relation only, unrearranged.
 //
-// Help beyond the task follows CLAUDE.md's tiers: Part B has one opt-in
+// Help beyond the task follows docs/conventions.md's tiers: Part B has one opt-in
 // `stuckHint`, Part A none; both parts end with the same two guide links
 // (`footer`): the worked solution, with a nudge to try first, and error
 // analysis.

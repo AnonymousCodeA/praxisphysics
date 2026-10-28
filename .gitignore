@@ -8,3 +8,6 @@ out
 docs/layout/
 docs/layout/
 CLAUDE.md
+# Layout/walkthrough audit screenshots and run JSON (scripts/*-audit.mjs);
+# the baselines beside the scripts are tracked.
+scripts/audit-output/

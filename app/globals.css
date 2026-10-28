@@ -257,38 +257,74 @@ footer{border-top:1px solid var(--edge);padding:34px 0 46px}
 .instrument-read{font-family:var(--font-mono),monospace;font-size:28px;color:var(--trace);line-height:1}
 .instrument-read .unit{font-size:14px;color:var(--muted);margin-left:4px}
 .instrument-note{margin:8px 0 0;font-size:12.5px;color:var(--muted);line-height:1.5}
-/* The device's description (InstrumentNote): a popover beside the panel,
-   opened on first use and from the "?" beside the resolution. Fixed and
-   portaled to <body>, so it takes no height in the panel. data-side is
-   where it sits relative to the panel; the tail (--tail along its facing
-   edge) points back at the "?". */
+/* AnchoredPopover: the one positioned popover, used by the instrument
+   notes and the walkthrough's coach marks. Fixed and portaled to <body>,
+   so it takes no height anywhere. data-side is where it sits relative to
+   its box; the tail (--tail along its facing edge) points at the anchor. */
 .instrument-head-end{display:inline-flex;align-items:center;gap:8px}
-.instrument-popover{
+.anchored-popover{
   position:fixed;z-index:15;width:min(280px,calc(100vw - 16px)); /* over main (1), under the header (20) */
   display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:12px 14px;
   background:var(--panel);border:1px solid rgba(78,197,255,.45);border-radius:4px;
   box-shadow:0 10px 28px rgba(0,0,0,.55);
 }
 .instrument-popover .instrument-note{margin:0}
-.instrument-popover::before{
+.anchored-popover::before{
   content:'';position:absolute;width:10px;height:10px;background:var(--panel);
   border:1px solid rgba(78,197,255,.45);transform:rotate(45deg);
 }
 /* Rotated 45° clockwise, a square's top border becomes its upper-right
    edge, right → lower-right, bottom → lower-left, left → upper-left; each
    side keeps the two borders that face out of the popover. */
-.instrument-popover[data-side="right"]::before{left:-6px;top:calc(var(--tail) - 5px);border-top-color:transparent;border-right-color:transparent}
-.instrument-popover[data-side="left"]::before{right:-6px;top:calc(var(--tail) - 5px);border-bottom-color:transparent;border-left-color:transparent}
-.instrument-popover[data-side="below"]::before{top:-6px;left:calc(var(--tail) - 5px);border-right-color:transparent;border-bottom-color:transparent}
-.instrument-popover[data-side="above"]::before{bottom:-6px;left:calc(var(--tail) - 5px);border-top-color:transparent;border-left-color:transparent}
-.instrument-popover button,.instrument-note-reopen{
+.anchored-popover[data-side="right"]::before{left:-6px;top:calc(var(--tail) - 5px);border-top-color:transparent;border-right-color:transparent}
+.anchored-popover[data-side="left"]::before{right:-6px;top:calc(var(--tail) - 5px);border-bottom-color:transparent;border-left-color:transparent}
+.anchored-popover[data-side="below"]::before{top:-6px;left:calc(var(--tail) - 5px);border-right-color:transparent;border-bottom-color:transparent}
+.anchored-popover[data-side="above"]::before{bottom:-6px;left:calc(var(--tail) - 5px);border-top-color:transparent;border-left-color:transparent}
+.anchored-popover button,.instrument-note-reopen,.walkthrough-offer,.walkthrough-offer-problem{
   font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:.08em;
   color:var(--chalk);background:var(--panel);border:1px solid var(--edge);
   border-radius:3px;cursor:pointer;transition:.16s;
 }
-.instrument-popover button{padding:6px 12px}
-.instrument-popover button:hover,.instrument-note-reopen:hover,
+.anchored-popover button{padding:6px 12px}
+.anchored-popover button:disabled{color:var(--muted);border-color:var(--edge);cursor:default}
+.anchored-popover button:hover:not(:disabled),.instrument-note-reopen:hover,.walkthrough-offer:hover,.walkthrough-offer-problem:hover,
 .instrument-note-reopen[aria-expanded="true"]{color:var(--trace);border-color:var(--trace)}
+/* A walkthrough coach mark (PendulumWalkthrough): counter, the step's
+   text, then BACK / NEXT and the way out to SELF. */
+.coach-mark{width:min(300px,calc(100vw - 16px))}
+/* On a phone the mark sits under the pinned apparatus, where height is
+   what's short: the full width wraps the longest step a line shorter. */
+@media(max-width:600px){.coach-mark{width:calc(100vw - 16px)}}
+.coach-count{margin:0;font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:.08em;color:var(--muted)}
+.coach-text{margin:0;font-size:13.5px;line-height:1.55;color:var(--chalk)}
+.coach-actions{display:flex;flex-wrap:wrap;gap:8px;width:100%}
+.coach-actions .coach-exit{margin-left:auto}
+/* A step's question (GuideQ): asked first, its answer behind a disclosure
+   the student opens once they've formed a guess. GuideQ carries no styles
+   of its own; these are scoped to the coach mark. */
+.coach-mark .guide-q{width:100%;display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--edge);padding-top:10px}
+.coach-mark .guide-q-text{margin:0;display:flex;gap:8px;font-size:13.5px;line-height:1.55;color:var(--chalk)}
+.coach-mark .guide-q-tag{flex:none;font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:.08em;color:var(--trace);padding-top:2px}
+.coach-mark .guide-q-answer summary{
+  cursor:pointer;font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:.08em;color:var(--chalk);
+}
+.coach-mark .guide-q-answer summary:hover,.coach-mark .guide-q-answer[open] summary{color:var(--trace)}
+.coach-mark .guide-q-body{margin-top:8px;font-size:13px;line-height:1.55;color:var(--chalk)}
+.anchored-popover .coach-next{border-color:var(--trace);color:var(--trace)}
+/* The canvas's own box, so the walkthrough offer can sit over its
+   bottom-left corner — below and left of everything the scene draws —
+   taking no height between the apparatus and the controls. */
+.pendulum-stage{position:relative}
+.walkthrough-offer{
+  position:absolute;left:10px;bottom:10px;z-index:2;max-width:calc(100% - 20px);
+  padding:6px 10px;text-align:left;line-height:1.4;
+}
+/* The same offer at the top of the problem pane, for a phone, which opens
+   on PROBLEM. One line in either mode (it reads "Back to the
+   walkthrough" while GUIDED), so the pane's height never changes with it.
+   Hidden where both columns show and the bench's own offer is in view. */
+.walkthrough-offer-problem{display:block;max-width:100%;margin:0 0 16px;padding:6px 10px;text-align:left;line-height:1.4}
+@media(min-width:900px){.walkthrough-offer-problem{display:none}}
 .instrument-note-reopen{width:22px;height:22px;padding:0;border-radius:50%;line-height:1}
 .instrument-controls{display:flex;gap:8px;margin-top:12px}
 .instrument-controls button{
@@ -568,7 +604,7 @@ section.bench-page{padding-top:18px}
 .pendulum-add-row{align-self:flex-start}
 
 /* ---------- pendulum plot ---------- */
-/* Line colours beyond this file's exception in CLAUDE.md: saved lines need
+/* Line colours beyond this file's exception in docs/conventions.md: saved lines need
    to stay visually distinct from each other and from --trace (points/axes). */
 .pendulum-plot{display:flex;flex-direction:column;gap:12px;margin-top:16px}
 .plot-row{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
@@ -751,7 +787,7 @@ section.bench-page{padding-top:18px}
 
 .circuit-scope{border:1px solid var(--edge);border-radius:4px;background:var(--panel-t);padding:14px 16px;display:grid;gap:14px}
 /* The nameplate is the one place outside the screen itself that borrows
-   the phosphor green (see the exception note in CLAUDE.md) — an
+   the phosphor green (see the exception note in docs/conventions.md) — an
    instrument's case label reads as part of the instrument, not as a UI
    section heading, so it gets the screen's own colour rather than the
    app's --trace/--chalk. Must match SCOPE_CH1_COLOR in
@@ -764,7 +800,7 @@ section.bench-page{padding-top:18px}
 .circuit-scope-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
 
 /* Green phosphor on black is a deliberate, scoped exception to the
-   two-tone palette — see CLAUDE.md — so colours here come from
+   two-tone palette — see docs/conventions.md — so colours here come from
    lib/circuits/oscilloscopeControls.js (SCOPE_*), not the CSS vars above;
    these rules only size/frame the screen. The status bar is a normal-flow
    row above the canvas, not an overlay on top of it — it used to sit

@@ -18,7 +18,7 @@ const HOLD_MOVE_CANCEL_PX = 6;
 // via ResizeObserver, pointer events throughout. Unlike the pendulum's
 // swing, nothing here is gated behind prefers-reduced-motion — a live
 // meter reading and the placement ghost are the experiment's content and
-// direct manipulation, not decorative animation (see CLAUDE.md's carve-out
+// direct manipulation, not decorative animation (see docs/conventions.md's carve-out
 // for measurement-driven experiments).
 //
 // `placed`/`armed`/`voltages`/`floatingNodes` are plain props, synced into

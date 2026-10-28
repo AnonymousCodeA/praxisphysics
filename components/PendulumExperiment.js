@@ -14,8 +14,15 @@ import { useMemo } from 'react';
 import ExperimentWorkspace from './ExperimentWorkspace';
 import PendulumLab from './PendulumLab';
 import QuickEntry from './QuickEntry';
+import { WalkthroughProblemOffer } from './PendulumWalkthrough';
 import { G } from '@/lib/pendulum/model.mjs';
 import { getBenchLength } from '@/lib/pendulum/benchLength';
+import { pendulumWalkthrough, pendulumWalkthroughPart } from '@/data/pendulumWalkthrough';
+
+// Module-level, so its identity is stable across renders.
+function ProblemTools(props) {
+  return <WalkthroughProblemOffer {...props} steps={pendulumWalkthrough} walkPart={pendulumWalkthroughPart} />;
+}
 
 const trueValueResolvers = {
   // T₀ = 2π√(L/g) for the point-bob model (lib/pendulum/model.mjs), at the
@@ -56,6 +63,7 @@ export default function PendulumExperiment({ parts, symbols }) {
       symbols={symbols}
       Bench={PendulumLab}
       DataTools={QuickEntry}
+      ProblemTools={ProblemTools}
     />
   );
 }

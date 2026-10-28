@@ -1,15 +1,18 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import PendulumCanvas from './PendulumCanvas';
+import PendulumCanvas, { worldToClient } from './PendulumCanvas';
 import PendulumLens from './PendulumLens';
 import BenchHint from './BenchHint';
 import InstrumentMenu from './instruments/InstrumentMenu';
 import Stopwatch from './instruments/Stopwatch';
 import Photogate from './instruments/Photogate';
+import PendulumWalkthrough, { useWalkthroughMode } from './PendulumWalkthrough';
+import { pendulumWalkthrough, pendulumWalkthroughPart } from '@/data/pendulumWalkthrough';
 import { usePendulumPhysics } from '@/lib/pendulum/usePendulumPhysics';
 import { setBenchLength } from '@/lib/pendulum/benchLength';
 import { sessionRandom, sessionUniform } from '@/lib/instruments/rng';
+import { SCALE_EDGE_X_M, SCALE_WIDTH_M } from '@/lib/pendulum/scene';
 
 const DRAG_CAP_DEG = 85; // the taut-string model is invalid past 90°
 const BOB_RADIUS_M = 0.02;
@@ -47,7 +50,10 @@ const INSTRUMENTS = [
   { key: 'photogate', label: 'PHOTOGATE' },
 ];
 
-export default function PendulumLab() {
+// `dataTable` (the active part's), `experimentId`, `part` and `showPane`
+// come from ExperimentWorkspace, for the GUIDED walkthrough
+// (PendulumWalkthrough.js), which runs on Part A only.
+export default function PendulumLab({ dataTable, experimentId = 'pendulum', part, showPane }) {
   const [stringLength, setStringLength] = useState(DEFAULT_LENGTH_M);
   const [open, setOpen] = useState({}); // every tool off by default — empty bench
 
@@ -56,6 +62,11 @@ export default function PendulumLab() {
   const plateOffsetRef = useRef(0);
   const lensRef = useRef({ active: false, clientX: 0, clientY: 0, worldX: 0, worldY: 0, pxPerM: 1 });
   const sceneStateRef = useRef({});
+  const viewRef = useRef(null); // the canvas's scene transform, for pointing at drawn things
+  const lensUsedRef = useRef(false); // the walkthrough's one new fact: has the lens been raised yet
+  const stopwatchStopsRef = useRef({ count: 0, lastS: 0 }); // the stopwatch's stopped readings, from its onStop
+  const labRef = useRef(null);
+  const frameRef = useRef(null);
 
   useEffect(() => {
     printMarginRef.current = sessionUniform('scale-print-margin-m', PRINT_MARGIN_MIN_M, PRINT_MARGIN_MAX_M);
@@ -97,24 +108,85 @@ export default function PendulumLab() {
     setStringLength(Number(e.target.value));
   };
 
+  const walk = useWalkthroughMode(experimentId, pendulumWalkthrough.length);
+  const onWalkPart = part === pendulumWalkthroughPart;
+
+  // What each step's condition reads — state the bench and the part's table
+  // already hold, plus lensUsedRef and the stopwatch's stops. Read live: the
+  // physics angle is a ref, not state.
+  const benchRef = useRef(null);
+  benchRef.current = { scaleOn: !!open.scale, stopwatchOn: !!open.stopwatch, length: stringLength, mode, table: dataTable?.table };
+  const readBench = () => ({
+    ...benchRef.current,
+    theta: physicsRef.current.theta,
+    lensUsed: lensUsedRef.current,
+    stopwatchStops: stopwatchStopsRef.current.count,
+    stopwatchLastS: stopwatchStopsRef.current.lastS,
+  });
+  const onStopwatchStop = useCallback((s) => {
+    stopwatchStopsRef.current = { count: stopwatchStopsRef.current.count + 1, lastS: s };
+  }, []);
+
+  // Each coach mark's box and anchor (see AnchoredPopover). Anything inside
+  // the apparatus is pointed at from outside it: the box is the whole
+  // pinned frame. The scale and the bob exist only as canvas pixels, so
+  // their anchors are world points through the scene's own transform.
+  const find = (sel) => () => labRef.current?.querySelector(sel);
+  const atWorld = (xM, yM) => () => worldToClient(viewRef.current, xM, yM);
+  const walkTargets = {
+    bench: { box: frameRef },
+    instruments: { box: find('.instrument-menu') },
+    length: { box: frameRef, anchor: find('.length-control input') },
+    scale: { box: frameRef, anchor: atWorld(SCALE_EDGE_X_M + SCALE_WIDTH_M / 2, effectiveLength) },
+    bob: {
+      box: frameRef,
+      anchor: () => {
+        const th = physicsRef.current.theta;
+        return worldToClient(viewRef.current, Math.sin(th) * effectiveLength, Math.cos(th) * effectiveLength);
+      },
+    },
+    controls: { box: frameRef, anchor: find('.pendulum-actions') },
+    stopwatch: {
+      box: () =>
+        [...(labRef.current?.querySelectorAll('.instrument-panels .instrument') ?? [])].find(
+          (e) => e.querySelector('.instrument-head b')?.textContent === 'STOPWATCH'
+        ),
+    },
+    table: {
+      box: () => labRef.current?.closest('.pendulum-workspace')?.querySelector('[data-pane="data"] .pendulum-table-box'),
+    },
+  };
+
   return (
-    <div className="pendulum-lab">
-      <div className="pendulum-frame bench-pinned">
-        <PendulumCanvas
-          physicsRef={physicsRef}
-          mode={mode}
-          length={effectiveLength}
-          bobRadius={BOB_RADIUS_M}
-          dragCapRad={DRAG_CAP_RAD}
-          photogateRef={photogateRef}
-          printMarginRef={printMarginRef}
-          plateOffsetRef={plateOffsetRef}
-          visible={visible}
-          lensRef={lensRef}
-          sceneStateRef={sceneStateRef}
-          onBeginDrag={beginDrag}
-          onUpdateDrag={updateDrag}
-        />
+    <div className="pendulum-lab" ref={labRef}>
+      <div className="pendulum-frame bench-pinned" ref={frameRef}>
+        <div className="pendulum-stage">
+          <PendulumCanvas
+            physicsRef={physicsRef}
+            mode={mode}
+            length={effectiveLength}
+            bobRadius={BOB_RADIUS_M}
+            dragCapRad={DRAG_CAP_RAD}
+            photogateRef={photogateRef}
+            printMarginRef={printMarginRef}
+            plateOffsetRef={plateOffsetRef}
+            visible={visible}
+            lensRef={lensRef}
+            sceneStateRef={sceneStateRef}
+            viewRef={viewRef}
+            lensUsedRef={lensUsedRef}
+            onBeginDrag={beginDrag}
+            onUpdateDrag={updateDrag}
+          />
+          {/* Offered, never imposed: SELF is the default and there's no
+              dialog on load. Over the canvas's empty bottom-left corner, so
+              it takes no height. Part A only. */}
+          {walk.mode === 'self' && onWalkPart && (
+            <button type="button" className="walkthrough-offer" onClick={walk.start}>
+              New to this bench? Take the walkthrough
+            </button>
+          )}
+        </div>
         <PendulumLens lensRef={lensRef} sceneStateRef={sceneStateRef} />
         <div className="pendulum-controls">
           <label className="length-control">
@@ -139,7 +211,7 @@ export default function PendulumLab() {
             </button>
           </div>
         </div>
-        <BenchHint id="pendulum">
+        <BenchHint id="pendulum" collapse={walk.mode === 'guided' && onWalkPart}>
           Drag the bob to set a release angle (capped at {DRAG_CAP_DEG}°), then press Release.
           Stop halts it where it is, so you can reposition it; Hang straight brings it to rest
           on the vertical, for reading a length or the angle plate&rsquo;s zero. Bring instruments
@@ -151,9 +223,18 @@ export default function PendulumLab() {
       <InstrumentMenu items={INSTRUMENTS} open={open} onToggle={toggleInstrument} />
 
       <div className="instrument-panels">
-        {open.stopwatch && <Stopwatch />}
+        {open.stopwatch && <Stopwatch onStop={onStopwatchStop} />}
         {open.photogate && <Photogate triggers={triggers} onClear={clearTriggers} />}
       </div>
+
+      <PendulumWalkthrough
+        walk={walk}
+        steps={pendulumWalkthrough}
+        targets={walkTargets}
+        readBench={readBench}
+        showPane={showPane}
+        active={onWalkPart}
+      />
     </div>
   );
 }
