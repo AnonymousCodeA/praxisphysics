@@ -631,7 +631,7 @@ export default function Plot({
               <li key={line.id}>
                 <span className="plot-line-swatch" style={{ background: line.color }} aria-hidden="true" />
                 <span className="plot-line-eq">
-                  {m === null ? 'vertical line' : `m = ${formatNum(m)}   c = ${formatNum(c)}`}
+                  {m === null ? 'vertical line' : 'line drawn (read m, c yourself)'}
                 </span>
                 <button type="button" onClick={() => editLine(line.id)} disabled={!!config.current}>
                   EDIT

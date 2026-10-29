@@ -8,7 +8,7 @@ import { LabelText, foldLabel, hasMarkup, sciParts } from '@/lib/experiment/tabl
 // character into the focused cell/header, which stays free text. This base
 // is on every table; `symbols` (from the experiment's data file) adds that
 // experiment's own letters after it.
-const BASE_SYMBOLS = ['Δ', '±', '°', '²', '³', '₀'];
+const BASE_SYMBOLS = ['Δ', 'θ', 'φ', 'λ', 'ω', 'Ω', 'µ', 'α', 'β', 'γ', '±', '°', '²', '³', '⁰', '¹', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹', '₀', '₁', '₂'];
 
 // An input with an optional rendered `view` laid over it while it isn't
 // focused — the header's maths, a cell's ×10ⁿ. Display only: the input
@@ -56,6 +56,7 @@ export default function DataTable({
   addRow,
   deleteRow,
   setCell,
+  onTableChange,
   symbols = [],
 }) {
   // The last cell/header input focused, remembered past blur so a keyboard

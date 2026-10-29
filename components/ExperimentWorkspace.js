@@ -215,7 +215,7 @@ export default function ExperimentWorkspace({ experimentId, parts, symbols, Benc
             />
           )}
           <div ref={(el) => { if (el) el.id = 'pendulum-data-table'; }}>
-            <DataTable key={`${gen}:table`} {...dataTable} />
+            <DataTable key={`${gen}:table`} {...dataTable} symbols={symbols} />
           </div>
           {dataTable.table && activeDef.notes?.plot && (
             <p className="bench-note bench-note-plot">{activeDef.notes.plot}</p>

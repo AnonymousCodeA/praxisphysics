@@ -74,7 +74,7 @@ export default function PendulumLab() {
   }, []);
 
   const effectiveLength = stringLength + BOB_RADIUS_M; // pivot to bob centre
-  const { mode, physicsRef, triggers, clearTriggers, beginDrag, updateDrag, release, hangRest } = usePendulumPhysics({
+  const { mode, physicsRef, triggers, clearTriggers, beginDrag, updateDrag, release, stop, hangRest } = usePendulumPhysics({
     length: effectiveLength,
     dragCapDeg: DRAG_CAP_DEG,
     photogateRef,
@@ -100,9 +100,11 @@ export default function PendulumLab() {
 
   const handleStop = useCallback(() => {
     if (swinging) {
-      hangRest(0);
+      stop();
+    } else {
+      hangRest();
     }
-  }, [swinging, hangRest]);
+  }, [swinging, stop, hangRest]);
 
   useEffect(() => {
     // track lens usage if needed
@@ -155,8 +157,16 @@ export default function PendulumLab() {
           <button type="button" className="btn btn-fill" onClick={() => { setModeGuided('guided'); setGuideStep(0); }}>
             GUIDED
           </button>
-          <button type="button" className="btn btn-line" onClick={() => setModeGuided('self')}>
+          <button type="button" className="btn btn-line" onClick={() => { setModeGuided('self'); }}>
             SELF
+          </button>
+        </div>
+      )}
+      {modeGuided !== null && (
+        <div className="pendulum-mode-select" style={{ marginBottom: '12px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--muted)' }}>MODE: {modeGuided.toUpperCase()}</span>
+          <button type="button" className="btn btn-line" onClick={() => { setModeGuided(null); setGuideStep(0); }}>
+            CHANGE MODE
           </button>
         </div>
       )}
