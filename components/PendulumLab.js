@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import PendulumCanvas, { worldToClient } from './PendulumCanvas';
+import PendulumCanvas from './PendulumCanvas';
 import PendulumLens from './PendulumLens';
 import BenchHint from './BenchHint';
 import InstrumentMenu from './instruments/InstrumentMenu';
@@ -11,7 +11,6 @@ import CoachMark from './CoachMark';
 import { usePendulumPhysics } from '@/lib/pendulum/usePendulumPhysics';
 import { setBenchLength } from '@/lib/pendulum/benchLength';
 import { sessionRandom, sessionUniform } from '@/lib/instruments/rng';
-import { SCALE_EDGE_X_M, SCALE_WIDTH_M } from '@/lib/pendulum/scene';
 
 const DRAG_CAP_DEG = 85; // the taut-string model is invalid past 90°
 const BOB_RADIUS_M = 0.02;
@@ -49,10 +48,7 @@ const INSTRUMENTS = [
   { key: 'photogate', label: 'PHOTOGATE' },
 ];
 
-// `dataTable` (the active part's), `experimentId`, `part` and `showPane`
-// come from ExperimentWorkspace, for the GUIDED walkthrough
-// (PendulumWalkthrough.js), which runs on Part A only.
-export default function PendulumLab({ dataTable, experimentId = 'pendulum', part, showPane }) {
+export default function PendulumLab() {
   const [stringLength, setStringLength] = useState(DEFAULT_LENGTH_M);
   const [open, setOpen] = useState({}); // every tool off by default — empty bench
 
@@ -214,7 +210,7 @@ export default function PendulumLab({ dataTable, experimentId = 'pendulum', part
             {swinging ? 'SWINGING' : 'RELEASE'}
           </button>
         </div>
-        <BenchHint id="pendulum" collapse={walk.mode === 'guided' && onWalkPart}>
+        <BenchHint id="pendulum">
           Drag the bob to set a release angle (capped at {DRAG_CAP_DEG}°), then press Release.
           Stop halts it where it is, so you can reposition it; Hang straight brings it to rest
           on the vertical, for reading a length or the angle plate&rsquo;s zero. Bring instruments
@@ -228,7 +224,7 @@ export default function PendulumLab({ dataTable, experimentId = 'pendulum', part
       </div>
 
       <div className="instrument-panels">
-        {open.stopwatch && <Stopwatch onStop={onStopwatchStop} />}
+        {open.stopwatch && <Stopwatch />}
         {open.photogate && <Photogate triggers={triggers} onClear={clearTriggers} />}
       </div>
 
