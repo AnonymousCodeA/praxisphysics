@@ -14,7 +14,7 @@ const FILL = 0.86; // fraction of the binding dimension the apparatus should occ
 // side of the pivot, so the bob never runs off the frame at a large
 // amplitude — the bob's reach is L·sin(85°), and L goes up to half a
 // metre. A wide canvas would otherwise leave the apparatus a sliver in
-// the middle of empty space (see CLAUDE.md), and a narrow one (the
+// the middle of empty space (see docs/conventions.md), and a narrow one (the
 // instrument dock open) has to give the width back, which is exactly the
 // rescaling the dock is meant to cause.
 const BENCH_MIN_WIDTH_M = 1.0;
@@ -29,6 +29,16 @@ const HOLD_MOVE_CANCEL_PX = 6; // moving more than this before the delay elapses
 const LENS_ZOOM_MULT = 1.5; // multiple of the bench's own pxPerM, when that's already large enough
 const LENS_MIN_PX_PER_M = 5000; // floor: higher zoom for clearer mm ticks
 
+// A world point (metres from the pivot) in viewport coordinates, through
+// the exact transform the scene is drawn with — `view` is what this canvas
+// publishes to viewRef on every resize. For pointing a popover at something
+// that exists only as pixels on the canvas (the scale, the bob).
+export function worldToClient(view, xM, yM) {
+  if (!view?.canvas) return null;
+  const r = view.canvas.getBoundingClientRect();
+  return { x: r.left + view.originX + xM * view.pxPerM, y: r.top + view.originY + yM * view.pxPerM };
+}
+
 export default function PendulumCanvas({
   physicsRef,
   mode,
@@ -40,6 +50,8 @@ export default function PendulumCanvas({
   visible, // { scale, anglePlate, photogate } — current toggle state
   lensRef, // written here on hold/move/release, read+drawn by PendulumLens
   sceneStateRef, // written here every frame, read by PendulumLens
+  viewRef, // { canvas, originX, originY, pxPerM }, written on every resize — see worldToClient
+  lensUsedRef, // set true the first time the lens is raised
   onBeginDrag,
   onUpdateDrag,
 }) {
@@ -89,10 +101,11 @@ export default function PendulumCanvas({
       // against the dimension that constrains it, and use most of that
       // dimension rather than a fixed fraction of height alone. Otherwise
       // a wide canvas leaves the apparatus a sliver in the middle of empty
-      // space (see CLAUDE.md).
+      // space (see docs/conventions.md).
       const pxPerMByHeight = (H * FILL) / MAX_LENGTH_M;
       const pxPerMByWidth = (W * FILL) / BENCH_MIN_WIDTH_M;
       pxPerM = Math.min(pxPerMByHeight, pxPerMByWidth);
+      if (viewRef) viewRef.current = { canvas: cvs, originX: pivotX, originY: pivotY, pxPerM };
     }
 
     const toPx = (mx, my) => ({ x: pivotX + mx * pxPerM, y: pivotY + my * pxPerM });
@@ -164,6 +177,7 @@ export default function PendulumCanvas({
 
     function raiseLens(px, py, clientX, clientY) {
       dragTarget = 'lens';
+      if (lensUsedRef) lensUsedRef.current = true;
       updateLens(px, py, clientX, clientY);
     }
 
@@ -317,6 +331,8 @@ export default function PendulumCanvas({
     plateOffsetRef,
     lensRef,
     sceneStateRef,
+    viewRef,
+    lensUsedRef,
     onBeginDrag,
     onUpdateDrag,
   ]);

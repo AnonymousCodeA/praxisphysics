@@ -1,0 +1,2949 @@
+{
+ "results": {
+  "1280x800-hint": {
+   "loadsIn": null,
+   "onLoad": {
+    "activeTab": "problem",
+    "problemOffer": false,
+    "benchOffer": true,
+    "problemOfferText": "New to this bench? Take the walkthrough"
+   },
+   "offerPresent": true,
+   "steps": [
+    {
+     "label": "step1",
+     "mark": {
+      "present": true,
+      "count": "STEP 1 OF 12",
+      "buttons": [
+       "BACK(disabled)",
+       "NEXT",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       351,
+       579,
+       527
+      ],
+      "pinned": [
+       591,
+       161,
+       1203,
+       597
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 505,
+      "simPane": 557,
+      "dataPane": 1054.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":1}"
+    },
+    {
+     "label": "step2",
+     "mark": {
+      "present": true,
+      "count": "STEP 2 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       604,
+       579,
+       758
+      ],
+      "pinned": [
+       591,
+       161,
+       1203,
+       597
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 505,
+      "simPane": 557,
+      "dataPane": 1054.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":2}"
+    },
+    {
+     "label": "step3",
+     "mark": {
+      "present": true,
+      "count": "STEP 3 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       532,
+       579,
+       686
+      ],
+      "pinned": [
+       591,
+       161,
+       1203,
+       597
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 505,
+      "simPane": 557,
+      "dataPane": 1054.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":3}"
+    },
+    {
+     "label": "back-to-step2",
+     "mark": {
+      "present": true,
+      "count": "STEP 2 OF 12",
+      "buttons": [
+       "BACK",
+       "NEXT",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       604,
+       579,
+       758
+      ],
+      "pinned": [
+       591,
+       161,
+       1203,
+       597
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 505,
+      "simPane": 557,
+      "dataPane": 1054.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":2}"
+    },
+    {
+     "label": "step3-again",
+     "mark": {
+      "present": true,
+      "count": "STEP 3 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       532,
+       579,
+       686
+      ],
+      "pinned": [
+       591,
+       161,
+       1203,
+       597
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 505,
+      "simPane": 557,
+      "dataPane": 1054.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":3}"
+    },
+    {
+     "label": "step4",
+     "mark": {
+      "present": true,
+      "count": "STEP 4 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       417,
+       579,
+       550
+      ],
+      "pinned": [
+       591,
+       161,
+       1203,
+       597
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 505,
+      "simPane": 557,
+      "dataPane": 1054.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":4}"
+    },
+    {
+     "label": "step5",
+     "mark": {
+      "present": true,
+      "count": "STEP 5 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       417,
+       579,
+       571
+      ],
+      "pinned": [
+       591,
+       161,
+       1203,
+       597
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 505,
+      "simPane": 557,
+      "dataPane": 1054.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":5}"
+    },
+    {
+     "label": "step6",
+     "mark": {
+      "present": true,
+      "count": "STEP 6 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       532,
+       579,
+       707
+      ],
+      "pinned": [
+       591,
+       161,
+       1203,
+       597
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 505,
+      "simPane": 557,
+      "dataPane": 1054.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":6}"
+    },
+    {
+     "label": "step7",
+     "mark": {
+      "present": true,
+      "count": "STEP 7 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       591,
+       579,
+       792
+      ],
+      "pinned": [
+       591,
+       161,
+       1203,
+       597
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": true,
+      "answerOpen": false,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 505,
+      "simPane": 557,
+      "dataPane": 1054.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":7}"
+    },
+    {
+     "label": "step8",
+     "mark": {
+      "present": true,
+      "count": "STEP 8 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       549,
+       579,
+       792
+      ],
+      "pinned": [
+       591,
+       161,
+       1203,
+       597
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": true,
+      "answerOpen": false,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 641,
+      "simPane": 693,
+      "dataPane": 1054.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":8}"
+    },
+    {
+     "label": "step9",
+     "mark": {
+      "present": true,
+      "count": "STEP 9 OF 12",
+      "buttons": [
+       "BACK",
+       "NEXT",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       617,
+       579,
+       792
+      ],
+      "pinned": [
+       591,
+       -14,
+       1203,
+       422
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "data",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 641,
+      "simPane": 693,
+      "dataPane": 1054.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":9}"
+    },
+    {
+     "label": "step10",
+     "mark": {
+      "present": true,
+      "count": "STEP 10 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       570,
+       579,
+       792
+      ],
+      "pinned": [
+       591,
+       -14,
+       1203,
+       422
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "data",
+      "question": true,
+      "answerOpen": false,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 641,
+      "simPane": 693,
+      "dataPane": 1054.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":10}"
+    },
+    {
+     "label": "step11",
+     "mark": {
+      "present": true,
+      "count": "STEP 11 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       570,
+       579,
+       792
+      ],
+      "pinned": [
+       591,
+       -14,
+       1203,
+       422
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "data",
+      "question": true,
+      "answerOpen": false,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 641,
+      "simPane": 693,
+      "dataPane": 1132.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":11}"
+    },
+    {
+     "label": "step12",
+     "mark": {
+      "present": true,
+      "count": "STEP 12 OF 12",
+      "buttons": [
+       "BACK",
+       "NEXT",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       679,
+       579,
+       792
+      ],
+      "pinned": [
+       591,
+       -14,
+       1203,
+       422
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "data",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 641,
+      "simPane": 693,
+      "dataPane": 1132.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":12}"
+    }
+   ],
+   "self": {
+    "pinned": 556.9,
+    "canvas": 360,
+    "controls": 74,
+    "hint": 120.9,
+    "menu": 37,
+    "lab": 625.9,
+    "simPane": 677.9,
+    "dataPane": 1054.6,
+    "problemPane": 777.3,
+    "workspace": 833.3,
+    "doc": 1155
+   },
+   "selfWithoutOffer": {
+    "pinned": 556.9,
+    "canvas": 360,
+    "controls": 74,
+    "hint": 120.9,
+    "menu": 37,
+    "lab": 625.9,
+    "simPane": 677.9,
+    "dataPane": 1054.6,
+    "problemPane": 777.3,
+    "workspace": 833.3,
+    "doc": 1155
+   },
+   "offerRect": {
+    "offer": [
+     10,
+     321,
+     324,
+     350
+    ],
+    "canvas": [
+     609,
+     360
+    ]
+   },
+   "hintAfterStart": "collapsed to ?",
+   "lastStepNext": true,
+   "heightChanges": [],
+   "after": {
+    "mark": {
+     "present": false
+    },
+    "stored": "{\"mode\":\"self\",\"step\":1}",
+    "offerBack": true,
+    "heights": {
+     "pinned": 436,
+     "canvas": 360,
+     "controls": 74,
+     "hint": null,
+     "menu": 37,
+     "lab": 641,
+     "simPane": 693,
+     "dataPane": 1327.6,
+     "problemPane": 777.3,
+     "workspace": 833.3,
+     "doc": 1155
+    }
+   },
+   "partB": {
+    "benchOffer": false,
+    "problemOffer": false,
+    "mark": false,
+    "markBackOnA": true,
+    "stored": "{\"mode\":\"guided\",\"step\":1}"
+   },
+   "exit": {
+    "mark": {
+     "present": false
+    },
+    "stored": "{\"mode\":\"self\",\"step\":1}"
+   },
+   "escape": {
+    "markBefore": true,
+    "markAfter": false,
+    "stored": "{\"mode\":\"self\",\"step\":1}"
+   }
+  },
+  "1280x800-nohint": {
+   "loadsIn": null,
+   "onLoad": {
+    "activeTab": "problem",
+    "problemOffer": false,
+    "benchOffer": true,
+    "problemOfferText": "New to this bench? Take the walkthrough"
+   },
+   "offerPresent": true,
+   "steps": [
+    {
+     "label": "step1",
+     "mark": {
+      "present": true,
+      "count": "STEP 1 OF 12",
+      "buttons": [
+       "BACK(disabled)",
+       "NEXT",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       351,
+       579,
+       527
+      ],
+      "pinned": [
+       591,
+       161,
+       1203,
+       597
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 505,
+      "simPane": 557,
+      "dataPane": 1054.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":1}"
+    },
+    {
+     "label": "step2",
+     "mark": {
+      "present": true,
+      "count": "STEP 2 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       604,
+       579,
+       758
+      ],
+      "pinned": [
+       591,
+       161,
+       1203,
+       597
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 505,
+      "simPane": 557,
+      "dataPane": 1054.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":2}"
+    },
+    {
+     "label": "step3",
+     "mark": {
+      "present": true,
+      "count": "STEP 3 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       532,
+       579,
+       686
+      ],
+      "pinned": [
+       591,
+       161,
+       1203,
+       597
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 505,
+      "simPane": 557,
+      "dataPane": 1054.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":3}"
+    },
+    {
+     "label": "back-to-step2",
+     "mark": {
+      "present": true,
+      "count": "STEP 2 OF 12",
+      "buttons": [
+       "BACK",
+       "NEXT",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       604,
+       579,
+       758
+      ],
+      "pinned": [
+       591,
+       161,
+       1203,
+       597
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 505,
+      "simPane": 557,
+      "dataPane": 1054.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":2}"
+    },
+    {
+     "label": "step3-again",
+     "mark": {
+      "present": true,
+      "count": "STEP 3 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       532,
+       579,
+       686
+      ],
+      "pinned": [
+       591,
+       161,
+       1203,
+       597
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 505,
+      "simPane": 557,
+      "dataPane": 1054.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":3}"
+    },
+    {
+     "label": "step4",
+     "mark": {
+      "present": true,
+      "count": "STEP 4 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       417,
+       579,
+       550
+      ],
+      "pinned": [
+       591,
+       161,
+       1203,
+       597
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 505,
+      "simPane": 557,
+      "dataPane": 1054.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":4}"
+    },
+    {
+     "label": "step5",
+     "mark": {
+      "present": true,
+      "count": "STEP 5 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       417,
+       579,
+       571
+      ],
+      "pinned": [
+       591,
+       161,
+       1203,
+       597
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 505,
+      "simPane": 557,
+      "dataPane": 1054.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":5}"
+    },
+    {
+     "label": "step6",
+     "mark": {
+      "present": true,
+      "count": "STEP 6 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       532,
+       579,
+       707
+      ],
+      "pinned": [
+       591,
+       161,
+       1203,
+       597
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 505,
+      "simPane": 557,
+      "dataPane": 1054.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":6}"
+    },
+    {
+     "label": "step7",
+     "mark": {
+      "present": true,
+      "count": "STEP 7 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       591,
+       579,
+       792
+      ],
+      "pinned": [
+       591,
+       161,
+       1203,
+       597
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": true,
+      "answerOpen": false,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 505,
+      "simPane": 557,
+      "dataPane": 1054.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":7}"
+    },
+    {
+     "label": "step8",
+     "mark": {
+      "present": true,
+      "count": "STEP 8 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       549,
+       579,
+       792
+      ],
+      "pinned": [
+       591,
+       161,
+       1203,
+       597
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": true,
+      "answerOpen": false,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 641,
+      "simPane": 693,
+      "dataPane": 1054.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":8}"
+    },
+    {
+     "label": "step9",
+     "mark": {
+      "present": true,
+      "count": "STEP 9 OF 12",
+      "buttons": [
+       "BACK",
+       "NEXT",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       617,
+       579,
+       792
+      ],
+      "pinned": [
+       591,
+       -14,
+       1203,
+       422
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "data",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 641,
+      "simPane": 693,
+      "dataPane": 1054.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":9}"
+    },
+    {
+     "label": "step10",
+     "mark": {
+      "present": true,
+      "count": "STEP 10 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       570,
+       579,
+       792
+      ],
+      "pinned": [
+       591,
+       -14,
+       1203,
+       422
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "data",
+      "question": true,
+      "answerOpen": false,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 641,
+      "simPane": 693,
+      "dataPane": 1054.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":10}"
+    },
+    {
+     "label": "step11",
+     "mark": {
+      "present": true,
+      "count": "STEP 11 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       570,
+       579,
+       792
+      ],
+      "pinned": [
+       591,
+       -14,
+       1203,
+       422
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "data",
+      "question": true,
+      "answerOpen": false,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 641,
+      "simPane": 693,
+      "dataPane": 1132.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":11}"
+    },
+    {
+     "label": "step12",
+     "mark": {
+      "present": true,
+      "count": "STEP 12 OF 12",
+      "buttons": [
+       "BACK",
+       "NEXT",
+       "SWITCH TO SELF"
+      ],
+      "side": "left",
+      "visible": "visible",
+      "rect": [
+       279,
+       679,
+       579,
+       792
+      ],
+      "pinned": [
+       591,
+       -14,
+       1203,
+       422
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "data",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 436,
+      "canvas": 360,
+      "controls": 74,
+      "hint": null,
+      "menu": 37,
+      "lab": 641,
+      "simPane": 693,
+      "dataPane": 1132.6,
+      "problemPane": 777.3,
+      "workspace": 833.3,
+      "doc": 1155
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":12}"
+    }
+   ],
+   "self": {
+    "pinned": 436,
+    "canvas": 360,
+    "controls": 74,
+    "hint": null,
+    "menu": 37,
+    "lab": 505,
+    "simPane": 557,
+    "dataPane": 1054.6,
+    "problemPane": 777.3,
+    "workspace": 833.3,
+    "doc": 1155
+   },
+   "selfWithoutOffer": {
+    "pinned": 436,
+    "canvas": 360,
+    "controls": 74,
+    "hint": null,
+    "menu": 37,
+    "lab": 505,
+    "simPane": 557,
+    "dataPane": 1054.6,
+    "problemPane": 777.3,
+    "workspace": 833.3,
+    "doc": 1155
+   },
+   "offerRect": {
+    "offer": [
+     10,
+     321,
+     324,
+     350
+    ],
+    "canvas": [
+     609,
+     360
+    ]
+   },
+   "hintAfterStart": "collapsed to ?",
+   "lastStepNext": true,
+   "heightChanges": [],
+   "after": {
+    "mark": {
+     "present": false
+    },
+    "stored": "{\"mode\":\"self\",\"step\":1}",
+    "offerBack": true,
+    "heights": {
+     "pinned": 436,
+     "canvas": 360,
+     "controls": 74,
+     "hint": null,
+     "menu": 37,
+     "lab": 641,
+     "simPane": 693,
+     "dataPane": 1327.6,
+     "problemPane": 777.3,
+     "workspace": 833.3,
+     "doc": 1155
+    }
+   },
+   "partB": {
+    "benchOffer": false,
+    "problemOffer": false,
+    "mark": false,
+    "markBackOnA": true,
+    "stored": "{\"mode\":\"guided\",\"step\":1}"
+   },
+   "exit": {
+    "mark": {
+     "present": false
+    },
+    "stored": "{\"mode\":\"self\",\"step\":1}"
+   },
+   "escape": {
+    "markBefore": true,
+    "markAfter": false,
+    "stored": "{\"mode\":\"self\",\"step\":1}"
+   }
+  },
+  "390x844-hint": {
+   "loadsIn": null,
+   "onLoad": {
+    "activeTab": "problem",
+    "problemOffer": true,
+    "benchOffer": false,
+    "problemOfferText": "New to this bench? Take the walkthrough"
+   },
+   "offerPresent": true,
+   "steps": [
+    {
+     "label": "step1",
+     "mark": {
+      "present": true,
+      "count": "STEP 1 OF 12",
+      "buttons": [
+       "BACK(disabled)",
+       "NEXT",
+       "SWITCH TO SELF"
+      ],
+      "side": "above",
+      "visible": "visible",
+      "rect": [
+       8,
+       77,
+       382,
+       231
+      ],
+      "pinned": [
+       35,
+       243,
+       355,
+       635
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 392,
+      "canvas": 280,
+      "controls": 110,
+      "hint": null,
+      "menu": 37,
+      "lab": 461,
+      "simPane": 505,
+      "dataPane": "hidden",
+      "problemPane": "hidden",
+      "workspace": 599,
+      "doc": 943
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":1}"
+    },
+    {
+     "label": "step2",
+     "mark": {
+      "present": true,
+      "count": "STEP 2 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       700,
+       382,
+       833
+      ],
+      "pinned": [
+       35,
+       243,
+       355,
+       635
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 392,
+      "canvas": 280,
+      "controls": 110,
+      "hint": null,
+      "menu": 37,
+      "lab": 461,
+      "simPane": 505,
+      "dataPane": "hidden",
+      "problemPane": "hidden",
+      "workspace": 599,
+      "doc": 943
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":2}"
+    },
+    {
+     "label": "step3",
+     "mark": {
+      "present": true,
+      "count": "STEP 3 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       647,
+       382,
+       780
+      ],
+      "pinned": [
+       35,
+       243,
+       355,
+       635
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 392,
+      "canvas": 280,
+      "controls": 110,
+      "hint": null,
+      "menu": 37,
+      "lab": 461,
+      "simPane": 505,
+      "dataPane": "hidden",
+      "problemPane": "hidden",
+      "workspace": 599,
+      "doc": 943
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":3}"
+    },
+    {
+     "label": "back-to-step2",
+     "mark": {
+      "present": true,
+      "count": "STEP 2 OF 12",
+      "buttons": [
+       "BACK",
+       "NEXT",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       700,
+       382,
+       833
+      ],
+      "pinned": [
+       35,
+       243,
+       355,
+       635
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 392,
+      "canvas": 280,
+      "controls": 110,
+      "hint": null,
+      "menu": 37,
+      "lab": 461,
+      "simPane": 505,
+      "dataPane": "hidden",
+      "problemPane": "hidden",
+      "workspace": 599,
+      "doc": 943
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":2}"
+    },
+    {
+     "label": "step3-again",
+     "mark": {
+      "present": true,
+      "count": "STEP 3 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       647,
+       382,
+       780
+      ],
+      "pinned": [
+       35,
+       243,
+       355,
+       635
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 392,
+      "canvas": 280,
+      "controls": 110,
+      "hint": null,
+      "menu": 37,
+      "lab": 461,
+      "simPane": 505,
+      "dataPane": "hidden",
+      "problemPane": "hidden",
+      "workspace": 599,
+      "doc": 943
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":3}"
+    },
+    {
+     "label": "step4",
+     "mark": {
+      "present": true,
+      "count": "STEP 4 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       647,
+       382,
+       780
+      ],
+      "pinned": [
+       35,
+       243,
+       355,
+       635
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 392,
+      "canvas": 280,
+      "controls": 110,
+      "hint": null,
+      "menu": 37,
+      "lab": 461,
+      "simPane": 505,
+      "dataPane": "hidden",
+      "problemPane": "hidden",
+      "workspace": 599,
+      "doc": 943
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":4}"
+    },
+    {
+     "label": "step5",
+     "mark": {
+      "present": true,
+      "count": "STEP 5 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       647,
+       382,
+       780
+      ],
+      "pinned": [
+       35,
+       243,
+       355,
+       635
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 392,
+      "canvas": 280,
+      "controls": 110,
+      "hint": null,
+      "menu": 37,
+      "lab": 461,
+      "simPane": 505,
+      "dataPane": "hidden",
+      "problemPane": "hidden",
+      "workspace": 599,
+      "doc": 943
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":5}"
+    },
+    {
+     "label": "step6",
+     "mark": {
+      "present": true,
+      "count": "STEP 6 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       647,
+       382,
+       801
+      ],
+      "pinned": [
+       35,
+       243,
+       355,
+       635
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 392,
+      "canvas": 280,
+      "controls": 110,
+      "hint": null,
+      "menu": 37,
+      "lab": 461,
+      "simPane": 505,
+      "dataPane": "hidden",
+      "problemPane": "hidden",
+      "workspace": 599,
+      "doc": 943
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":6}"
+    },
+    {
+     "label": "step7",
+     "mark": {
+      "present": true,
+      "count": "STEP 7 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       656,
+       382,
+       836
+      ],
+      "pinned": [
+       35,
+       199,
+       355,
+       591
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": true,
+      "answerOpen": false,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 392,
+      "canvas": 280,
+      "controls": 110,
+      "hint": null,
+      "menu": 37,
+      "lab": 461,
+      "simPane": 505,
+      "dataPane": "hidden",
+      "problemPane": "hidden",
+      "workspace": 599,
+      "doc": 943
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":7}"
+    },
+    {
+     "label": "step8",
+     "mark": {
+      "present": true,
+      "count": "STEP 8 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       635,
+       382,
+       836
+      ],
+      "pinned": [
+       35,
+       63,
+       355,
+       455
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": true,
+      "answerOpen": false,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 392,
+      "canvas": 280,
+      "controls": 110,
+      "hint": null,
+      "menu": 37,
+      "lab": 597,
+      "simPane": 641,
+      "dataPane": "hidden",
+      "problemPane": "hidden",
+      "workspace": 735,
+      "doc": 1079
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":8}"
+    },
+    {
+     "label": "step9",
+     "mark": {
+      "present": true,
+      "count": "STEP 9 OF 12",
+      "buttons": [
+       "BACK",
+       "NEXT",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       469,
+       382,
+       623
+      ],
+      "pinned": "hidden",
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "data",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": "hidden",
+      "canvas": "hidden",
+      "controls": "hidden",
+      "hint": null,
+      "menu": "hidden",
+      "lab": "hidden",
+      "simPane": "hidden",
+      "dataPane": 1128,
+      "problemPane": "hidden",
+      "workspace": 1222,
+      "doc": 1566
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":9}"
+    },
+    {
+     "label": "step10",
+     "mark": {
+      "present": true,
+      "count": "STEP 10 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       469,
+       382,
+       670
+      ],
+      "pinned": "hidden",
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "data",
+      "question": true,
+      "answerOpen": false,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": "hidden",
+      "canvas": "hidden",
+      "controls": "hidden",
+      "hint": null,
+      "menu": "hidden",
+      "lab": "hidden",
+      "simPane": "hidden",
+      "dataPane": 1128,
+      "problemPane": "hidden",
+      "workspace": 1222,
+      "doc": 1566
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":10}"
+    },
+    {
+     "label": "step11",
+     "mark": {
+      "present": true,
+      "count": "STEP 11 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       547,
+       382,
+       768
+      ],
+      "pinned": "hidden",
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "data",
+      "question": true,
+      "answerOpen": false,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": "hidden",
+      "canvas": "hidden",
+      "controls": "hidden",
+      "hint": null,
+      "menu": "hidden",
+      "lab": "hidden",
+      "simPane": "hidden",
+      "dataPane": 1206,
+      "problemPane": "hidden",
+      "workspace": 1300,
+      "doc": 1644
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":11}"
+    },
+    {
+     "label": "step12",
+     "mark": {
+      "present": true,
+      "count": "STEP 12 OF 12",
+      "buttons": [
+       "BACK",
+       "NEXT",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       547,
+       382,
+       659
+      ],
+      "pinned": "hidden",
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "data",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": "hidden",
+      "canvas": "hidden",
+      "controls": "hidden",
+      "hint": null,
+      "menu": "hidden",
+      "lab": "hidden",
+      "simPane": "hidden",
+      "dataPane": 1206,
+      "problemPane": "hidden",
+      "workspace": 1300,
+      "doc": 1644
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":12}"
+    }
+   ],
+   "self": {
+    "pinned": 602.3,
+    "canvas": 280,
+    "controls": 110,
+    "hint": 210.3,
+    "menu": 37,
+    "lab": 671.3,
+    "simPane": 715.3,
+    "dataPane": "hidden",
+    "problemPane": "hidden",
+    "workspace": 809.3,
+    "doc": 1153
+   },
+   "selfWithoutOffer": {
+    "pinned": 602.3,
+    "canvas": 280,
+    "controls": 110,
+    "hint": 210.3,
+    "menu": 37,
+    "lab": 671.3,
+    "simPane": 715.3,
+    "dataPane": "hidden",
+    "problemPane": "hidden",
+    "workspace": 809.3,
+    "doc": 1153
+   },
+   "offerRect": {
+    "offer": [
+     10,
+     225,
+     308,
+     270
+    ],
+    "canvas": [
+     318,
+     280
+    ]
+   },
+   "hintAfterStart": "collapsed to ?",
+   "lastStepNext": true,
+   "heightChanges": [],
+   "after": {
+    "mark": {
+     "present": false
+    },
+    "stored": "{\"mode\":\"self\",\"step\":1}",
+    "offerBack": true,
+    "heights": {
+     "pinned": "hidden",
+     "canvas": "hidden",
+     "controls": "hidden",
+     "hint": null,
+     "menu": "hidden",
+     "lab": "hidden",
+     "simPane": "hidden",
+     "dataPane": 1401,
+     "problemPane": "hidden",
+     "workspace": 1495,
+     "doc": 1839
+    }
+   },
+   "partB": {
+    "benchOffer": false,
+    "problemOffer": false,
+    "mark": false,
+    "markBackOnA": true,
+    "stored": "{\"mode\":\"guided\",\"step\":1}"
+   },
+   "exit": {
+    "mark": {
+     "present": false
+    },
+    "stored": "{\"mode\":\"self\",\"step\":1}"
+   },
+   "escape": {
+    "markBefore": true,
+    "markAfter": false,
+    "stored": "{\"mode\":\"self\",\"step\":1}"
+   },
+   "fromProblem": {
+    "started": {
+     "tab": "sim",
+     "count": "STEP 1 OF 12",
+     "visible": "visible",
+     "onScreen": true,
+     "overlapsApparatus": false
+    },
+    "problemPaneSelf": 929.515625,
+    "problemPaneGuided": 929.515625,
+    "markHiddenOnProblem": true,
+    "backText": "Back to the walkthrough (step 1 of 12)",
+    "backTo": "sim"
+   }
+  },
+  "390x844-nohint": {
+   "loadsIn": null,
+   "onLoad": {
+    "activeTab": "problem",
+    "problemOffer": true,
+    "benchOffer": false,
+    "problemOfferText": "New to this bench? Take the walkthrough"
+   },
+   "offerPresent": true,
+   "steps": [
+    {
+     "label": "step1",
+     "mark": {
+      "present": true,
+      "count": "STEP 1 OF 12",
+      "buttons": [
+       "BACK(disabled)",
+       "NEXT",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       647,
+       382,
+       801
+      ],
+      "pinned": [
+       35,
+       243,
+       355,
+       635
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 392,
+      "canvas": 280,
+      "controls": 110,
+      "hint": null,
+      "menu": 37,
+      "lab": 461,
+      "simPane": 505,
+      "dataPane": "hidden",
+      "problemPane": "hidden",
+      "workspace": 599,
+      "doc": 943
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":1}"
+    },
+    {
+     "label": "step2",
+     "mark": {
+      "present": true,
+      "count": "STEP 2 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       700,
+       382,
+       833
+      ],
+      "pinned": [
+       35,
+       243,
+       355,
+       635
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 392,
+      "canvas": 280,
+      "controls": 110,
+      "hint": null,
+      "menu": 37,
+      "lab": 461,
+      "simPane": 505,
+      "dataPane": "hidden",
+      "problemPane": "hidden",
+      "workspace": 599,
+      "doc": 943
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":2}"
+    },
+    {
+     "label": "step3",
+     "mark": {
+      "present": true,
+      "count": "STEP 3 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       647,
+       382,
+       780
+      ],
+      "pinned": [
+       35,
+       243,
+       355,
+       635
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 392,
+      "canvas": 280,
+      "controls": 110,
+      "hint": null,
+      "menu": 37,
+      "lab": 461,
+      "simPane": 505,
+      "dataPane": "hidden",
+      "problemPane": "hidden",
+      "workspace": 599,
+      "doc": 943
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":3}"
+    },
+    {
+     "label": "back-to-step2",
+     "mark": {
+      "present": true,
+      "count": "STEP 2 OF 12",
+      "buttons": [
+       "BACK",
+       "NEXT",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       700,
+       382,
+       833
+      ],
+      "pinned": [
+       35,
+       243,
+       355,
+       635
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 392,
+      "canvas": 280,
+      "controls": 110,
+      "hint": null,
+      "menu": 37,
+      "lab": 461,
+      "simPane": 505,
+      "dataPane": "hidden",
+      "problemPane": "hidden",
+      "workspace": 599,
+      "doc": 943
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":2}"
+    },
+    {
+     "label": "step3-again",
+     "mark": {
+      "present": true,
+      "count": "STEP 3 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       647,
+       382,
+       780
+      ],
+      "pinned": [
+       35,
+       243,
+       355,
+       635
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 392,
+      "canvas": 280,
+      "controls": 110,
+      "hint": null,
+      "menu": 37,
+      "lab": 461,
+      "simPane": 505,
+      "dataPane": "hidden",
+      "problemPane": "hidden",
+      "workspace": 599,
+      "doc": 943
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":3}"
+    },
+    {
+     "label": "step4",
+     "mark": {
+      "present": true,
+      "count": "STEP 4 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       647,
+       382,
+       780
+      ],
+      "pinned": [
+       35,
+       243,
+       355,
+       635
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 392,
+      "canvas": 280,
+      "controls": 110,
+      "hint": null,
+      "menu": 37,
+      "lab": 461,
+      "simPane": 505,
+      "dataPane": "hidden",
+      "problemPane": "hidden",
+      "workspace": 599,
+      "doc": 943
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":4}"
+    },
+    {
+     "label": "step5",
+     "mark": {
+      "present": true,
+      "count": "STEP 5 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       647,
+       382,
+       780
+      ],
+      "pinned": [
+       35,
+       243,
+       355,
+       635
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 392,
+      "canvas": 280,
+      "controls": 110,
+      "hint": null,
+      "menu": 37,
+      "lab": 461,
+      "simPane": 505,
+      "dataPane": "hidden",
+      "problemPane": "hidden",
+      "workspace": 599,
+      "doc": 943
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":5}"
+    },
+    {
+     "label": "step6",
+     "mark": {
+      "present": true,
+      "count": "STEP 6 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       647,
+       382,
+       801
+      ],
+      "pinned": [
+       35,
+       243,
+       355,
+       635
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 392,
+      "canvas": 280,
+      "controls": 110,
+      "hint": null,
+      "menu": 37,
+      "lab": 461,
+      "simPane": 505,
+      "dataPane": "hidden",
+      "problemPane": "hidden",
+      "workspace": 599,
+      "doc": 943
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":6}"
+    },
+    {
+     "label": "step7",
+     "mark": {
+      "present": true,
+      "count": "STEP 7 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       656,
+       382,
+       836
+      ],
+      "pinned": [
+       35,
+       199,
+       355,
+       591
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": true,
+      "answerOpen": false,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 392,
+      "canvas": 280,
+      "controls": 110,
+      "hint": null,
+      "menu": 37,
+      "lab": 461,
+      "simPane": 505,
+      "dataPane": "hidden",
+      "problemPane": "hidden",
+      "workspace": 599,
+      "doc": 943
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":7}"
+    },
+    {
+     "label": "step8",
+     "mark": {
+      "present": true,
+      "count": "STEP 8 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       635,
+       382,
+       836
+      ],
+      "pinned": [
+       35,
+       63,
+       355,
+       455
+      ],
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "sim",
+      "question": true,
+      "answerOpen": false,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": 392,
+      "canvas": 280,
+      "controls": 110,
+      "hint": null,
+      "menu": 37,
+      "lab": 597,
+      "simPane": 641,
+      "dataPane": "hidden",
+      "problemPane": "hidden",
+      "workspace": 735,
+      "doc": 1079
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":8}"
+    },
+    {
+     "label": "step9",
+     "mark": {
+      "present": true,
+      "count": "STEP 9 OF 12",
+      "buttons": [
+       "BACK",
+       "NEXT",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       469,
+       382,
+       623
+      ],
+      "pinned": "hidden",
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "data",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": "hidden",
+      "canvas": "hidden",
+      "controls": "hidden",
+      "hint": null,
+      "menu": "hidden",
+      "lab": "hidden",
+      "simPane": "hidden",
+      "dataPane": 1128,
+      "problemPane": "hidden",
+      "workspace": 1222,
+      "doc": 1566
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":9}"
+    },
+    {
+     "label": "step10",
+     "mark": {
+      "present": true,
+      "count": "STEP 10 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       469,
+       382,
+       670
+      ],
+      "pinned": "hidden",
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "data",
+      "question": true,
+      "answerOpen": false,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": "hidden",
+      "canvas": "hidden",
+      "controls": "hidden",
+      "hint": null,
+      "menu": "hidden",
+      "lab": "hidden",
+      "simPane": "hidden",
+      "dataPane": 1128,
+      "problemPane": "hidden",
+      "workspace": 1222,
+      "doc": 1566
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":10}"
+    },
+    {
+     "label": "step11",
+     "mark": {
+      "present": true,
+      "count": "STEP 11 OF 12",
+      "buttons": [
+       "BACK",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       547,
+       382,
+       768
+      ],
+      "pinned": "hidden",
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "data",
+      "question": true,
+      "answerOpen": false,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": "hidden",
+      "canvas": "hidden",
+      "controls": "hidden",
+      "hint": null,
+      "menu": "hidden",
+      "lab": "hidden",
+      "simPane": "hidden",
+      "dataPane": 1206,
+      "problemPane": "hidden",
+      "workspace": 1300,
+      "doc": 1644
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":11}"
+    },
+    {
+     "label": "step12",
+     "mark": {
+      "present": true,
+      "count": "STEP 12 OF 12",
+      "buttons": [
+       "BACK",
+       "NEXT",
+       "SWITCH TO SELF"
+      ],
+      "side": "below",
+      "visible": "visible",
+      "rect": [
+       8,
+       547,
+       382,
+       659
+      ],
+      "pinned": "hidden",
+      "onScreen": true,
+      "overlapsApparatus": false,
+      "overlapsCanvas": false,
+      "activeTab": "data",
+      "question": false,
+      "answerOpen": null,
+      "instrumentNoteOpen": false
+     },
+     "heights": {
+      "pinned": "hidden",
+      "canvas": "hidden",
+      "controls": "hidden",
+      "hint": null,
+      "menu": "hidden",
+      "lab": "hidden",
+      "simPane": "hidden",
+      "dataPane": 1206,
+      "problemPane": "hidden",
+      "workspace": 1300,
+      "doc": 1644
+     },
+     "stored": "{\"mode\":\"guided\",\"step\":12}"
+    }
+   ],
+   "self": {
+    "pinned": 392,
+    "canvas": 280,
+    "controls": 110,
+    "hint": null,
+    "menu": 37,
+    "lab": 461,
+    "simPane": 505,
+    "dataPane": "hidden",
+    "problemPane": "hidden",
+    "workspace": 599,
+    "doc": 943
+   },
+   "selfWithoutOffer": {
+    "pinned": 392,
+    "canvas": 280,
+    "controls": 110,
+    "hint": null,
+    "menu": 37,
+    "lab": 461,
+    "simPane": 505,
+    "dataPane": "hidden",
+    "problemPane": "hidden",
+    "workspace": 599,
+    "doc": 943
+   },
+   "offerRect": {
+    "offer": [
+     10,
+     225,
+     308,
+     270
+    ],
+    "canvas": [
+     318,
+     280
+    ]
+   },
+   "hintAfterStart": "collapsed to ?",
+   "lastStepNext": true,
+   "heightChanges": [],
+   "after": {
+    "mark": {
+     "present": false
+    },
+    "stored": "{\"mode\":\"self\",\"step\":1}",
+    "offerBack": true,
+    "heights": {
+     "pinned": "hidden",
+     "canvas": "hidden",
+     "controls": "hidden",
+     "hint": null,
+     "menu": "hidden",
+     "lab": "hidden",
+     "simPane": "hidden",
+     "dataPane": 1401,
+     "problemPane": "hidden",
+     "workspace": 1495,
+     "doc": 1839
+    }
+   },
+   "partB": {
+    "benchOffer": false,
+    "problemOffer": false,
+    "mark": false,
+    "markBackOnA": true,
+    "stored": "{\"mode\":\"guided\",\"step\":1}"
+   },
+   "exit": {
+    "mark": {
+     "present": false
+    },
+    "stored": "{\"mode\":\"self\",\"step\":1}"
+   },
+   "escape": {
+    "markBefore": true,
+    "markAfter": false,
+    "stored": "{\"mode\":\"self\",\"step\":1}"
+   },
+   "fromProblem": {
+    "started": {
+     "tab": "sim",
+     "count": "STEP 1 OF 12",
+     "visible": "visible",
+     "onScreen": true,
+     "overlapsApparatus": false
+    },
+    "problemPaneSelf": 929.515625,
+    "problemPaneGuided": 929.515625,
+    "markHiddenOnProblem": true,
+    "backText": "Back to the walkthrough (step 1 of 12)",
+    "backTo": "sim"
+   }
+  }
+ },
+ "errs": []
+}

@@ -9,7 +9,12 @@ import { setBenchHintShowing } from '@/lib/experiment/benchHintState';
 // is absolutely positioned there, so bringing the note back costs nothing
 // either. Hidden until mounted so a returning student's dismissed note
 // never flashes in and pushes the panels down on load.
-export default function BenchHint({ id, children }) {
+//
+// `collapse`, when it turns true, dismisses the strip as GOT IT would — the
+// pendulum's walkthrough does this as it starts, being the fuller version
+// of the same how-to (and on a phone the strip leaves its coach marks no
+// room). The "?" still brings it back.
+export default function BenchHint({ id, collapse = false, children }) {
   const storageKey = `praxis:bench-hint-${id}`;
   const [shown, setShown] = useState(null); // null until localStorage is read
 
@@ -38,6 +43,10 @@ export default function BenchHint({ id, children }) {
     },
     [storageKey]
   );
+
+  useEffect(() => {
+    if (collapse) setDismissed(true);
+  }, [collapse, setDismissed]);
 
   if (shown === null) return null;
   if (!shown) {

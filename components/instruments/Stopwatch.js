@@ -23,9 +23,13 @@ const RESOLUTION_S = 0.01;
 //     intervals.
 //
 // The reaction time itself stays real: the watch cannot know when the
-// pendulum passed the lowest point, and it must not be told (see CLAUDE.md
+// pendulum passed the lowest point, and it must not be told (see docs/conventions.md
 // on instruments staying blind to the experiment).
-export default function Stopwatch() {
+//
+// `onStop(seconds)`, optional, reports each stopped reading outward — the
+// walkthrough uses it to know a timing has been taken. Information only
+// leaves the watch; nothing about the experiment comes in.
+export default function Stopwatch({ onStop }) {
   const [running, setRunning] = useState(false);
   const [elapsedMs, setElapsedMs] = useState(0);
   // The authoritative running flag. The state drives the button label; the
@@ -56,6 +60,7 @@ export default function Stopwatch() {
       baseRef.current = total;
       setElapsedMs(total);
       setRunning(false);
+      onStop?.(quantize(total / 1000, RESOLUTION_S));
     } else {
       runningRef.current = true;
       startRef.current = performance.now();

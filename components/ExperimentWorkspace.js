@@ -69,12 +69,17 @@ const SPLIT_STEP = 2;
 // update, not a remount trigger, since `Bench`'s own identity never changes
 // here; most consumers (e.g. PendulumLab) simply don't use it. CircuitBench
 // uses it to mirror the table into its oscilloscope panel — see that file.
+// It also gets `experimentId`, the active `part` key, and `showPane(key)`, which switches the
+// narrow-screen tab ('problem' | 'sim' | 'data'; a no-op visually on wide
+// screens, where every pane shows) — the pendulum's walkthrough uses both.
 // `DataTools`, if given, is rendered in the data section above the table
 // and receives the same table/plot state, without the shell knowing what it
 // does (the pendulum passes the generic QuickEntry). `symbols` is the
 // experiment's own letters for the table's symbol bar (from its data file),
-// added after DataTable's shared base.
-export default function ExperimentWorkspace({ experimentId, parts, symbols, Bench, DataTools }) {
+// added after DataTable's shared base. `ProblemTools`, if given, is rendered
+// at the top of the problem pane with `experimentId`, `part` and `showPane` (the
+// pendulum's narrow-screen walkthrough offer).
+export default function ExperimentWorkspace({ experimentId, parts, symbols, Bench, DataTools, ProblemTools }) {
   const [partA, partB] = parts;
   const [activeTab, setActiveTab] = useState('problem');
   const [part, setPart] = useState(partA.key);
@@ -175,6 +180,7 @@ export default function ExperimentWorkspace({ experimentId, parts, symbols, Benc
           ))}
         </div>
         <div className="pendulum-pane" data-pane="problem">
+          {ProblemTools && <ProblemTools experimentId={experimentId} part={part} showPane={setActiveTab} />}
           <ExperimentGuide key={`${gen}:guide`} def={activeDef} answer={answer} onStartOver={startOver} />
         </div>
       </div>
@@ -200,7 +206,7 @@ export default function ExperimentWorkspace({ experimentId, parts, symbols, Benc
           {activeDef.simulation && (
             <div className="pendulum-sim-notes">{activeDef.simulation}</div>
           )}
-          <Bench dataTable={dataTable} />
+          <Bench dataTable={dataTable} experimentId={experimentId} part={part} showPane={setActiveTab} />
         </div>
 
         <div className="pendulum-pane" data-pane="data">
