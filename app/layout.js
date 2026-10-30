@@ -39,8 +39,8 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className={`${sans.variable} ${mono.variable}`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${sans.variable} ${mono.variable}`} suppressHydrationWarning>
         <FieldBackground />
         <Header />
         <main id="top">{children}</main>
